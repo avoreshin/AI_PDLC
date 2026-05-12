@@ -1,0 +1,1967 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI-FIRST://PRACTITIONER.GUIDE</title>
+
+<!-- Fontshare: Cyberpunk-friendly distinctive fonts -->
+<link rel="preconnect" href="https://api.fontshare.com" />
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&f[]=jetbrains-mono@400,500,700&f[]=array@700&display=swap" />
+
+<style>
+/* ===========================================
+   CYBERPUNK THEME — CUSTOM PROPERTIES
+   Edit these to retune the whole deck.
+   =========================================== */
+:root {
+  /* Core palette */
+  --bg-void:       #05010d;
+  --bg-deep:       #0a0118;
+  --bg-panel:      rgba(12, 4, 30, 0.85);
+  --grid-line:     rgba(255, 0, 110, 0.07);
+  --grid-glow:     rgba(0, 240, 255, 0.04);
+
+  /* Neon accents */
+  --neon-cyan:     #00f0ff;
+  --neon-magenta:  #ff006e;
+  --neon-yellow:   #fcee0c;
+  --neon-green:    #39ff14;
+  --neon-purple:   #b026ff;
+
+  --text-primary:  #e9f7ff;
+  --text-dim:      #8b9bb4;
+  --text-faint:    #4a5878;
+
+  /* Typography */
+  --font-display:  "Array", "Clash Display", system-ui, sans-serif;
+  --font-heading:  "Clash Display", system-ui, sans-serif;
+  --font-mono:     "JetBrains Mono", "Courier New", monospace;
+
+  --title-size:    clamp(2rem, 6.5vw, 5.5rem);
+  --h2-size:       clamp(1.5rem, 4vw, 3rem);
+  --h3-size:       clamp(1.1rem, 2.4vw, 1.75rem);
+  --body-size:     clamp(0.8rem, 1.4vw, 1.1rem);
+  --small-size:    clamp(0.7rem, 1vw, 0.9rem);
+  --tiny-size:     clamp(0.6rem, 0.85vw, 0.78rem);
+
+  --slide-padding: clamp(1.5rem, 4vw, 4rem);
+  --content-gap:   clamp(0.75rem, 2vw, 2rem);
+  --element-gap:   clamp(0.4rem, 1vw, 1rem);
+
+  /* Motion */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-snap:     cubic-bezier(0.85, 0, 0.15, 1);
+  --dur-fast:      0.4s;
+  --dur-normal:    0.7s;
+  --dur-slow:      1.2s;
+}
+
+/* ===========================================
+   RESET + VIEWPORT-BASE.CSS (mandatory)
+   =========================================== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+  background: var(--bg-void);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--body-size);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+
+.slide {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  isolation: isolate;
+}
+.slide-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-height: 100%;
+  overflow: hidden;
+  padding: var(--slide-padding);
+  position: relative;
+  z-index: 2;
+}
+
+/* Responsive breakpoints */
+@media (max-height: 700px) {
+  :root {
+    --slide-padding: clamp(1rem, 3vw, 2.5rem);
+    --content-gap: clamp(0.5rem, 1.5vw, 1.2rem);
+    --title-size: clamp(1.5rem, 5vw, 3rem);
+    --h2-size: clamp(1.2rem, 3vw, 2rem);
+  }
+}
+@media (max-height: 600px) {
+  :root {
+    --slide-padding: clamp(0.75rem, 2.5vw, 1.5rem);
+    --title-size: clamp(1.25rem, 4vw, 2.25rem);
+    --body-size: clamp(0.7rem, 1.2vw, 0.95rem);
+  }
+  .nav-dots, .keyboard-hint, .decorative { display: none; }
+}
+@media (max-width: 600px) {
+  :root { --title-size: clamp(1.5rem, 8vw, 2.75rem); }
+  .grid-2, .grid-3 { grid-template-columns: 1fr !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.2s !important;
+  }
+  html { scroll-behavior: auto; }
+  .glitch::before, .glitch::after, .scanlines, .noise { display: none !important; }
+}
+
+/* ===========================================
+   GLOBAL CYBERPUNK BACKDROP
+   Grid + radial vignette + scanlines + noise.
+   Layer order via z-index inside .slide.
+   =========================================== */
+.slide::before {
+  /* Neon grid */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0 / clamp(40px, 5vw, 80px) clamp(40px, 5vw, 80px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0 / clamp(40px, 5vw, 80px) clamp(40px, 5vw, 80px),
+    radial-gradient(ellipse at 20% 0%, rgba(255, 0, 110, 0.18), transparent 60%),
+    radial-gradient(ellipse at 80% 100%, rgba(0, 240, 255, 0.16), transparent 60%),
+    radial-gradient(ellipse at 50% 50%, rgba(176, 38, 255, 0.08), transparent 70%),
+    var(--bg-void);
+  z-index: 0;
+  pointer-events: none;
+  animation: grid-drift 60s linear infinite;
+}
+@keyframes grid-drift {
+  0%   { background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+  100% { background-position: 80px 80px, 80px 80px, 0 0, 0 0, 0 0, 0 0; }
+}
+
+.slide::after {
+  /* Scanlines overlay */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0) 0px,
+      rgba(0, 0, 0, 0) 2px,
+      rgba(0, 0, 0, 0.18) 3px,
+      rgba(0, 0, 0, 0) 4px
+    );
+  z-index: 1;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.55;
+}
+
+/* Animated horizontal scanline beam */
+.scanbeam {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(0, 240, 255, 0.6),
+    rgba(255, 0, 110, 0.6),
+    transparent);
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.5;
+  animation: scan-sweep 8s linear infinite;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+}
+@keyframes scan-sweep {
+  0%   { top: -5%; opacity: 0; }
+  10%  { opacity: 0.6; }
+  90%  { opacity: 0.6; }
+  100% { top: 105%; opacity: 0; }
+}
+
+/* ===========================================
+   TYPOGRAPHY
+   =========================================== */
+h1, h2, h3 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+}
+.kicker {
+  font-family: var(--font-mono);
+  font-size: var(--small-size);
+  color: var(--neon-cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  margin-bottom: 0.6em;
+  position: relative;
+  padding-left: clamp(1rem, 2vw, 1.5rem);
+}
+.kicker::before {
+  content: ">";
+  position: absolute;
+  left: 0;
+  color: var(--neon-magenta);
+  animation: cursor-blink 1.2s steps(2) infinite;
+}
+@keyframes cursor-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.h1 {
+  font-size: var(--title-size);
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  line-height: 0.95;
+}
+.h2 {
+  font-size: var(--h2-size);
+  text-transform: uppercase;
+  font-family: var(--font-display);
+}
+.h3 {
+  font-size: var(--h3-size);
+  color: var(--neon-cyan);
+}
+
+/* ===========================================
+   GLITCH EFFECT — used on hero titles
+   Triple-layered RGB-split with chromatic offset.
+   =========================================== */
+.glitch {
+  position: relative;
+  color: var(--text-primary);
+  text-shadow:
+    0 0 18px rgba(0, 240, 255, 0.5),
+    0 0 40px rgba(255, 0, 110, 0.25);
+}
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.glitch::before {
+  color: var(--neon-magenta);
+  transform: translate(-2px, 0);
+  mix-blend-mode: screen;
+  animation: glitch-mag 3.6s infinite steps(1);
+  clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+}
+.glitch::after {
+  color: var(--neon-cyan);
+  transform: translate(2px, 0);
+  mix-blend-mode: screen;
+  animation: glitch-cyan 3.6s infinite steps(1);
+  clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+}
+@keyframes glitch-mag {
+  0%, 92%, 100% { transform: translate(-2px, 0); clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%); }
+  93% { transform: translate(-6px, 1px); clip-path: polygon(0 10%, 100% 10%, 100% 30%, 0 30%); }
+  95% { transform: translate(4px, -2px); clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%); }
+  97% { transform: translate(-3px, 0); clip-path: polygon(0 0, 100% 0, 100% 20%, 0 20%); }
+}
+@keyframes glitch-cyan {
+  0%, 92%, 100% { transform: translate(2px, 0); clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%); }
+  93% { transform: translate(6px, -1px); clip-path: polygon(0 70%, 100% 70%, 100% 90%, 0 90%); }
+  95% { transform: translate(-4px, 2px); clip-path: polygon(0 30%, 100% 30%, 100% 50%, 0 50%); }
+  97% { transform: translate(3px, 0); clip-path: polygon(0 80%, 100% 80%, 100% 100%, 0 100%); }
+}
+
+/* Accent colors as utility */
+.neon-cyan    { color: var(--neon-cyan);    text-shadow: 0 0 12px rgba(0, 240, 255, 0.6); }
+.neon-magenta { color: var(--neon-magenta); text-shadow: 0 0 12px rgba(255, 0, 110, 0.6); }
+.neon-yellow  { color: var(--neon-yellow);  text-shadow: 0 0 12px rgba(252, 238, 12, 0.6); }
+.neon-green   { color: var(--neon-green);   text-shadow: 0 0 12px rgba(57, 255, 20, 0.6); }
+.neon-purple  { color: var(--neon-purple);  text-shadow: 0 0 12px rgba(176, 38, 255, 0.6); }
+
+.muted { color: var(--text-dim); }
+.faint { color: var(--text-faint); }
+
+/* ===========================================
+   REVEAL ANIMATIONS — triggered via .visible
+   =========================================== */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity var(--dur-normal) var(--ease-out-expo),
+    transform var(--dur-normal) var(--ease-out-expo);
+}
+.slide.visible .reveal {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-x {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition:
+    opacity var(--dur-normal) var(--ease-out-expo),
+    transform var(--dur-normal) var(--ease-out-expo);
+}
+.slide.visible .reveal-x { opacity: 1; transform: translateX(0); }
+
+/* Stagger up to 12 children */
+.slide.visible .reveal:nth-child(1)  { transition-delay: 0.05s; }
+.slide.visible .reveal:nth-child(2)  { transition-delay: 0.15s; }
+.slide.visible .reveal:nth-child(3)  { transition-delay: 0.25s; }
+.slide.visible .reveal:nth-child(4)  { transition-delay: 0.35s; }
+.slide.visible .reveal:nth-child(5)  { transition-delay: 0.45s; }
+.slide.visible .reveal:nth-child(6)  { transition-delay: 0.55s; }
+.slide.visible .reveal:nth-child(7)  { transition-delay: 0.65s; }
+.slide.visible .reveal:nth-child(8)  { transition-delay: 0.75s; }
+.slide.visible .reveal:nth-child(9)  { transition-delay: 0.85s; }
+.slide.visible .reveal:nth-child(10) { transition-delay: 0.95s; }
+
+/* Type-on cursor */
+.cursor::after {
+  content: "_";
+  color: var(--neon-cyan);
+  animation: cursor-blink 0.9s steps(2) infinite;
+  margin-left: 4px;
+}
+
+/* ===========================================
+   CARDS / PANELS — neon-bordered, corner brackets
+   =========================================== */
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  padding: clamp(0.8rem, 2vw, 1.5rem);
+  position: relative;
+  backdrop-filter: blur(4px);
+  transition: border-color 0.3s, transform 0.3s;
+}
+.panel:hover {
+  border-color: var(--neon-cyan);
+  transform: translateY(-2px);
+}
+/* Corner brackets — terminal vibe */
+.panel::before, .panel::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--neon-magenta);
+}
+.panel::before {
+  top: -2px; left: -2px;
+  border-right: none; border-bottom: none;
+}
+.panel::after {
+  bottom: -2px; right: -2px;
+  border-left: none; border-top: none;
+}
+.panel.cyan::before, .panel.cyan::after { border-color: var(--neon-cyan); }
+.panel.yellow::before, .panel.yellow::after { border-color: var(--neon-yellow); }
+.panel.green::before, .panel.green::after { border-color: var(--neon-green); }
+
+.panel h3, .panel h4 {
+  font-size: var(--h3-size);
+  margin-bottom: 0.4em;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--content-gap);
+}
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--content-gap);
+}
+
+/* ===========================================
+   TABLES — cyberpunk style with row glow
+   =========================================== */
+.cyber-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--small-size);
+  font-family: var(--font-mono);
+}
+.cyber-table th {
+  background: rgba(255, 0, 110, 0.12);
+  color: var(--neon-magenta);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: clamp(0.4rem, 1vw, 0.8rem) clamp(0.5rem, 1.2vw, 1rem);
+  border-bottom: 2px solid var(--neon-magenta);
+  text-align: left;
+  font-size: var(--tiny-size);
+}
+.cyber-table td {
+  padding: clamp(0.35rem, 0.9vw, 0.7rem) clamp(0.5rem, 1.2vw, 1rem);
+  border-bottom: 1px solid rgba(0, 240, 255, 0.12);
+  vertical-align: top;
+}
+.cyber-table tr:hover td {
+  background: rgba(0, 240, 255, 0.04);
+}
+
+/* ===========================================
+   LISTS — terminal-style with > prefix
+   =========================================== */
+.term-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.5rem, 1.2vh, 1rem);
+  font-family: var(--font-mono);
+  font-size: var(--body-size);
+}
+.term-list li {
+  position: relative;
+  padding-left: clamp(1.5rem, 2.5vw, 2.2rem);
+  line-height: 1.5;
+}
+.term-list li::before {
+  content: ">";
+  position: absolute;
+  left: 0;
+  color: var(--neon-cyan);
+  font-weight: 700;
+}
+.term-list.magenta li::before { color: var(--neon-magenta); }
+.term-list.yellow  li::before { color: var(--neon-yellow); }
+.term-list.green   li::before { color: var(--neon-green); }
+
+.check-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.4rem, 1vh, 0.8rem);
+  font-family: var(--font-mono);
+  font-size: var(--body-size);
+}
+.check-list li {
+  position: relative;
+  padding-left: clamp(1.8rem, 3vw, 2.5rem);
+}
+.check-list li::before {
+  content: "[ ]";
+  position: absolute;
+  left: 0;
+  color: var(--neon-yellow);
+  font-weight: 700;
+}
+
+/* ===========================================
+   BADGES + INLINE CHIPS
+   =========================================== */
+.chip {
+  display: inline-block;
+  padding: 2px clamp(0.5rem, 1vw, 0.8rem);
+  font-family: var(--font-mono);
+  font-size: var(--tiny-size);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  border: 1px solid currentColor;
+  border-radius: 2px;
+  vertical-align: middle;
+}
+.chip-cyan    { color: var(--neon-cyan);    background: rgba(0, 240, 255, 0.08); }
+.chip-magenta { color: var(--neon-magenta); background: rgba(255, 0, 110, 0.08); }
+.chip-yellow  { color: var(--neon-yellow);  background: rgba(252, 238, 12, 0.08); }
+.chip-green   { color: var(--neon-green);   background: rgba(57, 255, 20, 0.08); }
+.chip-red     { color: #ff3355;             background: rgba(255, 51, 85, 0.1); border-color: #ff3355; }
+
+.tag-r0 { color: var(--neon-green); }
+.tag-r3 { color: var(--neon-magenta); }
+.tag-r5 { color: var(--neon-yellow); font-weight: 700; }
+
+/* ===========================================
+   TITLE SLIDE specifics
+   =========================================== */
+.title-slide .slide-content {
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+}
+.title-slide .h1 {
+  font-size: clamp(2.5rem, 9vw, 7rem);
+  letter-spacing: -0.02em;
+}
+.terminal-prompt {
+  font-family: var(--font-mono);
+  font-size: var(--small-size);
+  color: var(--neon-green);
+  margin-bottom: var(--content-gap);
+}
+
+/* ===========================================
+   SECTION DIVIDER slides
+   =========================================== */
+.section-slide .slide-content {
+  align-items: flex-start;
+  justify-content: center;
+}
+.section-num {
+  font-family: var(--font-display);
+  font-size: clamp(5rem, 18vw, 16rem);
+  line-height: 0.85;
+  color: transparent;
+  -webkit-text-stroke: 2px var(--neon-magenta);
+  letter-spacing: -0.05em;
+  opacity: 0.8;
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 5vw, 3.5rem);
+  text-transform: uppercase;
+  margin-top: -0.2em;
+}
+
+/* ===========================================
+   PROGRESS BAR + NAV DOTS + HUD
+   =========================================== */
+.progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  width: 0%;
+  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta));
+  z-index: 100;
+  box-shadow: 0 0 10px var(--neon-cyan);
+  transition: width 0.15s linear;
+}
+.nav-dots {
+  position: fixed;
+  right: clamp(0.5rem, 1.5vw, 1.2rem);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 50;
+}
+.nav-dots button {
+  width: 9px;
+  height: 9px;
+  border: 1px solid var(--neon-cyan);
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.25s;
+  transform: rotate(45deg);
+}
+.nav-dots button.active {
+  background: var(--neon-magenta);
+  border-color: var(--neon-magenta);
+  box-shadow: 0 0 10px var(--neon-magenta);
+  transform: rotate(45deg) scale(1.4);
+}
+.nav-dots button:hover { background: var(--neon-cyan); }
+
+.hud {
+  position: fixed;
+  bottom: clamp(0.5rem, 1.5vw, 1rem);
+  left: clamp(0.5rem, 1.5vw, 1rem);
+  font-family: var(--font-mono);
+  font-size: var(--tiny-size);
+  color: var(--neon-cyan);
+  letter-spacing: 0.15em;
+  z-index: 50;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+.hud .sep { color: var(--neon-magenta); margin: 0 6px; }
+
+.keyboard-hint {
+  position: fixed;
+  bottom: clamp(0.5rem, 1.5vw, 1rem);
+  right: clamp(0.5rem, 1.5vw, 1rem);
+  font-family: var(--font-mono);
+  font-size: var(--tiny-size);
+  color: var(--text-faint);
+  letter-spacing: 0.15em;
+  z-index: 50;
+  text-transform: uppercase;
+}
+.kbd {
+  display: inline-block;
+  padding: 1px 6px;
+  border: 1px solid var(--text-faint);
+  border-radius: 2px;
+  margin: 0 2px;
+  color: var(--neon-cyan);
+  border-color: var(--neon-cyan);
+}
+
+/* ===========================================
+   INLINE EDITING (opt-in by user)
+   Hotzone top-left + E key + Ctrl+S export
+   =========================================== */
+.edit-hotzone {
+  position: fixed;
+  top: 0; left: 0;
+  width: 80px; height: 80px;
+  z-index: 10000;
+  cursor: pointer;
+}
+.edit-toggle {
+  position: fixed;
+  top: clamp(0.5rem, 1.5vw, 1rem);
+  left: clamp(0.5rem, 1.5vw, 1rem);
+  width: clamp(40px, 4vw, 52px);
+  height: clamp(40px, 4vw, 52px);
+  background: var(--bg-panel);
+  border: 1px solid var(--neon-magenta);
+  color: var(--neon-magenta);
+  font-size: 1.2rem;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.2s, box-shadow 0.2s;
+  z-index: 10001;
+  border-radius: 0;
+}
+.edit-toggle.show, .edit-toggle.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+.edit-toggle:hover { transform: scale(1.08); box-shadow: 0 0 16px var(--neon-magenta); }
+.edit-toggle.active {
+  background: var(--neon-magenta);
+  color: var(--bg-void);
+  box-shadow: 0 0 20px var(--neon-magenta);
+}
+
+.edit-banner {
+  position: fixed;
+  top: clamp(0.5rem, 1.5vw, 1rem);
+  left: 50%;
+  transform: translateX(-50%) translateY(-200%);
+  background: var(--bg-panel);
+  border: 1px solid var(--neon-cyan);
+  color: var(--neon-cyan);
+  padding: clamp(0.4rem, 0.9vw, 0.7rem) clamp(0.8rem, 1.5vw, 1.2rem);
+  font-family: var(--font-mono);
+  font-size: var(--small-size);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  z-index: 10002;
+  transition: transform 0.4s var(--ease-out-expo);
+  box-shadow: 0 0 24px rgba(0, 240, 255, 0.4);
+}
+.edit-banner.active {
+  transform: translateX(-50%) translateY(0);
+}
+
+body.edit-active [contenteditable="true"]:hover {
+  outline: 1px dashed var(--neon-cyan);
+  outline-offset: 4px;
+}
+body.edit-active [contenteditable="true"]:focus {
+  outline: 1px solid var(--neon-magenta);
+  outline-offset: 4px;
+  background: rgba(255, 0, 110, 0.05);
+}
+
+/* ===========================================
+   DECO ELEMENTS — bracket markers, big quotes
+   =========================================== */
+.deco-bracket {
+  position: absolute;
+  top: clamp(1rem, 3vw, 2.5rem);
+  right: clamp(1rem, 3vw, 2.5rem);
+  font-family: var(--font-mono);
+  font-size: var(--tiny-size);
+  color: var(--neon-magenta);
+  letter-spacing: 0.2em;
+  z-index: 3;
+  opacity: 0.7;
+}
+
+.quote-mark {
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 12vw, 9rem);
+  line-height: 0.7;
+  color: var(--neon-magenta);
+  opacity: 0.4;
+  position: absolute;
+  top: clamp(1rem, 3vw, 2rem);
+  left: clamp(1rem, 3vw, 2.5rem);
+  z-index: 0;
+}
+
+.cite {
+  font-family: var(--font-mono);
+  font-size: var(--small-size);
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.metric-big {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.metric-label {
+  font-family: var(--font-mono);
+  font-size: var(--tiny-size);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--text-dim);
+  margin-top: 0.4em;
+}
+
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--neon-magenta), transparent);
+  margin: var(--content-gap) 0;
+}
+
+/* Two-column compact layout helper */
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: var(--content-gap); align-items: start; }
+.split-1-2 { display: grid; grid-template-columns: 1fr 2fr; gap: var(--content-gap); }
+.stack { display: flex; flex-direction: column; gap: var(--element-gap); }
+
+/* Headline column on section slides */
+.heading-block { margin-bottom: var(--content-gap); }
+</style>
+</head>
+<body>
+
+<!-- =========================================
+     HUD / GLOBAL UI
+     ========================================= -->
+<div class="progress-bar" id="progressBar"></div>
+<nav class="nav-dots" id="navDots" aria-label="Slide navigation"></nav>
+<div class="hud">
+  <span id="slideCounter">01 / 26</span>
+  <span class="sep">//</span>
+  <span>AI-FIRST.GUIDE</span>
+  <span class="sep">//</span>
+  <span class="cursor">SYS::OK</span>
+</div>
+<div class="keyboard-hint">
+  <span class="kbd">←</span><span class="kbd">→</span> NAV · <span class="kbd">E</span> EDIT · <span class="kbd">Ctrl+S</span> EXPORT
+</div>
+
+<!-- Inline editing UI (opt-in) -->
+<div class="edit-hotzone" id="editHotzone" aria-hidden="true"></div>
+<button class="edit-toggle" id="editToggle" title="Edit mode (E)" aria-label="Toggle edit mode">✎</button>
+<div class="edit-banner" id="editBanner">▮ EDIT MODE :: CLICK ANY TEXT · CTRL+S TO EXPORT</div>
+
+<!-- =========================================
+     SLIDE 01 — TITLE
+     ========================================= -->
+<section class="slide title-slide">
+  <div class="scanbeam"></div>
+  <div class="slide-content">
+    <div class="terminal-prompt reveal" contenteditable="false">
+      <span class="neon-green">user@pdlc</span><span class="muted">:</span><span class="neon-cyan">~/ai-first</span><span class="muted">$</span> ./initialize_practitioner.sh --verbose
+    </div>
+    <h1 class="h1 glitch reveal" data-text="AI-FIRST" contenteditable="true">AI-FIRST</h1>
+    <h2 class="h3 reveal" contenteditable="true" style="margin-top: 0.3em;">// PRACTITIONER PROTOCOL <span class="neon-magenta">v3.5</span></h2>
+    <div class="divider reveal"></div>
+    <p class="reveal cite" contenteditable="true">
+      ВОПРОС НЕ В ТОМ, СКОЛЬКО · ВОПРОС В ТОМ, КОГДА
+    </p>
+    <p class="reveal" contenteditable="true" style="margin-top: var(--content-gap); color: var(--text-dim); font-size: var(--small-size);">
+      Based on AI DISRUPT PDLC v3.5 · §1.3 · §3.1 · §3.5 · §3.6 · §4.1
+    </p>
+  </div>
+</section>
+
+<!-- =========================================
+     SLIDE 02 — AGENDA / CONTENTS
+     ========================================= -->
+<section class="slide">
+  <div class="scanbeam" style="animation-delay: -3s;"></div>
+  <div class="slide-content">
+    <div class="deco-bracket reveal" contenteditable="false">[ TABLE_OF_CONTENTS.TXT ]</div>
+    <div class="kicker reveal" contenteditable="true">CONTENTS // 11 SECTIONS</div>
+    <h2 class="h2 reveal" contenteditable="true">Куда идём<span class="neon-magenta">.</span></h2>
+    <div class="divider reveal"></div>
+    <div class="grid-2 reveal" style="margin-top: 0.5em;">
+      <ol class="term-list" style="counter-reset: step;">
+        <li contenteditable="true"><span class="neon-cyan">01</span> · Что такое AI-first (и чем оно не является)</li>
+        <li contenteditable="true"><span class="neon-cyan">02</span> · Decision rules — кто ведёт</li>
+        <li contenteditable="true"><span class="neon-cyan">03</span> · RCT-данные: паттерны взаимодействия</li>
+        <li contenteditable="true"><span class="neon-cyan">04</span> · Daily checklist · утро→ночь</li>
+        <li contenteditable="true"><span class="neon-cyan">05</span> · Пять антипаттернов</li>
+        <li contenteditable="true"><span class="neon-cyan">06</span> · Уровни зрелости L0–L5</li>
+      </ol>
+      <ol class="term-list magenta">
+        <li contenteditable="true"><span class="neon-magenta">07</span> · Token discipline</li>
+        <li contenteditable="true"><span class="neon-magenta">08</span> · Личные метрики</li>
+        <li contenteditable="true"><span class="neon-magenta">09</span> · Команда, а не индивидуал</li>
+        <li contenteditable="true"><span class="neon-magenta">10</span> · Когда <em>не</em> быть AI-first</li>
+        <li contenteditable="true"><span class="neon-magenta">11</span> · Чеклист готовности + roadmap</li>
+        <li contenteditable="true" class="faint">FIN · DEBRIEF.SH</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================
+     SECTION 01 — WHAT IS AI-FIRST
+     ========================================= -->
+<section class="slide section-slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">SECTION 01</div>
+    <div class="heading-block">
+      <div class="section-num reveal">01</div>
+      <h2 class="section-title reveal glitch" data-text="WHAT IS" contenteditable="true">WHAT IS</h2>
+      <h2 class="section-title reveal neon-magenta" contenteditable="true">AI-FIRST</h2>
+    </div>
+    <p class="reveal cite" contenteditable="true">Не «сколько AI». А «когда».</p>
+  </div>
+</section>
+
+<!-- =========================================
+     SLIDE — AI-FIRST = ORDER NOT VOLUME
+     ========================================= -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">DEFINITION // 01.01</div>
+    <h2 class="h2 reveal" contenteditable="true">Это <span class="neon-cyan">порядок</span>, а не <span class="neon-magenta">количество</span>.</h2>
+    <div class="grid-2 reveal" style="margin-top: var(--content-gap);">
+      <div class="panel">
+        <div class="chip chip-red">DEPRECATED</div>
+        <h3 class="h3" contenteditable="true" style="margin-top: 0.5em; color: #ff3355;">AI-FALLBACK</h3>
+        <p contenteditable="true" class="muted" style="margin-top: 0.5em;">«Попробую сам → если застряну, спрошу AI»</p>
+        <p contenteditable="true" style="margin-top: 0.8em; font-family: var(--font-mono); font-size: var(--small-size);">
+          <span class="neon-magenta">AI activates:</span> <span class="muted">after_failure()</span>
+        </p>
+      </div>
+      <div class="panel cyan">
+        <div class="chip chip-cyan">ACTIVE</div>
+        <h3 class="h3 neon-cyan" contenteditable="true" style="margin-top: 0.5em;">AI-FIRST</h3>
+        <p contenteditable="true" class="muted" style="margin-top: 0.5em;">«Начну с AI → если предложение не подходит, поправлю или сделаю сам»</p>
+        <p contenteditable="true" style="margin-top: 0.8em; font-family: var(--font-mono); font-size: var(--small-size);">
+          <span class="neon-cyan">AI activates:</span> <span class="muted">step_zero()</span>
+        </p>
+      </div>
+    </div>
+    <p class="reveal cite" contenteditable="true" style="margin-top: var(--content-gap); text-align: center;">
+      Ключ — <span class="neon-cyan">первый ход</span>. AI-first инженер не «использует AI больше» — он начинает иначе.
+    </p>
+  </div>
+</section>
+
+<!-- =========================================
+     SLIDE — TESTING SCAFFOLD COMPARISON
+     ========================================= -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">CASE STUDY // 01.02</div>
+    <h2 class="h2 reveal" contenteditable="true">Пример: <span class="neon-cyan">testing scaffold</span></h2>
+    <div class="grid-2 reveal" style="margin-top: var(--content-gap);">
+      <div class="panel">
+        <h3 contenteditable="true" style="color: #ff3355;">AI-FALLBACK · ~3 часа</h3>
+        <ul class="term-list" style="margin-top: 0.8em;">
+          <li contenteditable="true">Пишет каркас руками</li>
+          <li contenteditable="true">Запутался в моках</li>
+          <li contenteditable="true">Использует AI для отдельных кейсов</li>
+          <li contenteditable="true">Boilerplate съел весь день</li>
+        </ul>
+      </div>
+      <div class="panel cyan">
+        <h3 contenteditable="true" class="neon-cyan">AI-FIRST · ~1.5 часа</h3>
+        <ul class="term-list" style="margin-top: 0.8em;">
+          <li contenteditable="true">«Построй scaffold для X с AC: …»</li>
+          <li contenteditable="true">Получает результат за минуты</li>
+          <li contenteditable="true">Критически дорабатывает edge cases</li>
+          <li contenteditable="true">Освобождает 1.5 часа на качество</li>
+        </ul>
+      </div>
+    </div>
+    <p class="reveal" contenteditable="true" style="margin-top: var(--content-gap); text-align: center; font-family: var(--font-mono);">
+      <span class="neon-magenta">Та же конечная компетенция</span> · <span class="neon-cyan">другой entry point</span>
+    </p>
+  </div>
+</section>
+
+<!-- =========================================
+     SLIDE — AI-FIRST IS *NOT*
+     ========================================= -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">CONSTRAINTS // 01.03</div>
+    <h2 class="h2 reveal" contenteditable="true">Чем AI-first <span class="neon-magenta">НЕ</span> является</h2>
+    <div class="stack reveal" style="margin-top: var(--content-gap);">
+      <div class="panel">
+        <span class="chip chip-red">×</span>
+        <p contenteditable="true" style="display: inline; margin-left: 0.5em;"><strong>«Делегируй всё подряд»</strong> — так теряешь навык. <span class="muted">§3.5</span></p>
+      </div>
+      <div class="panel">
+        <span class="chip chip-red">×</span>
+        <p contenteditable="true" style="display: inline; margin-left: 0.5em;"><strong>«Сунь AI в каждую дырку»</strong> — для R3+ доменов сначала пишет человек. <span class="muted">§4.5</span></p>
+      </div>
+      <div class="panel">
+        <span class="chip chip-red">×</span>
+        <p contenteditable="true" style="display: inline; margin-left: 0.5em;"><strong>«Принимай первое предложение»</strong> — опытные пользователи прерывают агента <em>чаще</em> новичков. Они мониторят, а не одобряют.</p>
+      </div>
+    </div>
+    <div class="divider reveal"></div>
+    <p class="reveal cite" contenteditable="true">
+      <span class="neon-yellow">PARADOX:</span> опытный пользователь = больше <span class="kbd">ESC</span>, не больше <span class="kbd">TAB</span>.
+    </p>
+  </div>
+</section>
+
+<!-- =========================================
+     SECTION 02 — DECISION RULES
+     ========================================= -->
+<section class="slide section-slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">SECTION 02</div>
+    <div class="heading-block">
+      <div class="section-num reveal">02</div>
+      <h2 class="section-title reveal glitch" data-text="DECISION" contenteditable="true">DECISION</h2>
+      <h2 class="section-title reveal neon-cyan" contenteditable="true">RULES</h2>
+    </div>
+    <p class="reveal cite" contenteditable="true">Кто ведёт, кто проверяет.</p>
+  </div>
+</section>
+
+<!-- =========================================
+     SLIDE — DECISION MATRIX P1
+     ========================================= -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">MATRIX // 02.01 · CODE & TESTS</div>
+    <h2 class="h2 reveal" contenteditable="true">Кто инициирует <span class="muted">[1/2]</span></h2>
+    <table class="cyber-table reveal" style="margin-top: var(--content-gap);">
+      <thead>
+        <tr>
+          <th>Task</th>
+          <th>Initiator</th>
+          <th>Human role</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td contenteditable="true">Новый код <span class="tag-r0">R0–R2</span></td>            <td contenteditable="true" class="neon-cyan">AI</td>           <td contenteditable="true" class="muted">Верификация, доработка</td></tr>
+        <tr><td contenteditable="true">Новый код <span class="tag-r3">R3+</span></td>               <td contenteditable="true" class="neon-magenta">Human → AI</td>  <td contenteditable="true" class="muted">SDD, security review</td></tr>
+        <tr><td contenteditable="true">Unit-тесты</td>                                              <td contenteditable="true" class="neon-cyan">AI</td>           <td contenteditable="true" class="muted">Проверка edge cases</td></tr>
+        <tr><td contenteditable="true">Property-based tests</td>                                    <td contenteditable="true" class="neon-magenta">Human → AI</td>  <td contenteditable="true" class="muted">Формулирует инварианты</td></tr>
+        <tr><td contenteditable="true">Refactoring</td>                                             <td contenteditable="true" class="neon-cyan">AI</td>           <td contenteditable="true" class="muted">Архитектурное ревью</td></tr>
+        <tr><td contenteditable="true">Debug сложного бага</td>                                     <td contenteditable="true" class="neon-magenta">Human</td>        <td contenteditable="true" class="muted">AI помогает в гипотезах</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- =========================================
+     SLIDE — DECISION MATRIX P2
+     ========================================= -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">MATRIX // 02.02 · REVIEW & OPS</div>
+    <h2 class="h2 reveal" contenteditable="true">Кто инициирует <span class="muted">[2/2]</span></h2>
+    <table class="cyber-table reveal" style="margin-top: var(--content-gap);">
+      <thead>
+        <tr><th>Task</th><th>Initiator</th><th>Human role</th></tr>
+      </thead>
+      <tbody>
+        <tr><td contenteditable="true">Code review (первый проход)</td>     <td contenteditable="true" class="neon-cyan">AI</td>           <td contenteditable="true" class="muted">Финальный review для R2+</td></tr>
+        <tr><td contenteditable="true">Документация</td>                    <td contenteditable="true" class="neon-cyan">AI</td>           <td contenteditable="true" class="muted">Проверка точности</td></tr>
+        <tr><td contenteditable="true">Архитектурные решения (ADR)</td>     <td contenteditable="true" class="neon-magenta">Human</td>        <td contenteditable="true" class="muted">AI — sparring partner</td></tr>
+        <tr><td contenteditable="true">Research / exploration</td>          <td contenteditable="true" class="neon-cyan">AI</td>           <td contenteditable="true" class="muted">Синтез результатов</td></tr>
+        <tr><td contenteditable="true">Production incident</td>             <td contenteditable="true" class="neon-magenta">Human</td>        <td contenteditable="true" class="muted">AI для логов/корреляций</td></tr>
+      </tbody>
+    </table>
+    <div class="divider reveal"></div>
+    <p class="reveal cite" contenteditable="true">
+      <span class="neon-yellow">TIE-BREAKER:</span> критический навык для надзора за AI — <span class="neon-magenta">человек ведёт</span>. Иначе — <span class="neon-cyan">AI ведёт</span>.
+    </p>
+  </div>
+</section>
+
+<!-- =========================================
+     SECTION 03 — INTERACTION PATTERNS / RCT
+     ========================================= -->
+<section class="slide section-slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">SECTION 03</div>
+    <div class="heading-block">
+      <div class="section-num reveal">03</div>
+      <h2 class="section-title reveal glitch" data-text="RCT" contenteditable="true">RCT</h2>
+      <h2 class="section-title reveal neon-yellow" contenteditable="true">SIGNAL</h2>
+    </div>
+    <p class="reveal cite" contenteditable="true">Anthropic 2026 · n=200+ · скорость vs мастерство</p>
+  </div>
+</section>
+
+<!-- =========================================
+     SLIDE — RCT PATTERNS
+     ========================================= -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">RCT // ANTHROPIC 2026</div>
+    <h2 class="h2 reveal" contenteditable="true">Скорость <span class="muted">×</span> мастерство</h2>
+    <table class="cyber-table reveal" style="margin-top: var(--content-gap);">
+      <thead>
+        <tr><th>Pattern</th><th>Speed</th><th>Mastery</th><th>Verdict</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td contenteditable="true">Полное делегирование</td>
+          <td contenteditable="true" class="neon-cyan">Высокая</td>
+          <td contenteditable="true" style="color: #ff3355;">&lt;40%</td>
+          <td><span class="chip chip-red">KILLS SKILL</span></td>
+        </tr>
+        <tr>
+          <td contenteditable="true">Отладка без понимания</td>
+          <td contenteditable="true" class="neon-magenta">Низкая</td>
+          <td contenteditable="true" style="color: #ff3355;">&lt;40%</td>
+          <td><span class="chip chip-red">WORST</span></td>
+        </tr>
+        <tr>
+          <td contenteditable="true">Концептуальный запрос + сам кодит</td>
+          <td contenteditable="true">Средняя</td>
+          <td contenteditable="true" class="neon-green">&gt;65%</td>
+          <td><span class="chip chip-green">GROWS</span></td>
+        </tr>
+        <tr style="background: rgba(0, 240, 255, 0.04);">
+          <td contenteditable="true"><strong class="neon-cyan">Generation-then-comprehension</strong></td>
+          <td contenteditable="true" class="neon-cyan">Высокая</td>
+          <td contenteditable="true" class="neon-green">&gt;65%</td>
+          <td><span class="chip chip-cyan">★ BEST</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="reveal cite" contenteditable="true" style="margin-top: var(--content-gap);">
+      <span class="neon-cyan">G-then-C:</span> AI генерирует → разработчик читает и объясняет себе. Скорость <span class="neon-magenta">И</span> мастерство.
+    </p>
+  </div>
+</section>
+
+<!-- =========================================
+     SLIDE — 3 QUESTIONS BEFORE COMMIT
+     ========================================= -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">RITUAL // 03.02 · PRE-COMMIT</div>
+    <h2 class="h2 reveal" contenteditable="true">3 вопроса <span class="neon-yellow">перед коммитом</span></h2>
+    <div class="grid-3 reveal" style="margin-top: var(--content-gap);">
+      <div class="panel">
+        <div class="metric-big neon-cyan">01</div>
+        <p contenteditable="true" style="margin-top: 0.5em;">Что делает каждая нетривиальная строчка — и <em>почему именно так</em>?</p>
+      </div>
+      <div class="panel cyan">
+        <div class="metric-big neon-magenta">02</div>
+        <p contenteditable="true" style="margin-top: 0.5em;">Какой edge case <em>сломает</em> этот код?</p>
+      </div>
+      <div class="panel yellow">
+        <div class="metric-big neon-yellow">03</div>
+        <p contenteditable="true" style="margin-top: 0.5em;">Как я бы написал это <em>сам без AI</em> — хотя бы на уровне идеи?</p>
+      </div>
+    </div>
+    <p class="reveal cite" contenteditable="true" style="margin-top: var(--content-gap); text-align: center;">
+      Не отвечается хотя бы один — ты в режиме <span style="color: #ff3355;">делегирования</span>, не AI-first. <span class="neon-cyan">Притормози.</span>
+    </p>
+  </div>
+</section>
+
+<!-- =========================================
+     SECTION 04 — DAILY CHECKLIST
+     ========================================= -->
+<section class="slide section-slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">SECTION 04</div>
+    <div class="heading-block">
+      <div class="section-num reveal">04</div>
+      <h2 class="section-title reveal glitch" data-text="DAILY" contenteditable="true">DAILY</h2>
+      <h2 class="section-title reveal neon-green" contenteditable="true">CHECKLIST</h2>
+    </div>
+    <p class="reveal cite" contenteditable="true">Утро · процесс · коммит · вечер</p>
+  </div>
+</section>
+
+<!-- =========================================
+     SLIDE — MORNING
+     ========================================= -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">04.01 // 0800–0810 · MORNING</div>
+    <h2 class="h2 reveal" contenteditable="true">Утро <span class="muted">— 5–10 минут</span></h2>
+    <ul class="check-list reveal" style="margin-top: var(--content-gap);">
+      <li contenteditable="true">Проверить evidence bundle вчерашних agent-задач (если работали асинхронно)</li>
+      <li contenteditable="true">Открыть SDD текущей задачи; если нет — создать через <span class="chip chip-cyan">/sdd-new</span></li>
+      <li contenteditable="true">Определить risk class задачи <span class="chip chip-cyan">/risk-classify</span></li>
+      <li contenteditable="true">Зафиксировать acceptance criteria и инварианты <strong>до</strong> начала кода</li>
+    </ul>
+    <div class="divider reveal"></div>
+    <p class="reveal cite" contenteditable="true">
+      Логика утра: <span class="neon-cyan">интент → формальная спецификация</span> <strong>до</strong> того, как агент начнёт писать код.
+    </p>
+  </div>
+</section>
+
+<!-- =========================================
+     SLIDE — IN-FLIGHT
+     ========================================= -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">04.02 // FLIGHT_MODE · ACTIVE</div>
+    <h2 class="h2 reveal" contenteditable="true">В процессе работы</h2>
+    <ul class="check-list reveal" style="margin-top: var(--content-gap);">
+      <li contenteditable="true"><strong>Plan first:</strong> <span class="chip chip-cyan">/plan</span> перед изменением &gt;20 строк · read-only режим</li>
+      <li contenteditable="true"><strong>TDD дисциплина:</strong> failing tests до кода · агент <em>не меняет тесты</em></li>
+      <li contenteditable="true"><strong>Subagent для verbose:</strong> explore/research/scan — в child-процесс, parent получает summary</li>
+      <li contenteditable="true"><strong>Прерывать, а не одобрять:</strong> идёт не туда — <span class="kbd">ESC</span> сразу</li>
+      <li contenteditable="true"><strong>Не первое предложение:</strong> почти всегда улучшаемо</li>
+      <li contenteditable="true"><strong>«Почему так», а не «сделай так»</strong> — переключает в comprehension-режим</li>
+    </ul>
+  </div>
+</section>
+
+<!-- =========================================
+     SLIDE — PRE-COMMIT GATE
+     ========================================= -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">04.03 // STOP_HOOK · GATE</div>
+    <h2 class="h2 reveal" contenteditable="true">Перед коммитом</h2>
+    <ul class="check-list reveal" style="margin-top: var(--content-gap);">
+      <li contenteditable="true">Прошёл по diff построчно · могу объяснить каждую нетривиальную строку</li>
+      <li contenteditable="true">Запустил <span class="chip chip-cyan">/review</span> для self-review</li>
+      <li contenteditable="true">Собрал evidence bundle через <span class="chip chip-cyan">/evidence</span></li>
+      <li contenteditable="true">Все тесты зелёные <strong>без</strong> модификации acceptance criteria</li>
+    </ul>
+    <div class="divider reveal"></div>
+    <p class="reveal cite" contenteditable="true">
+      <span class="neon-magenta">⚠</span> Stop hook заблокирует завершение задачи без evidence bundle <span class="muted">(§2.13)</span>.
+    </p>
+  </div>
+</section>
+
+<!-- =========================================
+     SLIDE — END OF DAY
+     ========================================= -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">04.04 // 1800–1805 · COOLDOWN</div>
+    <h2 class="h2 reveal" contenteditable="true">Конец дня <span class="muted">— 5 минут</span></h2>
+    <ul class="check-list reveal" style="margin-top: var(--content-gap);">
+      <li contenteditable="true">Зафиксировать lessons learned в CLAUDE.md или AGENTS.md (если паттерн повторяется)</li>
+      <li contenteditable="true">Token spend — в пределах ожидания?</li>
+      <li contenteditable="true"><strong>Что из сегодняшнего стоит автоматизировать как skill / hook / slash-команду?</strong></li>
+    </ul>
+    <div class="divider reveal"></div>
+    <p class="reveal cite" contenteditable="true">
+      Что повторилось дважды — кандидат на <span class="neon-cyan">hook</span> или <span class="neon-magenta">skill/slash-команду</span>.
+    </p>
+  </div>
+</section>
+
+<!-- =========================================
+     SECTION 05 — ANTI-PATTERNS
+     ========================================= -->
+<section class="slide section-slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">SECTION 05</div>
+    <div class="heading-block">
+      <div class="section-num reveal" style="-webkit-text-stroke-color: var(--neon-yellow);">05</div>
+      <h2 class="section-title reveal glitch" data-text="ANTI" contenteditable="true">ANTI</h2>
+      <h2 class="section-title reveal neon-yellow" contenteditable="true">PATTERNS</h2>
+    </div>
+    <p class="reveal cite" contenteditable="true">Пять способов саботировать себя. Избегай сознательно.</p>
+  </div>
+</section>
+
+<!-- =========================================
+     SLIDE — DESKILLING SPIRAL
+     ========================================= -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">05.01 // DESKILLING_SPIRAL</div>
+    <h2 class="h2 reveal" contenteditable="true">Deskilling <span class="neon-magenta">spiral</span></h2>
+    <div class="grid-2 reveal" style="margin-top: var(--content-gap);">
+      <div class="panel">
+        <h3 contenteditable="true" style="color: #ff3355;">⚠ SYMPTOMS</h3>
+        <ul class="term-list magenta" style="margin-top: 0.6em;">
+          <li contenteditable="true">Без AI не можешь отладить ошибку</li>
+          <li contenteditable="true">Не можешь прочитать чужой код</li>
+          <li contenteditable="true">Не спроектируешь модуль с нуля</li>
+        </ul>
+      </div>
+      <div class="panel green">
+        <h3 contenteditable="true" class="neon-green">⚕ TREATMENT</h3>
+        <ul class="term-list green" style="margin-top: 0.6em;">
+          <li contenteditable="true">1 спринт в квартал <strong>без AI</strong> (manual coding sprint)</li>
+          <li contenteditable="true">Парное программирование без агента</li>
+          <li contenteditable="true">Разбор AI-провалов как учебный материал, а не «фикс и забыли»</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================
+     SLIDE — BLIND ACCEPTANCE
+     ========================================= -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">05.02 // BLIND_ACCEPTANCE</div>
+    <h2 class="h2 reveal" contenteditable="true">Blind <span class="neon-magenta">acceptance</span></h2>
+    <div class="grid-2 reveal" style="margin-top: var(--content-gap);">
+      <div class="panel">
+        <h3 contenteditable="true" style="color: #ff3355;">⚠ SYMPTOMS</h3>
+        <ul class="term-list magenta" style="margin-top: 0.6em;">
+          <li contenteditable="true">Принимаешь <strong>80%+</strong> предложений автодополнения</li>
+          <li contenteditable="true">Через час не помнишь, почему код такой</li>
+        </ul>
+      </div>
+      <div class="panel green">
+        <h3 contenteditable="true" class="neon-green">⚕ TREATMENT</h3>
+        <ul class="term-list green" style="margin-top: 0.6em;">
+          <li contenteditable="true">Перед <span class="kbd">TAB</span> — проговори про себя, что <strong>ждёшь</strong></li>
+          <li contenteditable="true">Совпало — отлично, но <em>понял почему</em></li>
+          <li contenteditable="true">Разошлось — либо твоё предположение неверно, либо AI ошибается. <span class="neon-cyan">Стоп.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================
+     SLIDE — AI EVERYWHERE WITHOUT PROCESS
+     ========================================= -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">05.03 // CHAOS_MODE</div>
+    <h2 class="h2 reveal" contenteditable="true">AI everywhere · process <span class="neon-magenta">nowhere</span></h2>
+    <div class="grid-2 reveal" style="margin-top: var(--content-gap);">
+      <div class="panel">
+        <h3 contenteditable="true" style="color: #ff3355;">⚠ SYMPTOMS</h3>
+        <ul class="term-list magenta" style="margin-top: 0.6em;">
+          <li contenteditable="true">Агенты везде, метрик нет</li>
+          <li contenteditable="true">У каждого инженера свой стек</li>
+          <li contenteditable="true">Результаты несопоставимы</li>
+        </ul>
+      </div>
+      <div class="panel green">
+        <h3 contenteditable="true" class="neon-green">⚕ TREATMENT · §7.1 PDLC</h3>
+        <p contenteditable="true" style="margin-top: 0.6em;">
+          <strong>Platform-Centric:</strong> AI без IDP даёт <span style="color: #ff3355;">фрагментацию</span>, не leverage.
+        </p>
+        <p contenteditable="true" style="margin-top: 0.4em;">
+          Единая IDP · golden path · shared skills/hooks.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================
+     SLIDE — SPECIFICATION DEBT
+     ========================================= -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">05.04 // SPEC_DEBT</div>
+    <h2 class="h2 reveal" contenteditable="true">Specification <span class="neon-magenta">debt</span></h2>
+    <div class="grid-2 reveal" style="margin-top: var(--content-gap);">
+      <div class="panel">
+        <h3 contenteditable="true" style="color: #ff3355;">⚠ SYMPTOMS</h3>
+        <ul class="term-list magenta" style="margin-top: 0.6em;">
+          <li contenteditable="true">Агент пишет код по тикетам в Jira, <strong>без SDD</strong></li>
+          <li contenteditable="true">Через 6 месяцев архитектура — лоскутное одеяло</li>
+        </ul>
+      </div>
+      <div class="panel green">
+        <h3 contenteditable="true" class="neon-green">⚕ TREATMENT</h3>
+        <p contenteditable="true" style="margin-top: 0.6em; font-family: var(--font-mono); padding: 0.6em; background: rgba(57, 255, 20, 0.06); border-left: 3px solid var(--neon-green);">
+          RULE: <span class="neon-green">no SDD → no agentic implementation для R2+</span>
+        </p>
+        <p contenteditable="true" style="margin-top: 0.6em;" class="muted">
+          <code>/plan</code> отказывается работать без approved SDD. <strong>Enforce через hook</strong>, не CLAUDE.md.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================
+     SLIDE — PREMATURE AUTONOMY
+     ========================================= -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">05.05 // PREMATURE_AUTONOMY</div>
+    <h2 class="h2 reveal" contenteditable="true">Premature <span class="neon-magenta">autonomy</span></h2>
+    <div class="grid-2 reveal" style="margin-top: var(--content-gap);">
+      <div class="panel">
+        <h3 contenteditable="true" style="color: #ff3355;">⚠ SYMPTOMS</h3>
+        <p contenteditable="true" style="margin-top: 0.6em;">
+          Включил <strong class="neon-magenta">L4</strong> (autonomous agents) <em>до</em> того, как стабилизировал <strong class="neon-cyan">L2</strong> (evidence bundle, hooks, review). Долг — и технический, и governance.
+        </p>
+      </div>
+      <div class="panel green">
+        <h3 contenteditable="true" class="neon-green">⚕ TREATMENT · §3.6</h3>
+        <p contenteditable="true" style="margin-top: 0.6em; font-family: var(--font-mono); font-size: var(--small-size);">
+          <span class="neon-cyan">L0</span> → <span class="neon-cyan">L1</span> → <span class="neon-cyan">L2</span> → <span class="neon-magenta">L3</span> → <span class="neon-magenta">L4</span> → <span class="neon-yellow">L5</span>
+        </p>
+        <p contenteditable="true" style="margin-top: 0.6em;" class="muted">
+          Перепрыгивание ступеней = накопление <span style="color: #ff3355;">technical и governance долга</span>.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================
+     SECTION 06 — MATURITY LADDER
+     ========================================= -->
+<section class="slide section-slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">SECTION 06</div>
+    <div class="heading-block">
+      <div class="section-num reveal" style="-webkit-text-stroke-color: var(--neon-cyan);">06</div>
+      <h2 class="section-title reveal glitch" data-text="MATURITY" contenteditable="true">MATURITY</h2>
+      <h2 class="section-title reveal neon-cyan" contenteditable="true">LADDER</h2>
+    </div>
+    <p class="reveal cite" contenteditable="true">L0 → L5 · что значит «AI-first» на каждом уровне</p>
+  </div>
+</section>
+
+<!-- =========================================
+     SLIDE — L0 / L1 / L2
+     ========================================= -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">06.01 // FOUNDATION</div>
+    <h2 class="h2 reveal" contenteditable="true">L0 · L1 · L2 <span class="muted">— фундамент</span></h2>
+    <div class="stack reveal" style="margin-top: var(--content-gap);">
+      <div class="panel">
+        <span class="chip chip-red">L0</span> <strong contenteditable="true" style="margin-left: 0.5em;">Chat-assisted</strong>
+        <p contenteditable="true" style="margin-top: 0.4em;" class="muted">AI вне SDLC. AI-first здесь <strong style="color: #ff3355;">невозможен</strong> — это L1 как минимум.</p>
+      </div>
+      <div class="panel cyan">
+        <span class="chip chip-cyan">L1</span> <strong contenteditable="true" style="margin-left: 0.5em;" class="neon-cyan">Repo-context</strong>
+        <p contenteditable="true" style="margin-top: 0.4em;">AI знает соглашения репо (AGENTS.md). «Сначала спрашиваю агента, который знает контекст проекта».</p>
+      </div>
+      <div class="panel cyan">
+        <span class="chip chip-cyan">L2</span> <strong contenteditable="true" style="margin-left: 0.5em;" class="neon-cyan">Verified assistant</strong>
+        <p contenteditable="true" style="margin-top: 0.4em;">Plan Mode + TDD + evidence bundle. «Каждая задача начинается с <code>/plan</code>, заканчивается <code>/evidence</code>».</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================
+     SLIDE — L3 / L4 / L5
+     ========================================= -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">06.02 // AGENTIC TIER</div>
+    <h2 class="h2 reveal" contenteditable="true">L3 · L4 · L5 <span class="muted">— agentic tier</span></h2>
+    <div class="stack reveal" style="margin-top: var(--content-gap);">
+      <div class="panel">
+        <span class="chip chip-magenta">L3</span> <strong contenteditable="true" style="margin-left: 0.5em;" class="neon-magenta">Agentic workflow</strong>
+        <p contenteditable="true" style="margin-top: 0.4em;">Subagents, headless CI. «Issue открыт → агент строит plan и draft PR; человек ревьюит».</p>
+      </div>
+      <div class="panel">
+        <span class="chip chip-magenta">L4</span> <strong contenteditable="true" style="margin-left: 0.5em;" class="neon-magenta">Governed autonomy</strong>
+        <p contenteditable="true" style="margin-top: 0.4em;">Risk ladder, policy-as-code. «Agent действует сам в R0–R2; human-in-the-loop только для R3+».</p>
+      </div>
+      <div class="panel yellow">
+        <span class="chip chip-yellow">L5</span> <strong contenteditable="true" style="margin-left: 0.5em;" class="neon-yellow">Autonomous PDLC</strong>
+        <p contenteditable="true" style="margin-top: 0.4em;">Event-driven factory. «Инженер ставит цели и проверяет evidence; день не начинается с открытия IDE».</p>
+      </div>
+    </div>
+    <p class="reveal cite" contenteditable="true" style="margin-top: var(--element-gap);">
+      <span class="neon-yellow">⚠</span> Не «обогнать уровень» — переход L2 → L4 без L3 = деградация в хаос.
+    </p>
+  </div>
+</section>
+
+<!-- =========================================
+     SECTION 07 — TOKEN DISCIPLINE
+     ========================================= -->
+<section class="slide section-slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">SECTION 07</div>
+    <div class="heading-block">
+      <div class="section-num reveal" style="-webkit-text-stroke-color: var(--neon-green);">07</div>
+      <h2 class="section-title reveal glitch" data-text="TOKEN" contenteditable="true">TOKEN</h2>
+      <h2 class="section-title reveal neon-green" contenteditable="true">DISCIPLINE</h2>
+    </div>
+    <p class="reveal cite" contenteditable="true">Токены — операционный ресурс, а не топливо «жги без меры».</p>
+  </div>
+</section>
+
+<!-- =========================================
+     SLIDE — 4 RULES OF TOKEN BUDGET
+     ========================================= -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">07.01 // 4_RULES</div>
+    <h2 class="h2 reveal" contenteditable="true">Четыре правила</h2>
+    <div class="grid-2 reveal" style="margin-top: var(--content-gap);">
+      <div class="panel green">
+        <div class="chip chip-green">01 · ROUTING</div>
+        <p contenteditable="true" style="margin-top: 0.5em;"><strong>Model routing.</strong> Рутина на дешёвой модели (Haiku/Mini), сложное — на мощной (Opus/o1). Экономия <span class="neon-green">60–70%</span>.</p>
+      </div>
+      <div class="panel green">
+        <div class="chip chip-green">02 · SCARCITY</div>
+        <p contenteditable="true" style="margin-top: 0.5em;"><strong>Context as scarce resource.</strong> Targeted Grep/Read · subagent с return-summary для verbose explore.</p>
+      </div>
+      <div class="panel green">
+        <div class="chip chip-green">03 · CACHE</div>
+        <p contenteditable="true" style="margin-top: 0.5em;"><strong>Кеширование.</strong> Повторяющиеся system prompts должны попадать в prompt cache · до <span class="neon-green">10x</span> экономия input.</p>
+      </div>
+      <div class="panel green">
+        <div class="chip chip-green">04 · BUDGET</div>
+        <p contenteditable="true" style="margin-top: 0.5em;"><strong>Token budget per task.</strong> Превышение плана на <span class="neon-yellow">+50%</span> = <span class="neon-magenta">стоп, эскалация</span>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================
+     SECTION 08 — METRICS
+     ========================================= -->
+<section class="slide section-slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">SECTION 08</div>
+    <div class="heading-block">
+      <div class="section-num reveal" style="-webkit-text-stroke-color: var(--neon-purple);">08</div>
+      <h2 class="section-title reveal glitch" data-text="PERSONAL" contenteditable="true">PERSONAL</h2>
+      <h2 class="section-title reveal neon-purple" contenteditable="true">METRICS</h2>
+    </div>
+    <p class="reveal cite" contenteditable="true">Что измерять, чтобы знать — ты реально AI-first?</p>
+  </div>
+</section>
+
+<!-- =========================================
+     SLIDE — METRICS TABLE
+     ========================================= -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">08.01 // MEASURE</div>
+    <h2 class="h2 reveal" contenteditable="true">Что измерять · сигналы тревоги</h2>
+    <table class="cyber-table reveal" style="margin-top: var(--content-gap);">
+      <thead>
+        <tr><th>Metric</th><th>Target</th><th>Alarm signal</th></tr>
+      </thead>
+      <tbody>
+        <tr><td contenteditable="true">% задач через <code>/plan</code> или <code>/sdd-new</code></td>     <td class="neon-green" contenteditable="true">&gt;80%</td>            <td contenteditable="true" style="color: #ff3355;">&lt;50% = ты AI-fallback</td></tr>
+        <tr><td contenteditable="true">Evidence bundle completion</td>                                       <td class="neon-green" contenteditable="true">100%</td>             <td contenteditable="true" style="color: #ff3355;">любое &lt;100% = задача не закрыта</td></tr>
+        <tr><td contenteditable="true">Auto-accept rate автодополнения</td>                                  <td class="neon-green" contenteditable="true">30–50%</td>           <td contenteditable="true" style="color: #ff3355;">&gt;70% = blind acceptance</td></tr>
+        <tr><td contenteditable="true">Human intervention rate</td>                                          <td class="neon-green" contenteditable="true">↓ со временем</td>    <td contenteditable="true" style="color: #ff3355;">↑ = регрессия</td></tr>
+        <tr><td contenteditable="true">Дней без <code>--no-verify</code></td>                                <td class="neon-green" contenteditable="true">↑</td>                <td contenteditable="true" style="color: #ff3355;">↓ = боретесь с системой</td></tr>
+        <tr><td contenteditable="true">«Объясню вчерашний код без AI»</td>                                   <td class="neon-green" contenteditable="true">Да</td>               <td contenteditable="true" style="color: #ff3355;">Нет = deskilling spiral</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- =========================================
+     SECTION 09 — TEAM PRACTICE
+     ========================================= -->
+<section class="slide section-slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">SECTION 09</div>
+    <div class="heading-block">
+      <div class="section-num reveal">09</div>
+      <h2 class="section-title reveal glitch" data-text="SQUAD" contenteditable="true">SQUAD</h2>
+      <h2 class="section-title reveal neon-magenta" contenteditable="true">SYNC</h2>
+    </div>
+    <p class="reveal cite" contenteditable="true">AI-first — командная история, не сольный номер.</p>
+  </div>
+</section>
+
+<!-- =========================================
+     SLIDE — HERO MODE VS SHARED
+     ========================================= -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">09.01 // HERO_MODE.LOG</div>
+    <h2 class="h2 reveal" contenteditable="true">Hero mode · vs · <span class="neon-cyan">shared practice</span></h2>
+    <div class="grid-2 reveal" style="margin-top: var(--content-gap);">
+      <div class="panel">
+        <h3 contenteditable="true" style="color: #ff3355;">⚠ WITHOUT SHARED PRACTICE</h3>
+        <ul class="term-list magenta" style="margin-top: 0.6em;">
+          <li contenteditable="true"><strong>Alice</strong> — L4, subagents, headless</li>
+          <li contenteditable="true"><strong>Bob</strong> — L1, не знает, что такое evidence bundle</li>
+          <li contenteditable="true"><strong>Charlie</strong> — отключил хуки, ему «мешали»</li>
+        </ul>
+        <p contenteditable="true" style="margin-top: 0.6em;" class="muted">
+          <span style="color: #ff3355;">Результат:</span> PR Alice блокируется ревью Bob; Charlie деплоит баги.
+        </p>
+      </div>
+      <div class="panel cyan">
+        <h3 contenteditable="true" class="neon-cyan">✓ SHARED PRACTICE</h3>
+        <ul class="term-list" style="margin-top: 0.6em;">
+          <li contenteditable="true">Все на одном L</li>
+          <li contenteditable="true">Единый golden path для всех типов задач</li>
+          <li contenteditable="true">Skills / hooks — общие, в git</li>
+          <li contenteditable="true">AI Champion обучает новеньких</li>
+        </ul>
+        <p contenteditable="true" style="margin-top: 0.6em;" class="muted">
+          <span class="neon-cyan">Результат:</span> скорость команды = скорость практики, не звезды.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================
+     SECTION 10 — WHEN NOT AI-FIRST
+     ========================================= -->
+<section class="slide section-slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">SECTION 10</div>
+    <div class="heading-block">
+      <div class="section-num reveal" style="-webkit-text-stroke-color: var(--neon-yellow);">10</div>
+      <h2 class="section-title reveal glitch" data-text="WHEN NOT" contenteditable="true">WHEN NOT</h2>
+      <h2 class="section-title reveal neon-yellow" contenteditable="true">TO LEAD WITH AI</h2>
+    </div>
+    <p class="reveal cite" contenteditable="true">AI-first ≠ AI-always. Знать исключения — часть профессии.</p>
+  </div>
+</section>
+
+<!-- =========================================
+     SLIDE — EXCEPTIONS
+     ========================================= -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">10.01 // EXCEPTIONS</div>
+    <h2 class="h2 reveal" contenteditable="true">Сознательные <span class="neon-yellow">исключения</span></h2>
+    <table class="cyber-table reveal" style="margin-top: var(--content-gap);">
+      <thead><tr><th>Context</th><th>Why human leads</th></tr></thead>
+      <tbody>
+        <tr><td contenteditable="true"><span class="tag-r5">R5</span> Регуляторно-критические домены</td><td contenteditable="true">Change advisory + human-led design. AI ассистирует, но не ведёт.</td></tr>
+        <tr><td contenteditable="true">Production incident response</td><td contenteditable="true">Решения принимает дежурный; AI ускоряет диагностику, не действует автономно.</td></tr>
+        <tr><td contenteditable="true">Архитектурные ADR</td><td contenteditable="true">Намерение проектируется человеком; AI — sparring partner.</td></tr>
+        <tr><td contenteditable="true">Первый месяц новичка</td><td contenteditable="true">Должен научиться кодовой базе <strong>руками</strong>. AI потом.</td></tr>
+        <tr><td contenteditable="true">Mandatory manual sprints</td><td contenteditable="true">Раз в квартал — для сохранения мастерства.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- =========================================
+     SECTION 11 — READINESS CHECKLIST + ROADMAP
+     ========================================= -->
+<section class="slide section-slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">SECTION 11</div>
+    <div class="heading-block">
+      <div class="section-num reveal">11</div>
+      <h2 class="section-title reveal glitch" data-text="READY?" contenteditable="true">READY?</h2>
+      <h2 class="section-title reveal neon-green" contenteditable="true">DIAGNOSTIC</h2>
+    </div>
+    <p class="reveal cite" contenteditable="true">8 точек — ты AI-first или ещё нет.</p>
+  </div>
+</section>
+
+<!-- =========================================
+     SLIDE — READINESS CHECKLIST
+     ========================================= -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">11.01 // SELF_DIAGNOSTIC</div>
+    <h2 class="h2 reveal" contenteditable="true">Ты AI-first, если…</h2>
+    <ul class="check-list reveal" style="margin-top: var(--content-gap);">
+      <li contenteditable="true">Каждая задача начинается с SDD или <code>/plan</code>, а не с открытия IDE</li>
+      <li contenteditable="true">Можешь объяснить каждую строчку вчерашнего AI-кода</li>
+      <li contenteditable="true">Evidence bundle закрывает каждую задачу</li>
+      <li contenteditable="true">Verbose работу делегируешь subagents</li>
+      <li contenteditable="true">Прерываешь агента чаще, чем одобряешь</li>
+      <li contenteditable="true">Команда — на едином стеке промптов / skills / hooks</li>
+      <li contenteditable="true">Раз в квартал — manual coding sprint</li>
+      <li contenteditable="true">Знаешь свой текущий L (§3.6) и следующий шаг</li>
+    </ul>
+    <div class="divider reveal"></div>
+    <p class="reveal cite" contenteditable="true">
+      <span class="neon-green">6+ из 8</span> = AI-first practitioner · <span style="color: #ff3355;">≤3</span> = AI-fallback, стартовый пакет поможет
+    </p>
+  </div>
+</section>
+
+<!-- =========================================
+     SLIDE — 90-DAY ROADMAP
+     ========================================= -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">11.02 // 90_DAY_PROTOCOL</div>
+    <h2 class="h2 reveal" contenteditable="true">Roadmap <span class="muted">— AI-fallback → AI-first</span></h2>
+    <div class="grid-3 reveal" style="margin-top: var(--content-gap);">
+      <div class="panel cyan">
+        <div class="chip chip-cyan">WK 01–02 · ONBOARD</div>
+        <ul class="term-list" style="margin-top: 0.6em;">
+          <li contenteditable="true">Поставить hooks (destructive, evidence)</li>
+          <li contenteditable="true">Прочитать AGENTS.md / CLAUDE.md</li>
+          <li contenteditable="true">Первый SDD через <code>/sdd-new</code></li>
+          <li contenteditable="true">Завести личный dashboard</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <div class="chip chip-magenta">WK 03–08 · HABIT</div>
+        <ul class="term-list magenta" style="margin-top: 0.6em;">
+          <li contenteditable="true">TDD на каждой задаче</li>
+          <li contenteditable="true"><code>/plan</code> перед изменениями &gt;20 строк</li>
+          <li contenteditable="true">Daily checklist в практике</li>
+          <li contenteditable="true">Subagents (explore, test, review)</li>
+        </ul>
+      </div>
+      <div class="panel yellow">
+        <div class="chip chip-yellow">WK 09–12 · LEVEL UP</div>
+        <ul class="term-list yellow" style="margin-top: 0.6em;">
+          <li contenteditable="true">Headless CI: issue → draft PR</li>
+          <li contenteditable="true">Risk ladder применяется автоматически</li>
+          <li contenteditable="true">Manual coding sprint #1</li>
+          <li contenteditable="true">L1 → <span class="neon-yellow">L2/L3</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================
+     SLIDE — KEY IDEA / QUOTE
+     ========================================= -->
+<section class="slide">
+  <div class="quote-mark">"</div>
+  <div class="slide-content">
+    <div class="kicker reveal" contenteditable="true">CORE THESIS</div>
+    <h2 class="h1 reveal glitch" data-text="DISCIPLINE" contenteditable="true" style="font-size: clamp(2rem, 7vw, 5rem); margin-top: var(--element-gap);">DISCIPLINE</h2>
+    <h2 class="h1 reveal neon-cyan" contenteditable="true" style="font-size: clamp(1.5rem, 5vw, 3.5rem);">OF THE FIRST MOVE</h2>
+    <div class="divider reveal" style="max-width: 200px;"></div>
+    <p class="reveal" contenteditable="true" style="font-size: var(--h3-size); max-width: 800px;">
+      AI-first — это <span class="neon-magenta">когда</span> ты обращаешься к AI, а не <span class="neon-yellow">сколько</span> раз.
+    </p>
+    <p class="reveal" contenteditable="true" style="margin-top: var(--element-gap); font-size: var(--small-size); font-family: var(--font-mono); color: var(--text-dim); letter-spacing: 0.1em;">
+      GENERATE <span class="neon-cyan">→</span> COMPREHEND <span class="neon-magenta">→</span> VERIFY <span class="neon-yellow">→</span> EVIDENCE
+    </p>
+  </div>
+</section>
+
+<!-- =========================================
+     SLIDE — FINAL / CONTACTS
+     ========================================= -->
+<section class="slide title-slide">
+  <div class="scanbeam"></div>
+  <div class="slide-content">
+    <div class="terminal-prompt reveal" contenteditable="false">
+      <span class="neon-green">user@pdlc</span><span class="muted">:</span><span class="neon-cyan">~/ai-first</span><span class="muted">$</span> ./session_end.sh
+    </div>
+    <h1 class="h1 glitch reveal" data-text="// FIN" contenteditable="true">// FIN</h1>
+    <p class="reveal" contenteditable="true" style="font-size: var(--h3-size); max-width: 800px; margin-top: var(--element-gap);">
+      Самая опасная фраза — <span style="color: #ff3355;">«мы всегда так делали»</span>.<br/>
+      Самая выгодная — <span class="neon-cyan">«мы начали раньше»</span>.
+    </p>
+    <div class="divider reveal" style="max-width: 300px;"></div>
+    <div class="reveal" style="font-family: var(--font-mono); font-size: var(--small-size); color: var(--text-dim); letter-spacing: 0.15em;">
+      <p contenteditable="true">SOURCE · AI_DISRUPT_PDLC_v3.5.md</p>
+      <p contenteditable="true">SECTIONS · §1.3 · §3.1 · §3.5 · §3.6 · §4.1</p>
+      <p contenteditable="true" style="margin-top: 0.5em;" class="neon-cyan">QUESTIONS?</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===============================================================
+     JAVASCRIPT — SlidePresentation + InlineEditor
+     =============================================================== -->
+<script>
+/* ============================================================
+   1. SlidePresentation — navigation, observer, HUD
+   ============================================================ */
+class SlidePresentation {
+  constructor() {
+    this.slides = document.querySelectorAll('.slide');
+    this.currentSlide = 0;
+    this.totalSlides = this.slides.length;
+    this.progressBar = document.getElementById('progressBar');
+    this.navDotsContainer = document.getElementById('navDots');
+    this.slideCounter = document.getElementById('slideCounter');
+
+    this.setupIntersectionObserver();
+    this.setupNavDots();
+    this.setupKeyboard();
+    this.setupTouch();
+    this.setupWheel();
+    this.setupProgress();
+    this.updateCounter();
+  }
+
+  setupIntersectionObserver() {
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+          entry.target.classList.add('visible');
+          this.currentSlide = Array.from(this.slides).indexOf(entry.target);
+          this.updateActiveDot();
+          this.updateCounter();
+        }
+      });
+    }, { threshold: [0.3, 0.5, 0.7] });
+    this.slides.forEach(s => obs.observe(s));
+  }
+
+  setupNavDots() {
+    // Clear before building so re-saved exports don't accumulate duplicates
+    this.navDotsContainer.innerHTML = '';
+    this.slides.forEach((_, i) => {
+      const btn = document.createElement('button');
+      btn.setAttribute('aria-label', `Slide ${i + 1}`);
+      btn.addEventListener('click', () => this.goTo(i));
+      this.navDotsContainer.appendChild(btn);
+    });
+    this.updateActiveDot();
+  }
+
+  updateActiveDot() {
+    this.navDotsContainer.querySelectorAll('button').forEach((btn, i) => {
+      btn.classList.toggle('active', i === this.currentSlide);
+    });
+  }
+
+  updateCounter() {
+    const cur = String(this.currentSlide + 1).padStart(2, '0');
+    const tot = String(this.totalSlides).padStart(2, '0');
+    this.slideCounter.textContent = `${cur} / ${tot}`;
+  }
+
+  setupKeyboard() {
+    document.addEventListener('keydown', (e) => {
+      // Don't navigate while editing text
+      if (e.target.getAttribute('contenteditable') === 'true') return;
+      if (e.ctrlKey || e.metaKey) return;
+      switch (e.key) {
+        case 'ArrowRight':
+        case 'ArrowDown':
+        case 'PageDown':
+        case ' ':
+          e.preventDefault();
+          this.next();
+          break;
+        case 'ArrowLeft':
+        case 'ArrowUp':
+        case 'PageUp':
+          e.preventDefault();
+          this.prev();
+          break;
+        case 'Home':
+          e.preventDefault();
+          this.goTo(0);
+          break;
+        case 'End':
+          e.preventDefault();
+          this.goTo(this.totalSlides - 1);
+          break;
+      }
+    });
+  }
+
+  setupTouch() {
+    let startY = 0;
+    document.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; }, { passive: true });
+    document.addEventListener('touchend', (e) => {
+      const dy = startY - e.changedTouches[0].clientY;
+      if (Math.abs(dy) < 50) return;
+      dy > 0 ? this.next() : this.prev();
+    }, { passive: true });
+  }
+
+  setupWheel() {
+    // Native scroll-snap handles this — no custom wheel handler needed
+  }
+
+  setupProgress() {
+    document.addEventListener('scroll', () => {
+      const scrolled = window.scrollY;
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const pct = max > 0 ? (scrolled / max) * 100 : 0;
+      this.progressBar.style.width = pct + '%';
+    }, { passive: true });
+  }
+
+  goTo(i) {
+    i = Math.max(0, Math.min(this.totalSlides - 1, i));
+    this.slides[i].scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  next() { this.goTo(this.currentSlide + 1); }
+  prev() { this.goTo(this.currentSlide - 1); }
+}
+
+/* ============================================================
+   2. InlineEditor — opt-in editing with localStorage autosave
+   ============================================================ */
+class InlineEditor {
+  constructor() {
+    this.isActive = false;
+    this.STORAGE_KEY = 'ai-first-guide-edits-v1';
+    this.editToggle = document.getElementById('editToggle');
+    this.editBanner = document.getElementById('editBanner');
+    this.editables = Array.from(document.querySelectorAll('[contenteditable="true"]'));
+    this.restoreFromStorage();
+    this.setupHotzone();
+    this.setupToggleClick();
+    this.setupKeyboard();
+    this.setupAutosave();
+  }
+
+  setupHotzone() {
+    const hotzone = document.getElementById('editHotzone');
+    let hideTimeout = null;
+
+    hotzone.addEventListener('mouseenter', () => {
+      clearTimeout(hideTimeout);
+      this.editToggle.classList.add('show');
+    });
+    hotzone.addEventListener('mouseleave', () => {
+      hideTimeout = setTimeout(() => {
+        if (!this.isActive) this.editToggle.classList.remove('show');
+      }, 400);
+    });
+    this.editToggle.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
+    this.editToggle.addEventListener('mouseleave', () => {
+      hideTimeout = setTimeout(() => {
+        if (!this.isActive) this.editToggle.classList.remove('show');
+      }, 400);
+    });
+    hotzone.addEventListener('click', () => this.toggleEditMode());
+  }
+
+  setupToggleClick() {
+    this.editToggle.addEventListener('click', () => this.toggleEditMode());
+  }
+
+  setupKeyboard() {
+    document.addEventListener('keydown', (e) => {
+      // E key — only when NOT editing inside a text field
+      if ((e.key === 'e' || e.key === 'E') &&
+          !e.ctrlKey && !e.metaKey &&
+          !(e.target.getAttribute && e.target.getAttribute('contenteditable') === 'true')) {
+        e.preventDefault();
+        this.toggleEditMode();
+      }
+      // Ctrl/Cmd + S — export
+      if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+        e.preventDefault();
+        this.exportFile();
+      }
+    });
+  }
+
+  setupAutosave() {
+    this.editables.forEach((el, idx) => {
+      el.dataset.editIdx = String(idx);
+      el.addEventListener('input', () => this.saveToStorage());
+    });
+  }
+
+  saveToStorage() {
+    try {
+      const payload = {};
+      this.editables.forEach((el, idx) => { payload[idx] = el.innerHTML; });
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(payload));
+    } catch (e) { /* quota exceeded — ignore */ }
+  }
+
+  restoreFromStorage() {
+    try {
+      const raw = localStorage.getItem(this.STORAGE_KEY);
+      if (!raw) return;
+      const payload = JSON.parse(raw);
+      Array.from(document.querySelectorAll('[contenteditable="true"]')).forEach((el, idx) => {
+        if (payload[idx] !== undefined) el.innerHTML = payload[idx];
+      });
+    } catch (e) { /* invalid JSON — ignore */ }
+  }
+
+  toggleEditMode() {
+    this.isActive = !this.isActive;
+    document.body.classList.toggle('edit-active', this.isActive);
+    this.editToggle.classList.toggle('active', this.isActive);
+    this.editBanner.classList.toggle('active', this.isActive);
+    if (this.isActive) {
+      this.editToggle.classList.add('show');
+      this.editToggle.textContent = '✓';
+    } else {
+      this.editToggle.textContent = '✎';
+      // Hide toggle after a moment unless hovering hotzone
+      setTimeout(() => {
+        if (!this.isActive) this.editToggle.classList.remove('show');
+      }, 1000);
+    }
+  }
+
+  exportFile() {
+    // Strip edit state before capturing outerHTML — saved file must open cleanly
+    const editableEls = Array.from(document.querySelectorAll('[contenteditable="true"]'));
+    editableEls.forEach(el => el.setAttribute('data-was-editable', '1'));
+    editableEls.forEach(el => el.removeAttribute('contenteditable'));
+    document.body.classList.remove('edit-active');
+    this.editToggle.classList.remove('active', 'show');
+    this.editBanner.classList.remove('active');
+    const wasToggleText = this.editToggle.textContent;
+    this.editToggle.textContent = '✎';
+
+    const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+
+    // Restore edit state so user can keep editing
+    editableEls.forEach(el => {
+      el.setAttribute('contenteditable', 'true');
+      el.removeAttribute('data-was-editable');
+    });
+    if (this.isActive) {
+      document.body.classList.add('edit-active');
+      this.editToggle.classList.add('active');
+      this.editBanner.classList.add('active');
+      this.editToggle.textContent = wasToggleText;
+    }
+
+    const blob = new Blob([html], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'AI-FIRST-GUIDE.cyberpunk.html';
+    a.click();
+    URL.revokeObjectURL(a.href);
+
+    // Brief flash of confirmation in the banner
+    const originalText = this.editBanner.textContent;
+    this.editBanner.textContent = '▮ EXPORTED :: FILE SAVED';
+    this.editBanner.style.borderColor = 'var(--neon-green)';
+    this.editBanner.style.color = 'var(--neon-green)';
+    this.editBanner.classList.add('active');
+    setTimeout(() => {
+      this.editBanner.textContent = originalText;
+      this.editBanner.style.borderColor = '';
+      this.editBanner.style.color = '';
+      if (!this.isActive) this.editBanner.classList.remove('active');
+    }, 1800);
+  }
+}
+
+/* ============================================================
+   3. Boot
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  // Make first slide immediately visible (it's already in viewport)
+  document.querySelector('.slide')?.classList.add('visible');
+  window.__presentation = new SlidePresentation();
+  window.__editor = new InlineEditor();
+});
+</script>
+</body>
+</html>
