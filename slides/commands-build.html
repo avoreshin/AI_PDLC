@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI DISRUPT PDLC v3.5 // SLASH PROTOCOL (BUILD)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* === VIEWPORT BASE === */
+html, body { height: 100%; overflow-x: hidden; }
+html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+.slide {
+  width: 100vw; height: 100vh; height: 100dvh;
+  overflow: hidden; scroll-snap-align: start;
+  display: flex; flex-direction: column; position: relative;
+}
+.slide-content {
+  flex: 1; display: flex; flex-direction: column;
+  justify-content: center;
+  max-height: 100%; overflow: hidden;
+  padding: var(--slide-padding);
+}
+:root {
+  --title-size: clamp(1.5rem, 5vw, 4rem);
+  --h2-size: clamp(1.25rem, 3.5vw, 2.5rem);
+  --h3-size: clamp(1rem, 2.5vw, 1.75rem);
+  --body-size: clamp(0.75rem, 1.5vw, 1.125rem);
+  --small-size: clamp(0.65rem, 1vw, 0.875rem);
+  --slide-padding: clamp(1rem, 4vw, 4rem);
+  --content-gap: clamp(0.5rem, 2vw, 2rem);
+  --element-gap: clamp(0.25rem, 1vw, 1rem);
+
+  --bg: #07020d;
+  --bg-2: #0d0418;
+  --grid: rgba(255, 0, 170, 0.08);
+  --neon-pink: #ff2bd6;
+  --neon-cyan: #00f0ff;
+  --neon-yellow: #f5ff4f;
+  --neon-violet: #8a2bff;
+  --text: #e6f1ff;
+  --muted: #6b7a99;
+}
+@media (max-height: 700px) { :root { --slide-padding: clamp(0.75rem,3vw,2rem); --content-gap: clamp(0.4rem,1.5vw,1rem); --title-size: clamp(1.25rem,4.5vw,2.5rem); --h2-size: clamp(1rem,3vw,1.75rem); } }
+@media (max-height: 600px) { :root { --slide-padding: clamp(0.5rem,2.5vw,1.5rem); --content-gap: clamp(0.3rem,1vw,0.75rem); --title-size: clamp(1.1rem,4vw,2rem); --body-size: clamp(0.7rem,1.2vw,0.95rem); } .nav-dots, .keyboard-hint { display: none; } }
+@media (max-height: 500px) { :root { --slide-padding: clamp(0.4rem,2vw,1rem); --title-size: clamp(1rem,3.5vw,1.5rem); --h2-size: clamp(0.9rem,2.5vw,1.25rem); --body-size: clamp(0.65rem,1vw,0.85rem); } }
+@media (max-width: 600px) { :root { --title-size: clamp(1.25rem,7vw,2.5rem); } .grid { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; } html { scroll-behavior: auto; } }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.01em;
+}
+
+.slide {
+  background:
+    radial-gradient(ellipse at 20% 10%, rgba(255,43,214,0.12), transparent 50%),
+    radial-gradient(ellipse at 80% 90%, rgba(0,240,255,0.10), transparent 55%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+}
+.slide::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: clamp(28px, 4vw, 64px) clamp(28px, 4vw, 64px);
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  opacity: 0.7;
+}
+.slide::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 3px);
+  mix-blend-mode: overlay;
+}
+
+.frame { position: absolute; inset: clamp(0.6rem, 2vw, 1.4rem); pointer-events: none; }
+.frame::before, .frame::after {
+  content: ""; position: absolute; width: clamp(14px, 2vw, 28px); height: clamp(14px, 2vw, 28px);
+  border: 1px solid var(--neon-cyan);
+}
+.frame::before { top: 0; left: 0; border-right: none; border-bottom: none; }
+.frame::after { bottom: 0; right: 0; border-left: none; border-top: none; }
+
+.hud {
+  position: absolute; top: clamp(1rem, 3vw, 2rem); left: clamp(1rem, 3vw, 2rem);
+  font-size: var(--small-size); color: var(--neon-cyan);
+  letter-spacing: 0.2em; text-transform: uppercase;
+  display: flex; gap: 0.5em; align-items: center;
+  z-index: 5;
+}
+.hud .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--neon-pink); box-shadow: 0 0 12px var(--neon-pink);
+  animation: pulse 1.4s infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+.counter {
+  position: absolute; bottom: clamp(1rem, 3vw, 2rem); right: clamp(1rem, 3vw, 2rem);
+  font-size: var(--small-size); color: var(--muted);
+  letter-spacing: 0.25em; z-index: 5;
+}
+.counter b { color: var(--neon-yellow); }
+
+/* Step progress (bottom-left) */
+.build-marker {
+  position: absolute; bottom: clamp(1rem, 3vw, 2rem); left: clamp(1rem, 3vw, 2rem);
+  display: flex; gap: 0.7em; align-items: center;
+  color: var(--muted); font-size: var(--small-size); letter-spacing: 0.2em;
+  z-index: 5;
+}
+.build-marker .bar {
+  width: clamp(80px, 12vw, 160px); height: 2px;
+  background: rgba(255,255,255,0.15); position: relative; overflow: hidden;
+}
+.build-marker .bar::before {
+  content: ""; position: absolute; left: 0; top: 0; height: 100%;
+  width: var(--p, 0%); background: var(--neon-pink);
+  box-shadow: 0 0 8px var(--neon-pink);
+  transition: width 0.3s ease-out;
+}
+
+/* === TYPOGRAPHY === */
+h1, h2, h3 {
+  font-family: 'Unbounded', 'JetBrains Mono', sans-serif;
+  font-weight: 900;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+h1 { font-size: var(--title-size); }
+h2 { font-size: var(--h2-size); }
+h3 { font-size: var(--h3-size); }
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+.neon-pink { color: var(--neon-pink); text-shadow: 0 0 14px rgba(255,43,214,0.55); }
+.neon-cyan { color: var(--neon-cyan); text-shadow: 0 0 14px rgba(0,240,255,0.55); }
+.neon-yellow { color: var(--neon-yellow); text-shadow: 0 0 12px rgba(245,255,79,0.45); }
+
+.glitch { position: relative; display: inline-block; }
+.glitch::before, .glitch::after {
+  content: attr(data-text); position: absolute; left: 0; top: 0; width: 100%;
+  overflow: hidden; clip-path: inset(0 0 0 0);
+}
+.glitch::before { color: var(--neon-pink); transform: translate(-2px, 0); mix-blend-mode: screen; animation: glitchA 3.2s infinite steps(1); }
+.glitch::after  { color: var(--neon-cyan); transform: translate(2px, 0);  mix-blend-mode: screen; animation: glitchB 2.6s infinite steps(1); }
+@keyframes glitchA { 0%,93%,100% { clip-path: inset(0 0 100% 0); } 94% { clip-path: inset(20% 0 60% 0); } 96% { clip-path: inset(60% 0 10% 0); } 98% { clip-path: inset(0 0 80% 0); } }
+@keyframes glitchB { 0%,90%,100% { clip-path: inset(0 0 100% 0); } 91% { clip-path: inset(70% 0 10% 0); } 93% { clip-path: inset(10% 0 70% 0); } 95% { clip-path: inset(40% 0 30% 0); } }
+
+.title-stack { display: flex; flex-direction: column; gap: clamp(0.4rem, 1.5vw, 1rem); align-items: flex-start; }
+.kicker {
+  font-size: var(--small-size); letter-spacing: 0.4em;
+  color: var(--neon-yellow); text-transform: uppercase;
+  padding: 0.4em 0.8em; border: 1px solid var(--neon-yellow);
+  border-radius: 2px;
+}
+.subtitle { font-size: var(--h3-size); color: var(--muted); max-width: 60ch; }
+.signature {
+  margin-top: clamp(1rem, 3vw, 2rem);
+  font-size: var(--small-size); color: var(--muted);
+  border-left: 2px solid var(--neon-pink); padding-left: 0.8em;
+}
+
+.eyebrow {
+  font-size: var(--small-size); letter-spacing: 0.35em; color: var(--neon-cyan);
+  text-transform: uppercase; margin-bottom: 0.6em;
+}
+.lede { font-size: var(--h3-size); color: var(--text); max-width: 70ch; line-height: 1.35; }
+.note { font-size: var(--small-size); color: var(--muted); max-width: 75ch; line-height: 1.45; }
+
+.cards {
+  display: grid; gap: clamp(0.5rem, 1.5vw, 1.2rem);
+  margin-top: clamp(0.8rem, 2vw, 1.6rem);
+}
+.cards.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.cards.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.cards.cols-4 { grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 900px) { .cards.cols-4 { grid-template-columns: repeat(4, 1fr); } }
+
+.card-c {
+  position: relative;
+  border: 1px solid rgba(0,240,255,0.25);
+  background: linear-gradient(180deg, rgba(13,4,24,0.7), rgba(7,2,13,0.85));
+  padding: clamp(0.7rem, 1.6vw, 1.2rem);
+  font-size: var(--body-size);
+  overflow: hidden;
+}
+.card-c::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan));
+}
+.card-c h3 { font-size: clamp(0.9rem, 1.8vw, 1.2rem); margin-bottom: 0.35em; }
+.card-c .tag {
+  display: inline-block; font-size: clamp(0.6rem, 1vw, 0.75rem);
+  letter-spacing: 0.2em; color: var(--neon-yellow);
+  padding: 0.15em 0.5em; border: 1px solid var(--neon-yellow);
+  margin-bottom: 0.5em;
+}
+.card-c p { color: var(--muted); line-height: 1.4; font-size: clamp(0.72rem, 1.2vw, 0.95rem); }
+.card-c .meta { margin-top: 0.6em; font-size: var(--small-size); color: var(--neon-cyan); }
+
+ul.cyber-list { list-style: none; display: flex; flex-direction: column; gap: clamp(0.4rem, 1vh, 0.9rem); }
+ul.cyber-list li {
+  position: relative; padding-left: 1.6em;
+  font-size: var(--body-size); line-height: 1.45;
+}
+ul.cyber-list li::before {
+  content: "▸"; position: absolute; left: 0; top: 0;
+  color: var(--neon-pink); text-shadow: 0 0 10px var(--neon-pink);
+}
+
+.code {
+  font-family: 'JetBrains Mono', monospace;
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(0,240,255,0.3);
+  padding: clamp(0.6rem, 1.5vw, 1.2rem);
+  font-size: clamp(0.7rem, 1.3vw, 1rem);
+  line-height: 1.55;
+  overflow: hidden;
+  position: relative;
+}
+.code::before {
+  content: "// SHELL"; position: absolute; top: 0.4em; right: 0.7em;
+  font-size: var(--small-size); color: var(--neon-yellow); opacity: 0.7;
+  letter-spacing: 0.2em;
+}
+.code .prompt { color: var(--neon-pink); }
+.code .cmd    { color: var(--neon-cyan); }
+.code .arg    { color: var(--text); }
+.code .cmt    { color: var(--muted); }
+
+.ladder { display: flex; flex-direction: column; gap: clamp(0.3rem, 0.8vw, 0.6rem); margin-top: clamp(0.6rem, 1.5vw, 1rem); }
+.rung {
+  display: grid; grid-template-columns: 4em 1fr 1fr; gap: clamp(0.5rem, 1.5vw, 1rem);
+  padding: clamp(0.5rem, 1.2vw, 0.9rem) clamp(0.6rem, 1.5vw, 1rem);
+  border-left: 3px solid var(--neon-cyan);
+  background: rgba(0,240,255,0.04);
+  font-size: clamp(0.75rem, 1.3vw, 1rem);
+  align-items: center;
+}
+.rung .lvl { font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: clamp(0.9rem, 1.8vw, 1.3rem); color: var(--neon-cyan); }
+.rung .ex { color: var(--text); }
+.rung .au { color: var(--muted); }
+.rung.r3 { border-color: var(--neon-yellow); background: rgba(245,255,79,0.05); } .rung.r3 .lvl { color: var(--neon-yellow); }
+.rung.r4, .rung.r5 { border-color: var(--neon-pink); background: rgba(255,43,214,0.06); } .rung.r4 .lvl, .rung.r5 .lvl { color: var(--neon-pink); }
+
+.flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: clamp(0.3rem, 1vw, 0.8rem); margin-top: clamp(0.8rem, 2vw, 1.5rem); }
+.flow .node {
+  border: 1px solid var(--neon-cyan); padding: clamp(0.5rem, 1.2vw, 0.9rem);
+  position: relative; text-align: center;
+  font-size: clamp(0.7rem, 1.1vw, 0.9rem);
+  background: rgba(0,240,255,0.05);
+}
+.flow .node .num { font-family: 'Unbounded'; font-weight: 900; font-size: clamp(1rem, 2vw, 1.5rem); color: var(--neon-pink); display: block; }
+.flow .node .lbl { color: var(--text); letter-spacing: 0.1em; text-transform: uppercase; font-size: clamp(0.65rem, 1vw, 0.8rem); }
+.flow .node .cmd { color: var(--neon-yellow); margin-top: 0.3em; font-size: clamp(0.65rem, 1vw, 0.85rem); }
+.flow .node:not(:last-child)::after {
+  content: "▶"; position: absolute; top: 50%; right: -1em; transform: translateY(-50%);
+  color: var(--neon-pink); font-size: clamp(0.6rem, 1.2vw, 1rem); z-index: 2;
+}
+@media (max-width: 800px) { .flow { grid-template-columns: 1fr; } .flow .node:not(:last-child)::after { content: "▼"; top: auto; bottom: -1em; right: 50%; transform: translateX(50%); } }
+
+.forbid {
+  border: 1px solid var(--neon-pink); padding: clamp(0.6rem, 1.4vw, 1rem);
+  background: rgba(255,43,214,0.04);
+  display: flex; gap: 0.7em; align-items: flex-start;
+  font-size: var(--body-size);
+}
+.forbid .x { color: var(--neon-pink); font-weight: 900; font-size: 1.2em; }
+
+.cta-block { text-align: center; }
+.cta-block h1 { margin-bottom: 0.4em; }
+.cta-prompt {
+  display: inline-block; margin-top: clamp(1rem, 2vw, 1.5rem);
+  font-family: 'JetBrains Mono'; font-size: var(--h3-size);
+  padding: 0.5em 1em; border: 1px solid var(--neon-cyan);
+  color: var(--neon-cyan);
+  position: relative;
+}
+.cta-prompt::after { content: "_"; animation: blink 1s infinite step-end; color: var(--neon-pink); }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* === STEP REVEAL (JS-driven, strictly one element per arrow press) === */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.45s ease-out, transform 0.45s ease-out;
+  pointer-events: none;
+}
+.reveal.shown {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+@media print {
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { height: auto; overflow: visible; scroll-snap-type: none; }
+  .nav-dots, .keyboard-hint, .build-marker { display: none !important; }
+  .slide {
+    width: 1600px; height: 900px;
+    page-break-after: always; break-after: page;
+    scroll-snap-align: none;
+  }
+  .slide:last-child { page-break-after: auto; break-after: auto; }
+  .reveal { opacity: 1 !important; transform: none !important; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+}
+
+.nav-dots { position: fixed; right: clamp(0.6rem, 1.5vw, 1.2rem); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 0.5em; z-index: 10; }
+.nav-dots a { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.15); display: block; transition: 0.3s; cursor: pointer; }
+.nav-dots a.active { background: var(--neon-pink); box-shadow: 0 0 10px var(--neon-pink); }
+
+.keyboard-hint {
+  position: fixed; bottom: clamp(0.6rem, 1.5vw, 1.2rem); left: 50%; transform: translateX(-50%);
+  font-size: var(--small-size); color: rgba(107,122,153,0.5);
+  letter-spacing: 0.2em; z-index: 5; pointer-events: none;
+  text-transform: uppercase;
+}
+.keyboard-hint .k { color: var(--neon-cyan); }
+
+/* === BRAND LOGO (top-right, fixed across all slides) === */
+.brand-logo {
+  position: fixed;
+  top: clamp(1rem, 3vw, 2rem);
+  right: clamp(1rem, 3vw, 2rem);
+  z-index: 6;
+  pointer-events: none;
+  height: clamp(26px, 3.4vw, 42px);
+  display: flex; align-items: center;
+}
+.brand-logo img {
+  height: 100%; width: auto;
+  /* SVG has a solid black background rect — screen blend drops it on dark slides */
+  mix-blend-mode: screen;
+  opacity: 0.9;
+  filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.25));
+}
+
+/* === TITLE SLIDE LAYOUT (slide 1 only) === */
+.title-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: clamp(1.2rem, 4vw, 3rem);
+  align-items: center;
+  justify-content: center;
+}
+@media (max-width: 800px) {
+  .title-grid { grid-template-columns: 1fr; gap: 1.2rem; }
+}
+
+/* === AUTHOR BLOCK === */
+.author-block {
+  display: flex; flex-direction: column; align-items: center;
+  gap: clamp(0.4rem, 1vw, 0.8rem);
+  padding: clamp(0.9rem, 1.8vw, 1.4rem) clamp(1rem, 2vw, 1.6rem);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  background: linear-gradient(180deg, rgba(13,4,24,0.75), rgba(7,2,13,0.9));
+  position: relative;
+  max-width: clamp(170px, 22vw, 260px);
+}
+.author-block::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan));
+}
+.author-block img {
+  width: clamp(120px, 14vw, 180px);
+  height: clamp(120px, 14vw, 180px);
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--neon-cyan);
+  box-shadow: 0 0 24px rgba(0,240,255,0.4), inset 0 0 16px rgba(255,43,214,0.15);
+}
+.author-block .role {
+  font-size: var(--small-size);
+  color: var(--muted);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1.45;
+  margin-top: 0.25em;
+}
+.author-block .name {
+  font-family: 'Unbounded', sans-serif;
+  font-weight: 900;
+  font-size: clamp(0.9rem, 1.6vw, 1.25rem);
+  color: var(--neon-yellow);
+  letter-spacing: 0.14em;
+  text-align: center;
+  text-shadow: 0 0 12px rgba(245,255,79,0.4);
+}
+
+/* === INTRO SLIDE (speaker + topic, photo ~50% width) === */
+.intro-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: center;
+  width: 100%;
+}
+@media (max-width: 800px) {
+  .intro-grid { grid-template-columns: 1fr; gap: 1rem; }
+}
+.intro-photo-wrap {
+  position: relative;
+  width: 100%;
+  max-width: clamp(260px, 42vw, 560px);
+  aspect-ratio: 1 / 1;
+  justify-self: center;
+}
+/* Corner brackets matching the global .frame style — same visual language as the slide chrome */
+.intro-photo-wrap::before,
+.intro-photo-wrap::after {
+  content: ""; position: absolute;
+  width: clamp(18px, 2.8vw, 36px);
+  height: clamp(18px, 2.8vw, 36px);
+  border: 1px solid var(--neon-cyan);
+  pointer-events: none;
+}
+.intro-photo-wrap::before {
+  top: clamp(-14px, -1.4vw, -8px); left: clamp(-14px, -1.4vw, -8px);
+  border-right: none; border-bottom: none;
+}
+.intro-photo-wrap::after {
+  bottom: clamp(-14px, -1.4vw, -8px); right: clamp(-14px, -1.4vw, -8px);
+  border-left: none; border-top: none;
+}
+.intro-photo-wrap img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: saturate(0.85) contrast(1.05);
+  box-shadow: 0 0 32px rgba(0, 240, 255, 0.18);
+}
+.intro-info {
+  display: flex; flex-direction: column;
+  gap: clamp(0.4rem, 1vw, 0.8rem);
+  min-width: 0;
+}
+.intro-role {
+  font-size: var(--small-size);
+  color: var(--muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  line-height: 1.5;
+}
+.intro-name {
+  font-family: 'Unbounded', sans-serif;
+  font-weight: 900;
+  font-size: clamp(1.4rem, 4vw, 3rem);
+  color: var(--neon-yellow);
+  text-shadow: 0 0 20px rgba(245,255,79,0.45);
+  line-height: 1.05;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.intro-divider {
+  height: 1px;
+  background: linear-gradient(90deg, var(--neon-pink), transparent);
+  margin: clamp(0.6rem, 1.6vw, 1rem) 0;
+  max-width: 70%;
+}
+.intro-topic {
+  font-family: 'Unbounded', sans-serif;
+  font-weight: 900;
+  font-size: clamp(1.1rem, 2.6vw, 2rem);
+  line-height: 1.1;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.intro-subtitle {
+  font-size: var(--body-size);
+  color: var(--muted);
+  line-height: 1.45;
+  max-width: 36ch;
+  margin-top: 0.4em;
+}
+
+/* === VELOCITY SLIDE (R0–R1 / R2 / R3+ tradeoff) === */
+.velocity-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(0.5rem, 1.5vw, 1.2rem);
+  margin-top: clamp(0.8rem, 2vw, 1.4rem);
+}
+@media (max-width: 800px) { .velocity-row { grid-template-columns: 1fr; } }
+.velocity-cell {
+  position: relative;
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  background: linear-gradient(180deg, rgba(13,4,24,0.7), rgba(7,2,13,0.85));
+  padding: clamp(0.8rem, 1.8vw, 1.4rem);
+  display: flex; flex-direction: column;
+  gap: clamp(0.3rem, 0.8vw, 0.6rem);
+}
+.velocity-cell::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--accent, var(--neon-cyan));
+  box-shadow: 0 0 10px var(--accent, var(--neon-cyan));
+}
+.velocity-cell .scope {
+  font-size: var(--small-size); letter-spacing: 0.2em;
+  color: var(--muted); text-transform: uppercase;
+}
+.velocity-cell .delta {
+  font-family: 'Unbounded', sans-serif; font-weight: 900;
+  font-size: clamp(1.1rem, 2.4vw, 1.8rem);
+  color: var(--accent, var(--neon-cyan));
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.05;
+}
+.velocity-cell p { color: var(--muted); font-size: clamp(0.72rem, 1.2vw, 0.95rem); line-height: 1.45; }
+.velocity-cell p.src {
+  margin-top: auto;
+  padding-top: clamp(0.4rem, 1vw, 0.6rem);
+  font-size: clamp(0.6rem, 0.95vw, 0.72rem);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent, var(--neon-cyan));
+  opacity: 0.75;
+  border-top: 1px dashed rgba(255,255,255,0.08);
+}
+.velocity-cell.slow   { --accent: var(--neon-yellow); }
+.velocity-cell.flat   { --accent: var(--neon-cyan); }
+.velocity-cell.fast   { --accent: var(--neon-pink); }
+
+.insight-box {
+  margin-top: clamp(0.8rem, 1.8vw, 1.2rem);
+  padding: clamp(0.6rem, 1.4vw, 1rem) clamp(0.8rem, 1.6vw, 1.2rem);
+  border-left: 3px solid var(--neon-pink);
+  background: rgba(255, 43, 214, 0.05);
+  font-size: var(--body-size); line-height: 1.5;
+  color: var(--text);
+}
+.insight-box .label {
+  font-size: var(--small-size); letter-spacing: 0.25em;
+  color: var(--neon-pink); text-transform: uppercase;
+  display: block; margin-bottom: 0.4em;
+}
+</style>
+</head>
+<body>
+
+<nav class="nav-dots" id="navDots"></nav>
+<div class="brand-logo" aria-label="Antifraud Team"><img src="../assets/AntifraudTeam.svg" alt="Antifraud Team"></div>
+<div class="keyboard-hint"><span class="k">→</span> next step &nbsp;·&nbsp; <span class="k">←</span> back &nbsp;·&nbsp; <span class="k">PgDn</span> next slide</div>
+
+<!-- ============================================
+     SLIDE 01 — SPEAKER + TOPIC (intro)
+============================================ -->
+<section class="slide" id="s00">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> SPEAKER · INTRO</div>
+  <div class="slide-content intro-grid">
+    <div class="intro-photo-wrap reveal">
+      <img src="../assets/author_oreshin.png" alt="Орешин Андрей">
+    </div>
+    <div class="intro-info">
+      <span class="kicker reveal" style="align-self:flex-start">// SPEAKER</span>
+      <div class="intro-role reveal">Главный инженер по разработке</div>
+      <h1 class="intro-name reveal">Орешин Андрей</h1>
+      <div class="intro-divider reveal"></div>
+      <span class="kicker reveal" style="align-self:flex-start; color: var(--neon-cyan); border-color: var(--neon-cyan)">// ТЕМА ДОКЛАДА</span>
+      <div class="intro-topic reveal">
+        <span class="glitch" data-text="AI DISRUPT">AI DISRUPT</span> <span class="neon-pink">PDLC</span> <span class="neon-cyan">//</span> <span class="neon-yellow">SLASH</span>
+      </div>
+      <p class="intro-subtitle reveal">
+        Slash-протокол: пять /команд, четыре фазы, один evidence bundle. Как мы реально работаем с агентом в репозитории.
+      </p>
+    </div>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>01</b> / 16</div>
+</section>
+
+<!-- ============================================
+     SLIDE 02 — TITLE  (speech 0:00–1:00)
+============================================ -->
+<section class="slide" id="s01">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> SYS://CLAUDE_CODE · NODE_07 · LIVE</div>
+  <div class="slide-content">
+    <div class="title-stack">
+      <span class="kicker reveal">// PROTOCOL · v3.5 · 2026</span>
+      <h1 class="reveal">
+        <span class="glitch" data-text="AI DISRUPT">AI DISRUPT</span><br>
+        <span class="neon-pink">PDLC</span> <span class="neon-cyan">//</span> <span class="neon-yellow">SLASH</span>
+      </h1>
+      <p class="subtitle reveal">
+        Как мы реально работаем с агентом в репозитории: пять <span class="neon-cyan">/команд</span>, четыре фазы, один evidence bundle. Модель пишет код, обвязка решает, что считать «готово».
+      </p>
+      <div class="signature reveal">
+        runtime: claude-opus-4-7 &nbsp;·&nbsp; harness: deterministic &nbsp;·&nbsp; mode: agentic
+      </div>
+    </div>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>02</b> / 16</div>
+</section>
+
+<!-- ============================================
+     SLIDE 02 — HARNESS > MODEL  (1:00–3:00)
+============================================ -->
+<section class="slide" id="s02">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> CONTEXT.LOAD · §2.2</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">§2.2 · ядро PDLC</div>
+    <h2 class="reveal"><span class="neon-cyan">HARNESS</span> &gt; <span class="neon-pink">MODEL</span></h2>
+    <p class="lede reveal" style="margin-top:0.6em">
+      98,4% кодовой базы Claude Code — детерминированная инфраструктура. И лишь ~1,6% — собственно логика ИИ.
+    </p>
+    <p class="lede reveal" style="margin-top:0.4em">
+      Инженерная ценность сосредоточена в обвязке: проверка прав, контекст, маршрутизация инструментов, аудит-лог, hooks. Поменяйте модель — обвязка останется. Уберите обвязку — любая модель уедет в кювет.
+    </p>
+    <div class="cards cols-4" style="margin-top:1rem">
+      <div class="card-c reveal">
+        <span class="tag">LAYER 01</span>
+        <h3 class="neon-cyan">CLAUDE.md</h3>
+        <p>Договорённости и стиль. Агент будет их соблюдать, но не всегда — это инструкция, не закон.</p>
+      </div>
+      <div class="card-c reveal">
+        <span class="tag">LAYER 02</span>
+        <h3 class="neon-cyan">Commands</h3>
+        <p>Один шаг работы — одна /команда. Меньше зависимости от того, как сформулирован промпт.</p>
+      </div>
+      <div class="card-c reveal">
+        <span class="tag">LAYER 03</span>
+        <h3 class="neon-cyan">Hooks</h3>
+        <p>Запреты, которые работают всегда: rm -rf, push --force, чтение секретов. Это код, а не просьба.</p>
+      </div>
+      <div class="card-c reveal">
+        <span class="tag">LAYER 04</span>
+        <h3 class="neon-cyan">SDD + Evidence</h3>
+        <p>Сначала пишем, что и зачем делаем. В конце — собираем доказательства, что сделали именно это.</p>
+      </div>
+    </div>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>03</b> / 16</div>
+</section>
+
+<!-- ============================================
+     SLIDE 03 — 5 КОМАНД  (3:00–5:00)
+============================================ -->
+<section class="slide" id="s03">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> COMMAND.REGISTRY</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// .claude/commands/*.md</div>
+    <h2 class="reveal">ПЯТЬ <span class="neon-pink">/КОМАНД</span>, ПЯТЬ КОНТРАКТОВ</h2>
+    <p class="note reveal" style="margin-top:0.4em; max-width:75ch">
+      У каждой команды один вход, один выход и понятная зона ответственности. Не «попроси агента сделать всё хорошо», а конкретный шаг с конкретным артефактом.
+    </p>
+    <div class="cards cols-3">
+      <div class="card-c reveal">
+        <span class="tag">SPEC</span>
+        <h3 class="neon-pink">/sdd-new</h3>
+        <p>Заводит SDD по шаблону и задаёт человеку нужные вопросы. Пока документ не approved — к коду не переходим.</p>
+        <div class="meta">→ docs/sdd/&lt;date&gt;-&lt;slug&gt;.md</div>
+      </div>
+      <div class="card-c reveal">
+        <span class="tag">CLASSIFY</span>
+        <h3 class="neon-cyan">/risk-classify</h3>
+        <p>Считает класс риска по четырём осям, чтобы R1 не уходил на согласование как R4 и наоборот.</p>
+        <div class="meta">→ data × stage × radius × reversibility</div>
+      </div>
+      <div class="card-c reveal">
+        <span class="tag">PLAN</span>
+        <h3 class="neon-yellow">/plan</h3>
+        <p>Read-only: какие файлы трону, в каком порядке, где риски. Правок ноль.</p>
+        <div class="meta">→ файлы, шаги, риски, тесты</div>
+      </div>
+      <div class="card-c reveal">
+        <span class="tag">REVIEW</span>
+        <h3 class="neon-cyan">/review</h3>
+        <p>Отдельный агент без прав на запись смотрит diff глазами ревьюера: соответствует ли код SDD.</p>
+        <div class="meta">→ findings, severity, blockers</div>
+      </div>
+      <div class="card-c reveal">
+        <span class="tag">CLOSE</span>
+        <h3 class="neon-pink">/evidence</h3>
+        <p>Финальный пакет: diff, тесты, lint, сканы, оставшиеся допущения. Без него задача не закрывается.</p>
+        <div class="meta">→ .claude/evidence-bundle.json</div>
+      </div>
+      <div class="card-c reveal" style="border-style:dashed;opacity:0.85">
+        <span class="tag">SKILL</span>
+        <h3 class="neon-cyan">+ skills</h3>
+        <p>Подключаемые навыки: brainstorm, TDD, debugging. Берём по ситуации, а не всё сразу.</p>
+        <div class="meta">→ superpowers:*</div>
+      </div>
+    </div>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>04</b> / 16</div>
+</section>
+
+<!-- ============================================
+     SLIDE 04 — 4 ФАЗЫ  (5:00–7:00)
+============================================ -->
+<section class="slide" id="s04">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> WORKFLOW.PHASES · §2.13</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">§2.13 · agentic loop</div>
+    <h2 class="reveal">ЧЕТЫРЕ ФАЗЫ <span class="neon-cyan">КАЖДОЙ</span> ЗАДАЧИ</h2>
+    <p class="note reveal" style="margin-top:0.4em; max-width:75ch">
+      Порядок жёсткий: думаем → фиксируем тестом → пишем код → собираем подтверждения. Перепрыгивать шаги нельзя даже для «маленькой задачки».
+    </p>
+    <div class="cards cols-4" style="margin-top:1.2rem">
+      <div class="card-c reveal">
+        <span class="tag">01</span>
+        <h3 class="neon-pink">PLAN</h3>
+        <p>Читаем SDD, выписываем допущения, договариваемся о подходе. Здесь дёшево менять решение — потом будет дороже.</p>
+        <div class="meta">/sdd-new · /plan</div>
+      </div>
+      <div class="card-c reveal">
+        <span class="tag">02</span>
+        <h3 class="neon-cyan">TEST</h3>
+        <p>Пишем падающие тесты раньше кода. Тест — это критерий «готово»; если его можно подогнать, никакой это не критерий.</p>
+        <div class="meta">TDD · property-based</div>
+      </div>
+      <div class="card-c reveal">
+        <span class="tag">03</span>
+        <h3 class="neon-yellow">IMPLEMENT</h3>
+        <p>Минимум кода, чтобы тесты позеленели. Хочется поправить тест — это сигнал вернуться на шаг назад, а не «оптимизировать».</p>
+        <div class="meta">edit · write · refactor</div>
+      </div>
+      <div class="card-c reveal">
+        <span class="tag">04</span>
+        <h3 class="neon-pink">EVIDENCE</h3>
+        <p>Собираем diff, прогоны тестов, lint, security scan и список нерешённых вопросов. Нет пакета — нет «сделано».</p>
+        <div class="meta">/evidence · stop-hook</div>
+      </div>
+    </div>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>05</b> / 16</div>
+</section>
+
+<!-- ============================================
+     SLIDE 05 — RISK LADDER  (7:00–9:00)
+============================================ -->
+<section class="slide" id="s05">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> RISK.LADDER · §4.5</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// permission ladder</div>
+    <h2 class="reveal">R0 <span class="neon-pink">→</span> R5 <span class="neon-cyan">·</span> риск управляет автономией</h2>
+    <p class="note reveal" style="margin-top:0.4em; max-width:75ch">
+      Чем выше класс, тем меньше агент решает сам. На R0 — без участия. На R4–R5 — ничего, пока человек не подтвердит.
+    </p>
+    <div class="ladder">
+      <div class="rung reveal"><span class="lvl">R0</span><span class="ex">docs, comments, formatting</span><span class="au">auto</span></div>
+      <div class="rung reveal"><span class="lvl">R1</span><span class="ex">unit tests, local refactor, non-prod</span><span class="au">auto + hooks</span></div>
+      <div class="rung reveal"><span class="lvl">R2</span><span class="ex">feature code за feature-flag</span><span class="au">PR + human review</span></div>
+      <div class="rung r3 reveal"><span class="lvl">R3</span><span class="ex">auth · payments · PII · infra</span><span class="au">draft + security review</span></div>
+      <div class="rung r4 reveal"><span class="lvl">R4</span><span class="ex">prod data · IAM · migrations</span><span class="au">human approval + SoD</span></div>
+      <div class="rung r5 reveal"><span class="lvl">R5</span><span class="ex">regulated risk logic</span><span class="au">change advisory board</span></div>
+    </div>
+    <p class="reveal" style="margin-top:0.8rem;font-size:var(--small-size);color:var(--muted); max-width:75ch">
+      Колеблешься между двумя классами — берёшь <span class="neon-yellow">выше</span>. Approval fatigue → не тратим серьёзное внимание на несерьёзные вещи.
+    </p>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>06</b> / 16</div>
+</section>
+
+<!-- ============================================
+     SLIDE 06 — /sdd-new  (9:00–10:30)
+============================================ -->
+<section class="slide" id="s06">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> CMD · /sdd-new</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">command 01 / 05</div>
+    <h2 class="reveal"><span class="neon-pink">/sdd-new</span> — спека первична</h2>
+    <p class="lede reveal">Команда создаёт <span class="neon-cyan">Software Design Document</span> из шаблона и сразу спрашивает у человека: класс риска, критерии приёмки, кого назначить SME-ревьюером. Пока SDD не <span class="neon-yellow">approved</span> — к коду не переходим.</p>
+    <div class="code reveal" style="margin-top:1rem">
+      <span class="prompt">claude&gt;</span> <span class="cmd">/sdd-new</span> <span class="arg">api rate limiter for /v1/search</span><br>
+      <span class="cmt">// → docs/sdd/20260512-rate-limiter.md (status: draft)</span><br>
+      <span class="cmt">// → запрос к человеку: risk class? acceptance criteria? SME reviewer?</span><br>
+      <span class="cmt">// blocked: имплементация невозможна до approved</span>
+    </div>
+    <ul class="cyber-list" style="margin-top:1rem">
+      <li class="reveal">В документе фиксируем Goal, Non-goals, AC (Given-When-Then) и инварианты</li>
+      <li class="reveal">Класс риска и имя SME-ревьюера агент не выбирает сам — это всегда вход от человека</li>
+      <li class="reveal">Этот же документ читают <span class="neon-cyan">/plan</span>, <span class="neon-cyan">/review</span> и <span class="neon-cyan">/evidence</span>: одна правда для всех команд</li>
+      <li class="reveal">Если в процессе работы поняли, что SDD неверный — правим SDD, а не «договариваемся между собой»</li>
+    </ul>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>07</b> / 16</div>
+</section>
+
+<!-- ============================================
+     SLIDE 07 — /risk-classify  (10:30–11:30)
+============================================ -->
+<section class="slide" id="s07">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> CMD · /risk-classify</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">command 02 / 05</div>
+    <h2 class="reveal"><span class="neon-cyan">/risk-classify</span> — авто R0–R5</h2>
+    <p class="lede reveal">Класс <span class="neon-yellow">вычисляется</span> по четырём осям, а не «ощущается». Это убирает спор о том, нужен ли security review: либо данные и радиус говорят «да», либо нет.</p>
+    <div class="cards cols-4" style="margin-top:1rem">
+      <div class="card-c reveal">
+        <span class="tag">AXIS 1</span>
+        <h3 class="neon-pink">Data</h3>
+        <p>public · internal · pii · secret · regulated</p>
+      </div>
+      <div class="card-c reveal">
+        <span class="tag">AXIS 2</span>
+        <h3 class="neon-cyan">Stage</h3>
+        <p>dev · staging · prod</p>
+      </div>
+      <div class="card-c reveal">
+        <span class="tag">AXIS 3</span>
+        <h3 class="neon-yellow">Blast radius</h3>
+        <p>local · service · multi-service · platform</p>
+      </div>
+      <div class="card-c reveal">
+        <span class="tag">AXIS 4</span>
+        <h3 class="neon-pink">Reversibility</h3>
+        <p>reversible · partial · irreversible</p>
+      </div>
+    </div>
+    <p class="reveal" style="margin-top:0.8rem;font-size:var(--small-size);color:var(--muted); max-width:75ch">
+      PII × prod × irreversible = R4, без вариантов. Formatting × dev = R0, без вариантов. Уставший в пятницу человек занижает риск — алгоритм не различает «маленькую правку», он различает данные, стадию, радиус и обратимость.
+    </p>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>08</b> / 16</div>
+</section>
+
+<!-- ============================================
+     SLIDE 08 — /plan  (11:30–12:30)
+============================================ -->
+<section class="slide" id="s08">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> CMD · /plan</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">command 03 / 05 · READ-ONLY</div>
+    <h2 class="reveal"><span class="neon-yellow">/plan</span> — план без правок</h2>
+    <p class="lede reveal">Режим разведки. Агент только читает: код, тесты, SDD. Никаких <span class="neon-pink">Edit/Write</span>, никаких «по ходу дела поправлю». На выходе — план, который можно обсудить и поменять, пока это дёшево.</p>
+    <p class="note reveal" style="margin-top:0.6em">
+      Главная ошибка агентов — one-shot failure: попытка сделать всю задачу за один проход, не разобравшись. /plan ломает этот паттерн.
+    </p>
+    <div class="code reveal" style="margin-top:1rem">
+      <span class="prompt">claude&gt;</span> <span class="cmd">/plan</span> <span class="arg">rate-limiter</span><br>
+      <span class="cmt">## Implementation Plan: rate-limiter</span><br>
+      <span class="cmt">Risk class: R2 · SDD: docs/sdd/20260512-rate-limiter.md</span><br>
+      <span class="cmd">### Затронутые файлы</span><br>
+      <span class="arg">  - src/middleware/limiter.ts — новый</span><br>
+      <span class="arg">  - src/server.ts — wire-up</span><br>
+      <span class="cmd">### Шаги</span><br>
+      <span class="arg">  1. [Test] failing tests для AC-1..3</span><br>
+      <span class="arg">  2. [Impl] token-bucket алгоритм</span><br>
+      <span class="arg">  3. [Verify] полный suite + property tests</span>
+    </div>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>09</b> / 16</div>
+</section>
+
+<!-- ============================================
+     SLIDE 09 — /review  (12:30–14:00)
+============================================ -->
+<section class="slide" id="s09">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> CMD · /review</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">command 04 / 05 · INDEPENDENT AGENT</div>
+    <h2 class="reveal"><span class="neon-cyan">/review</span> — независимый агент</h2>
+    <p class="lede reveal">У него только <span class="neon-yellow">Read · Grep · Test</span>. Его задача — посмотреть на diff чужими глазами и проверить, делает ли код именно то, что обещал SDD. Не подправить, а вынести вердикт.</p>
+    <div class="cards cols-2" style="margin-top:1rem">
+      <div class="card-c reveal">
+        <h3 class="neon-pink">Соответствие SDD</h3>
+        <p>· все AC покрыты тестами<br>· property-based invariants проверяются<br>· нет реализации вне scope<br>· negative cases учтены</p>
+      </div>
+      <div class="card-c reveal">
+        <h3 class="neon-cyan">Качество кода</h3>
+        <p>· naming = CLAUDE.md<br>· нет over-engineering<br>· error handling консистентен<br>· edge cases закрыты</p>
+      </div>
+      <div class="card-c reveal">
+        <h3 class="neon-yellow">AI-специфика (§5.1)</h3>
+        <p>· deprecated APIs (MD5 для паролей)<br>· over-permission в IAM<br>· hallucinated dependencies</p>
+      </div>
+      <div class="card-c reveal">
+        <h3 class="neon-pink">Безопасность</h3>
+        <p>· secrets · injection · auth bypass<br>· supply chain<br>· OWASP top 10</p>
+      </div>
+    </div>
+    <p class="reveal" style="margin-top:0.6rem;font-size:var(--small-size);color:var(--muted); max-width:75ch">
+      Gartner: AI-код пишется на 35% быстрее, но без ревью содержит на 25% больше уязвимостей. Ускорение без ревью — это технический долг с процентами.
+    </p>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>10</b> / 16</div>
+</section>
+
+<!-- ============================================
+     SLIDE 10 — /evidence  (14:00–15:30)
+============================================ -->
+<section class="slide" id="s10">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> CMD · /evidence · STOP-HOOK ARMED</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">command 05 / 05 · MANDATORY</div>
+    <h2 class="reveal"><span class="neon-pink">/evidence</span> — единственный «готово»</h2>
+    <p class="lede reveal">Когда агент пытается сказать «всё, готово», срабатывает stop-hook: он проверяет evidence bundle по JSON-схеме. Не сошлась схема — задача остаётся <span class="neon-yellow">in_progress</span>.</p>
+    <p class="note reveal" style="margin-top:0.4em">
+      Premature victory — характерный сбой агентов: «готово» после частичного прогресса. За него помнит обвязка, не агент.
+    </p>
+    <div class="cards cols-3" style="margin-top:1rem">
+      <div class="card-c reveal">
+        <h3 class="neon-cyan">diff</h3>
+        <p>files_changed, +/- lines, summary</p>
+      </div>
+      <div class="card-c reveal">
+        <h3 class="neon-cyan">tests</h3>
+        <p>passed / failed / skipped + duration</p>
+      </div>
+      <div class="card-c reveal">
+        <h3 class="neon-cyan">lint + typecheck</h3>
+        <p>warnings, errors</p>
+      </div>
+      <div class="card-c reveal">
+        <h3 class="neon-yellow">security scan</h3>
+        <p>SAST: semgrep / bandit / npm audit · High+Critical</p>
+      </div>
+      <div class="card-c reveal">
+        <h3 class="neon-yellow">assumptions</h3>
+        <p>unresolved + open risks</p>
+      </div>
+      <div class="card-c reveal">
+        <h3 class="neon-yellow">trace</h3>
+        <p>risk class · SDD ref · AC status</p>
+      </div>
+    </div>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>11</b> / 16</div>
+</section>
+
+<!-- ============================================
+     SLIDE 11 — E2E FLOW  (15:30–17:00)
+============================================ -->
+<section class="slide" id="s11">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> PIPELINE.E2E</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// от идеи до evidence</div>
+    <h2 class="reveal">ПОЛНЫЙ <span class="neon-cyan">ВОРКФЛОУ</span></h2>
+    <div class="flow">
+      <div class="node reveal"><span class="num">01</span><span class="lbl">Spec</span><div class="cmd">/sdd-new</div></div>
+      <div class="node reveal"><span class="num">02</span><span class="lbl">Classify</span><div class="cmd">/risk-classify</div></div>
+      <div class="node reveal"><span class="num">03</span><span class="lbl">Plan</span><div class="cmd">/plan</div></div>
+      <div class="node reveal"><span class="num">04</span><span class="lbl">TDD + Code</span><div class="cmd">tests → impl</div></div>
+      <div class="node reveal"><span class="num">05</span><span class="lbl">Review + Close</span><div class="cmd">/review · /evidence</div></div>
+    </div>
+    <p class="reveal" style="margin-top:1.2rem; font-size:var(--body-size); color:var(--muted); max-width:75ch">
+      На каждом шаге свой агент со своим набором прав. Explore только читает. Coding пишет — но строго в worktree и не трогает тесты. Review снова без записи.
+    </p>
+    <p class="reveal" style="margin-top:0.5rem; font-size:var(--body-size); color:var(--muted); max-width:75ch">
+      Главное правило: <span class="neon-pink">дочерний агент не может получить прав больше, чем у родителя</span>. Subagents — это в первую очередь стенка между ответственностями, не «много агентов умнее одного».
+    </p>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>12</b> / 16</div>
+</section>
+
+<!-- ============================================
+     SLIDE 12 — SUBAGENTS  (17:00–18:00)
+============================================ -->
+<section class="slide" id="s12">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> AGENT.ROSTER · §2.11</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// subagents as isolation</div>
+    <h2 class="reveal">РОЛИ <span class="neon-pink">АГЕНТОВ</span></h2>
+    <div class="cards cols-3">
+      <div class="card-c reveal"><span class="tag">EXPLORE</span><h3 class="neon-cyan">Read · Grep · Glob</h3><p>Ходит по репозиторию и возвращает короткую сводку: где живёт нужный код, какие у него зависимости.</p></div>
+      <div class="card-c reveal"><span class="tag">PLAN</span><h3 class="neon-cyan">Read + Docs</h3><p>Из сводки и SDD собирает план: что трогаем, в каком порядке, где видим риски. Файлы не правит.</p></div>
+      <div class="card-c reveal"><span class="tag">TEST</span><h3 class="neon-yellow">Runners + Logs</h3><p>Пишет тесты, которые сейчас падают, и фиксирует поведение, которого мы хотим добиться.</p></div>
+      <div class="card-c reveal"><span class="tag">CODING</span><h3 class="neon-pink">Edit · Write</h3><p>Доводит тесты до зелёного. Работает в worktree, тестовый файл не трогает в принципе.</p></div>
+      <div class="card-c reveal"><span class="tag">REVIEW</span><h3 class="neon-cyan">Read · Grep · Test</h3><p>Без прав на запись. Возвращает findings с уровнями: blocker, major, nit.</p></div>
+      <div class="card-c reveal"><span class="tag">SECURITY</span><h3 class="neon-pink">Scanners</h3><p>SAST-сканеры и проверка зависимостей. На R3 и выше вызывается автоматически.</p></div>
+    </div>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>13</b> / 16</div>
+</section>
+
+<!-- ============================================
+     SLIDE 13 — VELOCITY  (вырастет ли время?)
+============================================ -->
+<section class="slide" id="s12b">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> METRIC.VELOCITY · EVIDENCE</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// the velocity question</div>
+    <h2 class="reveal">ВЫРАСТЕТ ЛИ <span class="neon-cyan">ВРЕМЯ</span> РАЗРАБОТКИ?</h2>
+    <p class="note reveal" style="margin-top:0.4em; max-width:75ch">
+      Это не риторика и не «у нас в команде ощущается так». Есть три категории данных, и все они смотрят в одну сторону: <span class="neon-pink">harness ускоряет, его отсутствие — замедляет и плодит долг</span>.
+    </p>
+    <div class="velocity-row">
+      <div class="velocity-cell slow reveal">
+        <span class="scope">Без harness</span>
+        <div class="delta">+35% / +25%</div>
+        <p>AI-код пишется быстрее, но <span class="neon-yellow">+25%</span> уязвимостей, <span class="neon-yellow">+40,7%</span> сложности кода (807 репозиториев), <span class="neon-yellow">25%</span> AI-issues остаются в latest revision (304k коммитов).</p>
+        <p class="src">Gartner · he2026cursor · liu2026techdebt</p>
+      </div>
+      <div class="velocity-cell flat reveal">
+        <span class="scope">Без SDD</span>
+        <div class="delta">−25% скорости</div>
+        <p>Прогноз Gartner на 2027: организации без формальной спецификации теряют четверть скорости разработки. Не «±0», а прямой минус — потому что переделки съедают экономию на старте.</p>
+        <p class="src">Gartner Forecast 2027</p>
+      </div>
+      <div class="velocity-cell fast reveal">
+        <span class="scope">Плотная обвязка</span>
+        <div class="delta">66% vs 35%</div>
+        <p><span class="neon-pink">66%</span> компаний с ≥ 10 AI-сценариями в SDLC сообщают о росте скорости — против только <span class="neon-pink">35%</span> при менее чем 5 сценариях. Отдача от harness <span class="neon-cyan">нелинейная</span>.</p>
+        <p class="src">Gartner · DORA 2025</p>
+      </div>
+    </div>
+    <div class="insight-box reveal">
+      <span class="label">// смещение работы, а не её рост</span>
+      DORA 2025 (Google Cloud, ~5 000 респондентов): <span class="neon-yellow">45%</span> разработчиков тратят меньше времени на написание кода, <span class="neon-yellow">42%</span> — больше на ревью. Центр тяжести инженерной работы сместился от создания к верификации. Кто инвестирует в harness — выигрывает на новой фазе. Кто нет — платит долгом.
+    </div>
+    <p class="reveal" style="margin-top:0.6rem; font-size:var(--small-size); color:var(--muted); max-width:75ch">
+      RCT Anthropic 2026: группа разработчиков с ИИ без harness набрала на <span class="neon-pink">17% ниже</span> на тесте инженерного мастерства — наибольший разрыв в задачах отладки. McKinsey Digital: лидеры Developer Velocity Index растут по выручке в <span class="neon-cyan">4–5 раз</span> быстрее аутсайдеров. Источники: см. <span class="mono">source/AI_DISRUPT_PDLC_v3.5.md</span>, §1.1–1.3, библиография §10.
+    </p>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>14</b> / 16</div>
+</section>
+
+<!-- ============================================
+     SLIDE 14 — WHAT NOT TO DO  (18:00–19:00)
+============================================ -->
+<section class="slide" id="s13">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> POLICY.DENY · §7</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">§7 · hard limits</div>
+    <h2 class="reveal">ЧТО <span class="neon-pink">НЕЛЬЗЯ</span> НИКОГДА</h2>
+    <div style="display:flex; flex-direction:column; gap:clamp(0.4rem,1vw,0.7rem); margin-top:1rem">
+      <div class="forbid reveal"><span class="x">✕</span><div>Запускать разрушительные команды: <span class="mono neon-yellow">rm -rf</span>, <span class="mono neon-yellow">git push --force</span>, миграции на проде. Это блокируется hooks, а не «честным словом».</div></div>
+      <div class="forbid reveal"><span class="x">✕</span><div>Читать или печатать секреты — <span class="mono neon-yellow">.env</span>, <span class="mono neon-yellow">*.pem</span>, <span class="mono neon-yellow">credentials.*</span>. Даже «просто посмотреть» нельзя: попало в лог — считай утекло.</div></div>
+      <div class="forbid reveal"><span class="x">✕</span><div>Говорить «готово» <span class="neon-pink">без evidence bundle</span>. Нет пакета — нет результата, как бы хорошо ни выглядел diff.</div></div>
+      <div class="forbid reveal"><span class="x">✕</span><div>Подправлять тесты, чтобы они позеленели. Тест — это контракт; если его двигать, контракт исчезает.</div></div>
+      <div class="forbid reveal"><span class="x">✕</span><div>Выходить за рамки SDD без явного «да» от человека. Хорошая идея «по дороге» — это новый SDD, а не тихий коммит.</div></div>
+      <div class="forbid reveal"><span class="x">✕</span><div>Игнорировать падающий тест с пометкой «он, кажется, не про мою задачу». Чаще всего — именно про неё.</div></div>
+    </div>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>15</b> / 16</div>
+</section>
+
+<!-- ============================================
+     SLIDE 14 — CTA  (19:00–20:00)
+============================================ -->
+<section class="slide" id="s14">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> READY · AWAITING_INPUT</div>
+  <div class="slide-content" style="align-items:center; justify-content:center">
+    <div class="cta-block">
+      <div class="eyebrow reveal">// next move</div>
+      <h1 class="reveal">
+        <span class="glitch" data-text="START">START</span>
+        <span class="neon-pink">/</span>
+        <span class="neon-cyan">SHIP</span>
+      </h1>
+      <p class="subtitle reveal" style="max-width:55ch; margin:1rem auto 0">
+        Откройте Claude Code в репозитории и наберите первую команду. SDD, риск, план, тесты, код, ревью, evidence — процесс не нужно держать в голове. Он живёт в командах.
+      </p>
+      <div class="cta-prompt reveal">/sdd-new &lt;твоя задача&gt;</div>
+      <div class="signature reveal" style="margin:2rem auto 0; max-width:50ch; text-align:left">
+        AI DISRUPT PDLC v3.5 &nbsp;·&nbsp; Harness over Model &nbsp;·&nbsp; 2026
+      </div>
+    </div>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>16</b> / 16</div>
+</section>
+
+<script>
+(function () {
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const navContainer = document.getElementById('navDots');
+
+  slides.forEach((s, i) => {
+    const a = document.createElement('a');
+    a.href = 'javascript:void(0)';
+    a.title = 'Slide ' + (i + 1);
+    a.addEventListener('click', function () { jumpTo(i, 'last'); });
+    navContainer.appendChild(a);
+  });
+  const dots = Array.from(navContainer.querySelectorAll('a'));
+
+  let currentSlide = 0;
+  let currentStep = 0;
+  const lastStepPerSlide = slides.map(() => 0);
+
+  function stepsOn(idx) {
+    return slides[idx].querySelectorAll('.reveal').length;
+  }
+
+  function paint() {
+    const slide = slides[currentSlide];
+    const steps = slide.querySelectorAll('.reveal');
+    steps.forEach(function (el, i) {
+      el.classList.toggle('shown', i <= currentStep);
+    });
+    dots.forEach(function (d, i) { d.classList.toggle('active', i === currentSlide); });
+    lastStepPerSlide[currentSlide] = currentStep;
+
+    const total = stepsOn(currentSlide);
+    const marker = slide.querySelector('.build-marker');
+    if (marker) {
+      const bar = marker.querySelector('.bar');
+      const txt = marker.querySelector('.text');
+      const p = total > 0 ? ((currentStep + 1) / total) * 100 : 0;
+      if (bar) bar.style.setProperty('--p', p + '%');
+      if (txt) txt.textContent = (currentStep + 1) + ' / ' + total;
+    }
+  }
+
+  function scrollToCurrent(behavior) {
+    const slide = slides[currentSlide];
+    slide.scrollIntoView({ behavior: behavior || 'smooth', block: 'start' });
+  }
+
+  function advance() {
+    const total = stepsOn(currentSlide);
+    if (currentStep < total - 1) {
+      currentStep++;
+      paint();
+    } else if (currentSlide < slides.length - 1) {
+      currentSlide++;
+      currentStep = 0;
+      paint();
+      scrollToCurrent('smooth');
+    }
+  }
+
+  function retreat() {
+    if (currentStep > 0) {
+      currentStep--;
+      paint();
+    } else if (currentSlide > 0) {
+      currentSlide--;
+      currentStep = stepsOn(currentSlide) - 1;
+      paint();
+      scrollToCurrent('smooth');
+    }
+  }
+
+  function nextSlide() {
+    if (currentSlide < slides.length - 1) {
+      currentSlide++;
+      currentStep = 0;
+      paint();
+      scrollToCurrent('smooth');
+    }
+  }
+  function prevSlide() {
+    if (currentSlide > 0) {
+      currentSlide--;
+      currentStep = stepsOn(currentSlide) - 1;
+      paint();
+      scrollToCurrent('smooth');
+    }
+  }
+
+  function jumpTo(idx, mode) {
+    currentSlide = Math.max(0, Math.min(idx, slides.length - 1));
+    currentStep = (mode === 'last') ? stepsOn(currentSlide) - 1 : 0;
+    paint();
+    scrollToCurrent('smooth');
+  }
+
+  document.addEventListener('keydown', function (e) {
+    const tag = (e.target && e.target.tagName) || '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+    switch (e.key) {
+      case 'ArrowRight':
+      case 'ArrowDown':
+      case ' ':
+      case 'Enter':
+        e.preventDefault();
+        advance();
+        break;
+      case 'ArrowLeft':
+      case 'ArrowUp':
+      case 'Backspace':
+        e.preventDefault();
+        retreat();
+        break;
+      case 'PageDown':
+        e.preventDefault();
+        nextSlide();
+        break;
+      case 'PageUp':
+        e.preventDefault();
+        prevSlide();
+        break;
+      case 'Home':
+        e.preventDefault();
+        jumpTo(0, 'first');
+        break;
+      case 'End':
+        e.preventDefault();
+        jumpTo(slides.length - 1, 'last');
+        break;
+    }
+  });
+
+  // Wheel/touch sync: if the user scrolls manually, follow the active slide,
+  // but do not change step state (it's preserved per slide via lastStepPerSlide).
+  const io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting && e.intersectionRatio >= 0.55) {
+        const idx = slides.indexOf(e.target);
+        if (idx !== currentSlide) {
+          currentSlide = idx;
+          currentStep = lastStepPerSlide[idx]; // resume from where we left
+          paint();
+        }
+      }
+    });
+  }, { threshold: [0.55] });
+  slides.forEach(function (s) { io.observe(s); });
+
+  // Initial render
+  paint();
+})();
+</script>
+</body>
+</html>
