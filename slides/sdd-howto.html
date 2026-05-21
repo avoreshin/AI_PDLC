@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Как составить SDD — инструкция</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* === VIEWPORT BASE === */
+html, body { height: 100%; overflow-x: hidden; }
+html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+.slide { width: 100vw; height: 100vh; height: 100dvh; overflow: hidden; scroll-snap-align: start; display: flex; flex-direction: column; position: relative; }
+.slide-content { flex: 1; display: flex; flex-direction: column; max-height: 100%; overflow: hidden; padding: var(--pad-y) var(--pad-x); z-index: 2; position: relative; gap: clamp(0.5rem, 1.2vw, 1rem); }
+.slide-content.center { justify-content: center; }
+.slide-content.start { justify-content: flex-start; padding-top: clamp(4rem, 7vw, 5.5rem); }
+
+:root {
+  --pad-x: clamp(2rem, 6vw, 6.5rem);
+  --pad-y: clamp(2.5rem, 5vw, 4rem);
+  --title-size: clamp(1.8rem, 5.5vw, 4.5rem);
+  --h2-size: clamp(1.4rem, 4vw, 3rem);
+  --h3-size: clamp(0.95rem, 1.8vw, 1.25rem);
+  --body-size: clamp(0.85rem, 1.3vw, 1.05rem);
+  --small-size: clamp(0.7rem, 1vw, 0.85rem);
+
+  --bg: #0d0e10;
+  --surface: #161719;
+  --surface-2: #1f2125;
+  --line: #2a2d33;
+  --text: #f4f3ee;
+  --text-dim: #9aa0a8;
+  --text-mute: #5f656d;
+  --lime: #d4ff00;
+  --lime-dim: #abc500;
+  --orange: #ff5a36;
+  --orange-dim: #cc4423;
+  --blue: #6da6ff;
+  --magenta: #ff5cc8;
+  --amber: #ffb84a;
+  --green: #5fd99c;
+}
+@media (max-height: 760px) {
+  :root { --pad-y: clamp(2rem, 4vw, 3rem); --title-size: clamp(1.5rem, 4.5vw, 3.5rem); --h2-size: clamp(1.2rem, 3.5vw, 2.4rem); --body-size: clamp(0.8rem, 1.2vw, 1rem); }
+}
+@media (max-height: 640px) {
+  :root { --pad-x: clamp(1.5rem, 4vw, 4rem); --pad-y: clamp(1.5rem, 3vw, 2.2rem); --title-size: clamp(1.2rem, 4vw, 2.8rem); --h2-size: clamp(1.05rem, 3vw, 1.9rem); --body-size: clamp(0.75rem, 1.1vw, 0.95rem); --small-size: clamp(0.65rem, 0.9vw, 0.78rem); }
+  .nav-dots, .keyboard-hint { display: none; }
+  .slide-content.start { padding-top: clamp(3rem, 5vw, 4rem); }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; } html { scroll-behavior: auto; } }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body { background: var(--bg); color: var(--text); font-family: 'IBM Plex Sans', sans-serif; font-weight: 400; -webkit-font-smoothing: antialiased; }
+.slide { background: var(--bg); }
+
+/* === RAILS === */
+.rail {
+  position: absolute; left: 0; right: 0;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: clamp(0.75rem, 1.3vw, 1.2rem) var(--pad-x);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.62rem, 0.9vw, 0.78rem);
+  letter-spacing: 0.18em; text-transform: uppercase;
+  z-index: 5; pointer-events: none;
+}
+.rail.top { top: 0; border-bottom: 1px solid var(--line); }
+.rail.bot { bottom: 0; border-top: 1px solid var(--line); }
+.rail .left { color: var(--lime); }
+.rail .right { color: var(--text-dim); }
+.rail .pg { color: var(--text); font-weight: 700; letter-spacing: 0.1em; }
+
+/* === TYPOGRAPHY === */
+h1 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: var(--title-size); line-height: 0.92; letter-spacing: -0.035em; color: var(--text); }
+h2 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: var(--h2-size); line-height: 0.98; letter-spacing: -0.025em; color: var(--text); }
+h3 { font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: var(--h3-size); line-height: 1.15; letter-spacing: -0.005em; color: var(--text); }
+
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 0.6em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--small-size); color: var(--lime);
+  letter-spacing: 0.22em; text-transform: uppercase; font-weight: 500;
+}
+.eyebrow::before { content: ''; display: inline-block; width: clamp(20px, 3vw, 36px); height: 2px; background: var(--lime); }
+
+.lead {
+  font-family: 'IBM Plex Sans', sans-serif; font-weight: 400;
+  font-size: clamp(0.95rem, 1.5vw, 1.2rem); line-height: 1.45;
+  color: var(--text-dim); max-width: 70ch;
+}
+p, li { font-size: var(--body-size); line-height: 1.5; color: var(--text-dim); }
+strong { color: var(--text); font-weight: 600; }
+em { font-style: normal; color: var(--lime); }
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+.bignum {
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+  font-size: clamp(6rem, 18vw, 16rem); line-height: 0.8;
+  letter-spacing: -0.06em; color: var(--lime);
+}
+.bignum.orange { color: var(--orange); }
+
+.accent-line { display: block; width: clamp(48px, 6vw, 80px); height: 3px; background: var(--lime); margin: clamp(0.5rem, 1.2vw, 1rem) 0; }
+.accent-line.orange { background: var(--orange); }
+
+.box {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: clamp(0.8rem, 1.6vw, 1.3rem);
+  position: relative;
+}
+.box.accent { border-left: 3px solid var(--lime); }
+.box.accent-orange { border-left: 3px solid var(--orange); }
+.box.accent-blue { border-left: 3px solid var(--blue); }
+.box.accent-amber { border-left: 3px solid var(--amber); }
+.box.invert { background: var(--lime); color: var(--bg); border-color: var(--lime); }
+.box.invert h3, .box.invert p, .box.invert li, .box.invert strong { color: var(--bg); }
+.box.invert em { color: var(--orange); }
+
+.grid { display: grid; gap: clamp(0.7rem, 1.3vw, 1.1rem); }
+.grid-2 { grid-template-columns: 1fr 1fr; }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+.grid-split { grid-template-columns: 1fr 1.3fr; }
+.grid-split-reverse { grid-template-columns: 1.3fr 1fr; }
+@media (max-width: 800px) { .grid-2, .grid-3, .grid-4, .grid-split, .grid-split-reverse { grid-template-columns: 1fr; } }
+
+pre.code {
+  background: var(--bg); border: 1px solid var(--line);
+  border-left: 3px solid var(--lime);
+  padding: clamp(0.7rem, 1.4vw, 1.2rem) clamp(1rem, 1.8vw, 1.5rem);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.65rem, 0.95vw, 0.85rem);
+  line-height: 1.55; color: var(--text);
+  overflow: hidden; position: relative;
+}
+pre.code::after {
+  content: attr(data-lang); position: absolute; top: 0; right: 0;
+  background: var(--surface-2); color: var(--lime);
+  padding: 0.25em 0.8em; font-size: 0.6rem;
+  font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase;
+}
+pre.code.orange { border-left-color: var(--orange); }
+pre.code.orange::after { color: var(--orange); }
+pre.code .k { color: var(--lime); font-weight: 600; }
+pre.code .s { color: var(--orange); }
+pre.code .c { color: var(--text-mute); font-style: italic; }
+pre.code .n { color: var(--blue); font-weight: 500; }
+pre.code .f { color: var(--magenta); font-weight: 600; }
+
+.gwt { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.85em; font-weight: 700; padding: 0.15em 0.55em; margin-right: 0.3em; letter-spacing: 0.05em; }
+.gwt.given { color: var(--blue); background: rgba(109,166,255,0.14); }
+.gwt.when  { color: var(--orange); background: rgba(255,90,54,0.14); }
+.gwt.then  { color: var(--lime); background: rgba(212,255,0,0.14); }
+
+ul.dash { list-style: none; }
+ul.dash li { padding-left: 1.5em; position: relative; margin-bottom: 0.4em; line-height: 1.5; font-size: var(--body-size); }
+ul.dash li::before { content: ''; position: absolute; left: 0; top: 0.65em; width: 12px; height: 2px; background: var(--lime); }
+ul.dash.check li::before { content: '✓'; background: transparent; width: auto; height: auto; top: 0; color: var(--lime); font-weight: 700; }
+ul.dash.cross li::before { content: '✕'; background: transparent; width: auto; height: auto; top: 0; color: var(--orange); font-weight: 700; }
+ul.dash.orange li::before { background: var(--orange); }
+
+ol.steps { counter-reset: s; list-style: none; }
+ol.steps li { counter-increment: s; padding-left: 2.8em; position: relative; margin-bottom: 0.6em; line-height: 1.5; font-size: var(--body-size); }
+ol.steps li::before { content: counter(s, decimal-leading-zero); position: absolute; left: 0; top: 0; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.95em; color: var(--lime); }
+
+table.data { width: 100%; border-collapse: collapse; font-family: 'IBM Plex Sans', sans-serif; font-size: clamp(0.75rem, 1.15vw, 0.95rem); }
+table.data th, table.data td { padding: 0.55em 0.85em; text-align: left; border-bottom: 1px solid var(--line); color: var(--text-dim); }
+table.data tbody tr:last-child td { border-bottom: none; }
+table.data th { font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: clamp(0.62rem, 0.9vw, 0.75rem); color: var(--lime); letter-spacing: 0.2em; text-transform: uppercase; border-bottom: 2px solid var(--lime); }
+table.data td.mono { font-family: 'JetBrains Mono', monospace; color: var(--text); font-weight: 500; }
+table.data tbody tr:hover td { background: var(--surface); color: var(--text); }
+table.data td.good { color: var(--lime); font-weight: 600; }
+table.data td.bad { color: var(--orange); font-weight: 600; }
+table.data td.r0, table.data td.r1 { color: var(--blue); font-weight: 700; }
+table.data td.r2 { color: var(--lime); font-weight: 700; }
+table.data td.r3 { color: var(--amber); font-weight: 700; }
+table.data td.r4 { color: var(--orange); font-weight: 700; }
+table.data td.r5 { color: var(--magenta); font-weight: 700; }
+
+.pull {
+  font-family: 'Space Grotesk', sans-serif; font-weight: 500;
+  font-size: clamp(1.05rem, 2vw, 1.7rem); line-height: 1.3;
+  letter-spacing: -0.015em; color: var(--text);
+  border-left: 3px solid var(--lime);
+  padding: clamp(0.5rem, 1vw, 0.9rem) clamp(1rem, 2vw, 1.6rem);
+  max-width: 70ch;
+}
+.pull em { color: var(--lime); font-style: normal; }
+.pull .attr { display: block; margin-top: 0.6em; font-family: 'JetBrains Mono', monospace; font-size: 0.55em; color: var(--text-mute); letter-spacing: 0.15em; text-transform: uppercase; font-weight: 400; }
+.pull.orange { border-left-color: var(--orange); }
+.pull.orange em { color: var(--orange); }
+
+.badge { display: inline-block; padding: 0.28em 0.8em; font-family: 'JetBrains Mono', monospace; font-size: var(--small-size); letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; color: var(--text); border: 1px solid var(--line); background: var(--surface); }
+.badge.lime { color: var(--bg); background: var(--lime); border-color: var(--lime); }
+.badge.orange { color: var(--orange); border-color: var(--orange); background: rgba(255,90,54,0.08); }
+.badge.blue { color: var(--blue); border-color: var(--blue); background: rgba(109,166,255,0.08); }
+.badge.ghost { background: transparent; border-color: var(--text-mute); color: var(--text-dim); }
+
+.reveal { opacity: 0; transform: translateY(12px); transition: opacity 0.5s ease, transform 0.5s ease; }
+.slide.active .reveal { opacity: 1; transform: translateY(0); }
+.slide.active .reveal.d1 { transition-delay: 0.05s; }
+.slide.active .reveal.d2 { transition-delay: 0.13s; }
+.slide.active .reveal.d3 { transition-delay: 0.21s; }
+.slide.active .reveal.d4 { transition-delay: 0.29s; }
+.slide.active .reveal.d5 { transition-delay: 0.37s; }
+
+.nav-dots { position: fixed; right: clamp(8px, 1vw, 16px); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 7px; z-index: 100; }
+.nav-dots button { width: 7px; height: 7px; border: 1px solid var(--text-mute); background: transparent; cursor: pointer; padding: 0; transition: all 0.2s; }
+.nav-dots button.on { background: var(--lime); border-color: var(--lime); }
+.nav-dots button:hover { background: var(--text-dim); }
+.keyboard-hint { position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); z-index: 100; opacity: 0; transition: opacity 0.4s; letter-spacing: 0.15em; pointer-events: none; }
+body:hover .keyboard-hint { opacity: 0.7; }
+
+.hero-bg-num { position: absolute; right: var(--pad-x); bottom: -0.1em; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: clamp(12rem, 32vw, 28rem); line-height: 0.75; letter-spacing: -0.06em; color: var(--surface); pointer-events: none; z-index: 0; }
+
+/* === SVG / DIAGRAMS === */
+.diagram { max-width: 100%; height: auto; max-height: 60vh; }
+.diagram text { font-family: 'IBM Plex Sans', sans-serif; fill: var(--text); }
+.diagram .mono { font-family: 'JetBrains Mono', monospace; }
+.diagram .dim { fill: var(--text-dim); }
+.diagram .mute { fill: var(--text-mute); }
+.diagram .lime { fill: var(--lime); }
+.diagram .orange { fill: var(--orange); }
+.diagram .blue { fill: var(--blue); }
+.diagram .magenta { fill: var(--magenta); }
+.diagram .amber { fill: var(--amber); }
+
+</style>
+</head>
+<body>
+
+<!-- === SVG GLOBAL DEFS === -->
+<svg width="0" height="0" style="position: absolute" aria-hidden="true">
+  <defs>
+    <marker id="aLime" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,1 L11,6 L0,11 Z" fill="#d4ff00"/></marker>
+    <marker id="aOrange" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,1 L11,6 L0,11 Z" fill="#ff5a36"/></marker>
+    <marker id="aBlue" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,1 L11,6 L0,11 Z" fill="#6da6ff"/></marker>
+    <marker id="aDim" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,1 L11,6 L0,11 Z" fill="#5f656d"/></marker>
+  </defs>
+</svg>
+
+<!-- 01 COVER -->
+<section class="slide active" id="s1">
+  <div class="rail top"><span class="left">SDD · HOW-TO · v1.0</span><span class="right">24 страницы · 5 схем</span></div>
+  <div class="hero-bg-num">SDD</div>
+  <div class="slide-content center">
+    <div class="reveal d1 eyebrow">Spec-Driven Development</div>
+    <h1 class="reveal d2" style="margin-top: 0.5em;">Как&nbsp;составить<br><em>спецификацию&nbsp;SDD.</em></h1>
+    <span class="reveal d3 accent-line"></span>
+    <div class="reveal d4 lead">
+      Пошаговое руководство: от пустой страницы до контракта, по которому агент строит фичу без вашего вмешательства.
+    </div>
+    <div class="reveal d5" style="margin-top: clamp(1.5rem, 3vw, 2.5rem); display: flex; gap: 0.5em; flex-wrap: wrap;">
+      <span class="badge lime">8 шагов</span>
+      <span class="badge">5 SVG-схем</span>
+      <span class="badge">Полный пример</span>
+      <span class="badge ghost">Чеклист ревью</span>
+      <span class="badge ghost">Антипаттерны</span>
+    </div>
+  </div>
+  <div class="rail bot"><span class="left">/sdd-howto/</span><span class="right pg"></span></div>
+  <div class="keyboard-hint">→ стрелками или пробелом</div>
+</section>
+
+<!-- 02 WHAT IS SDD -->
+<section class="slide" id="s2">
+  <div class="rail top"><span class="left">§ 01 — основания</span><span class="right">что такое SDD</span></div>
+  <div class="slide-content center">
+    <div class="reveal d1 eyebrow">основания / 01</div>
+    <h2 class="reveal d2" style="margin-top: 0.4em; max-width: 18ch;">SDD&nbsp;— это <em>контракт</em>,<br>а не документация.</h2>
+    <div class="reveal d3 lead" style="margin-top: 0.6em;">
+      Specification-Driven Development документ — машиночитаемая спецификация. Агент читает её <strong>как прямую инструкцию</strong>. SDD не описывает то, что есть, — он предписывает то, что должно быть.
+    </div>
+    <div class="reveal d4 grid grid-3" style="margin-top: 1.5em;">
+      <div class="box">
+        <span class="badge ghost">DOCS</span>
+        <h3 style="margin-top: 0.6em;">Документация</h3>
+        <p style="margin-top: 0.4em;">Описывает <strong>текущее</strong> состояние. Пост-фактум. Устаревает.</p>
+      </div>
+      <div class="box accent-blue">
+        <span class="badge blue">TICKET</span>
+        <h3 style="margin-top: 0.6em;">Jira-тикет</h3>
+        <p style="margin-top: 0.4em;">Описывает <strong>задачу</strong>. Двусмысленный. Для людей.</p>
+      </div>
+      <div class="box invert">
+        <span class="badge" style="background:var(--bg); color:var(--lime); border-color:var(--bg);">SDD</span>
+        <h3 style="margin-top: 0.6em;">SDD</h3>
+        <p style="margin-top: 0.4em;">Описывает <strong>контракт</strong>: что должно быть, как проверить, чего нельзя.</p>
+      </div>
+    </div>
+  </div>
+  <div class="rail bot"><span class="left">essence</span><span class="right pg"></span></div>
+</section>
+
+<!-- 03 WHEN TO WRITE -->
+<section class="slide" id="s3">
+  <div class="rail top"><span class="left">§ 01 — основания</span><span class="right">когда писать</span></div>
+  <div class="slide-content center">
+    <div class="reveal d1 eyebrow">граница / 02</div>
+    <h2 class="reveal d2" style="margin-top: 0.4em;">Когда SDD <em>обязателен.</em><br>Когда — <em>избыточен.</em></h2>
+    <span class="reveal d3 accent-line"></span>
+    <div class="reveal d4 grid grid-2" style="margin-top: 0.6em;">
+      <div class="box accent">
+        <h3 style="color: var(--lime);">Пиши SDD когда</h3>
+        <ul class="dash check" style="margin-top: 0.6em;">
+          <li>Задача передаётся агенту (issue → headless → PR)</li>
+          <li>Risk class ≥ R2 (фичефлаг, auth, payments, infra)</li>
+          <li>Затрагивается контракт API или схема БД</li>
+          <li>Меняется внешне видимое поведение</li>
+          <li>Есть инварианты безопасности / производительности</li>
+        </ul>
+      </div>
+      <div class="box accent-orange">
+        <h3 style="color: var(--orange);">Не пиши SDD когда</h3>
+        <ul class="dash cross" style="margin-top: 0.6em;">
+          <li>Исправляешь опечатку в комментарии (R0)</li>
+          <li>Локальный рефакторинг внутри одного метода</li>
+          <li>Доделываешь свою же фичу за 15 минут</li>
+          <li>Внутренний эксперимент в branch без CI</li>
+          <li>Hot-fix критического инцидента (пиши post-mortem)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="reveal d5 pull" style="margin-top: 1em;">
+      Дольше 30 минут <em>или</em> может выполнить агент — пиши SDD.
+      <span class="attr">правило большого пальца</span>
+    </div>
+  </div>
+  <div class="rail bot"><span class="left">when</span><span class="right pg"></span></div>
+</section>
+
+<!-- 04 SKELETON — SVG -->
+<section class="slide" id="s4">
+  <div class="rail top"><span class="left">§ 02 — структура · SCHEMA #1</span><span class="right">анатомия документа</span></div>
+  <div class="slide-content start">
+    <div class="reveal d1 eyebrow">схема #1 · скелет SDD</div>
+    <h2 class="reveal d2" style="margin-top: 0.3em;">8 секций <em>обязательных</em>.</h2>
+    <span class="reveal d3 accent-line"></span>
+    <div class="reveal d4" style="display: flex; justify-content: center; margin-top: 0.5em; flex: 1; min-height: 0;">
+      <svg viewBox="0 0 1200 460" class="diagram" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+        <!-- left: document mock -->
+        <g transform="translate(40 30)">
+          <rect x="0" y="0" width="380" height="400" fill="#161719" stroke="#2a2d33" stroke-width="1.5"/>
+          <!-- corner fold -->
+          <path d="M 360 0 L 380 0 L 380 20 Z" fill="#1f2125" stroke="#2a2d33" stroke-width="1"/>
+          <line x1="360" y1="0" x2="360" y2="20" stroke="#2a2d33" stroke-width="1"/>
+          <line x1="360" y1="20" x2="380" y2="20" stroke="#2a2d33" stroke-width="1"/>
+          <!-- yaml block -->
+          <rect x="20" y="25" width="340" height="50" fill="#0d0e10" stroke="#d4ff00" stroke-width="1.5"/>
+          <text x="30" y="42" class="mono" font-size="9" fill="#d4ff00">---</text>
+          <text x="30" y="55" class="mono" font-size="10" fill="#6da6ff">id: SDD-2026-042</text>
+          <text x="30" y="68" class="mono" font-size="10" fill="#6da6ff">risk_class: R2</text>
+          <!-- sections -->
+          <text x="20" y="100" font-size="13" font-weight="700" fill="#d4ff00">## Goal</text>
+          <line x1="20" y1="108" x2="340" y2="108" stroke="#5f656d" stroke-width="0.5"/>
+          <line x1="20" y1="116" x2="320" y2="116" stroke="#5f656d" stroke-width="0.5"/>
+
+          <text x="20" y="138" font-size="13" font-weight="700" fill="#d4ff00">## Non-goals</text>
+          <line x1="20" y1="146" x2="340" y2="146" stroke="#5f656d" stroke-width="0.5"/>
+          <line x1="20" y1="154" x2="280" y2="154" stroke="#5f656d" stroke-width="0.5"/>
+
+          <rect x="14" y="170" width="354" height="80" fill="#d4ff00" opacity="0.08" stroke="#d4ff00" stroke-width="1"/>
+          <text x="20" y="186" font-size="13" font-weight="700" fill="#d4ff00">## Acceptance criteria  ★</text>
+          <text x="20" y="200" class="mono" font-size="9" fill="#6da6ff">AC-1 Given … When … Then …</text>
+          <text x="20" y="212" class="mono" font-size="9" fill="#6da6ff">AC-2 Given … When … Then …</text>
+          <text x="20" y="224" class="mono" font-size="9" fill="#ff5a36">AC-3 [neg] Given … When … Then …</text>
+          <text x="20" y="240" class="mono" font-size="9" fill="#5f656d">… ещё AC …</text>
+
+          <text x="20" y="270" font-size="13" font-weight="700" fill="#d4ff00">## Invariants</text>
+          <line x1="20" y1="278" x2="340" y2="278" stroke="#5f656d" stroke-width="0.5"/>
+
+          <text x="20" y="300" font-size="13" font-weight="700" fill="#d4ff00">## Risk class</text>
+          <text x="120" y="300" class="mono" font-size="11" font-weight="700" fill="#d4ff00">R2</text>
+
+          <text x="20" y="330" font-size="13" font-weight="700" fill="#d4ff00">## Manual approval</text>
+          <line x1="20" y1="338" x2="340" y2="338" stroke="#5f656d" stroke-width="0.5"/>
+
+          <text x="20" y="360" font-size="13" font-weight="700" fill="#d4ff00">## Evidence required</text>
+          <line x1="20" y1="368" x2="340" y2="368" stroke="#5f656d" stroke-width="0.5"/>
+          <line x1="20" y1="376" x2="300" y2="376" stroke="#5f656d" stroke-width="0.5"/>
+        </g>
+
+        <!-- right: callouts -->
+        <g transform="translate(480 30)" font-family="IBM Plex Sans, sans-serif">
+          <!-- 01 -->
+          <text x="0" y="48" class="mono" font-size="12" font-weight="700" fill="#d4ff00">01</text>
+          <text x="32" y="48" font-size="14" font-weight="700" fill="#f4f3ee">Header / metadata</text>
+          <text x="32" y="64" font-size="11" fill="#9aa0a8">id, owner, status, risk_class, related</text>
+          <path d="M 0 50 L -40 50" stroke="#2a2d33" stroke-width="1"/>
+
+          <text x="0" y="100" class="mono" font-size="12" font-weight="700" fill="#d4ff00">02</text>
+          <text x="32" y="100" font-size="14" font-weight="700" fill="#f4f3ee">Goal</text>
+          <text x="32" y="116" font-size="11" fill="#9aa0a8">одно предложение — зачем</text>
+
+          <text x="0" y="152" class="mono" font-size="12" font-weight="700" fill="#d4ff00">03</text>
+          <text x="32" y="152" font-size="14" font-weight="700" fill="#f4f3ee">Non-goals</text>
+          <text x="32" y="168" font-size="11" fill="#9aa0a8">что НЕ делаем</text>
+
+          <text x="0" y="204" class="mono" font-size="13" font-weight="700" fill="#d4ff00">04 ★</text>
+          <text x="40" y="204" font-size="15" font-weight="700" fill="#d4ff00">Acceptance criteria</text>
+          <text x="40" y="220" font-size="11" fill="#9aa0a8">★ главный артефакт · Given/When/Then</text>
+          <text x="40" y="234" font-size="11" fill="#9aa0a8">1 AC = 1 test case в eval-suite</text>
+
+          <text x="0" y="270" class="mono" font-size="12" font-weight="700" fill="#d4ff00">05</text>
+          <text x="32" y="270" font-size="14" font-weight="700" fill="#f4f3ee">Invariants</text>
+          <text x="32" y="286" font-size="11" fill="#9aa0a8">что нельзя сломать</text>
+
+          <text x="0" y="322" class="mono" font-size="12" font-weight="700" fill="#d4ff00">06</text>
+          <text x="32" y="322" font-size="14" font-weight="700" fill="#f4f3ee">Risk class</text>
+          <text x="32" y="338" font-size="11" fill="#9aa0a8">R0…R5 → merge gate</text>
+        </g>
+        <g transform="translate(900 30)" font-family="IBM Plex Sans, sans-serif">
+          <text x="0" y="48" class="mono" font-size="12" font-weight="700" fill="#d4ff00">07</text>
+          <text x="32" y="48" font-size="14" font-weight="700" fill="#f4f3ee">Manual approval</text>
+          <text x="32" y="64" font-size="11" fill="#9aa0a8">где обязателен человек</text>
+
+          <text x="0" y="100" class="mono" font-size="12" font-weight="700" fill="#d4ff00">08</text>
+          <text x="32" y="100" font-size="14" font-weight="700" fill="#f4f3ee">Evidence required</text>
+          <text x="32" y="116" font-size="11" fill="#9aa0a8">что должно быть в bundle</text>
+
+          <!-- pull quote -->
+          <rect x="-10" y="170" width="280" height="180" fill="#161719" stroke="#ff5a36" stroke-width="1" stroke-dasharray="3 3"/>
+          <text x="0" y="195" class="mono" font-size="10" fill="#ff5a36">▸ ВАЖНО</text>
+          <text x="0" y="225" font-size="13" font-style="italic" fill="#f4f3ee">«Если секции нет —</text>
+          <text x="0" y="245" font-size="13" font-style="italic" fill="#f4f3ee">её придумает агент.</text>
+          <text x="0" y="275" font-size="13" font-style="italic" fill="#d4ff00">И придумает</text>
+          <text x="0" y="295" font-size="13" font-style="italic" fill="#d4ff00">неправильно.»</text>
+          <text x="0" y="325" class="mono" font-size="9" fill="#5f656d">— правило 8 секций</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+  <div class="rail bot"><span class="left">skeleton</span><span class="right pg"></span></div>
+</section>
+
+<!-- 05 STEP 1 HEADER -->
+<section class="slide" id="s5">
+  <div class="rail top"><span class="left">§ 03 · шаг 01</span><span class="right">header</span></div>
+  <div class="slide-content center">
+    <div class="reveal d1 grid grid-split" style="align-items: end;">
+      <div>
+        <div class="eyebrow">шаг</div>
+        <div class="bignum" style="margin-top: 0.1em;">01</div>
+      </div>
+      <div>
+        <h2>Шапка<br><em>документа.</em></h2>
+        <p class="lead" style="margin-top: 0.6em;">YAML-frontmatter с метаданными. То, что <strong>UserPromptSubmit hook</strong> прочитает первым.</p>
+      </div>
+    </div>
+    <span class="reveal d2 accent-line"></span>
+    <div class="reveal d3 grid grid-split">
+      <pre class="code" data-lang="yaml">
+<span class="c">---</span>
+<span class="n">id</span>: <span class="s">SDD-2026-042</span>
+<span class="n">title</span>: <span class="s">"Rate limiter v2"</span>
+<span class="n">owner</span>: <span class="s">@platform-team</span>
+<span class="n">status</span>: <span class="s">ready-for-ai</span>
+<span class="n">risk_class</span>: <span class="f">R2</span>
+<span class="n">related</span>:
+  - <span class="s">ADR-017</span>
+  - <span class="s">JIRA PLAT-1284</span>
+<span class="n">created</span>: <span class="s">2026-05-15</span>
+<span class="n">updated</span>: <span class="s">2026-05-20</span>
+<span class="c">---</span></pre>
+      <div class="box accent">
+        <h3>Что обязательно</h3>
+        <ul class="dash" style="margin-top: 0.6em;">
+          <li><strong>id</strong> — машиночитаемый, используется в evidence bundle</li>
+          <li><strong>owner</strong> — конкретный, не «tbd»</li>
+          <li><strong>status</strong> — агент не возьмёт <span class="mono">draft</span></li>
+          <li><strong>risk_class</strong> — определяет merge gate в CI</li>
+          <li><strong>related</strong> — ADR + тикет, иначе агент додумает</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="rail bot"><span class="left">step.01 — header</span><span class="right pg"></span></div>
+</section>
+
+<!-- 06 STEP 2 — GOAL -->
+<section class="slide" id="s6">
+  <div class="rail top"><span class="left">§ 03 · шаг 02 (1/2)</span><span class="right">goal</span></div>
+  <div class="slide-content center">
+    <div class="reveal d1 grid grid-split" style="align-items: end;">
+      <div><div class="eyebrow">шаг</div><div class="bignum" style="margin-top: 0.1em;">02</div></div>
+      <div>
+        <h2>Goal — <em>одно предложение</em>, прибитое к стене.</h2>
+        <p class="lead" style="margin-top: 0.5em;">Содержит «что» + «зачем» + границу (фичефлаг, область). Никаких прилагательных типа «улучшить» или «оптимизировать».</p>
+      </div>
+    </div>
+    <span class="reveal d2 accent-line"></span>
+    <div class="reveal d3 grid grid-2">
+      <div class="box accent">
+        <span class="badge lime">✓ ПРАВИЛЬНО</span>
+        <pre class="code" data-lang="markdown" style="margin-top: 0.6em;">
+<span class="k">## Goal</span>
+Ввести per-tenant rate limiting на /api/v1/*,
+100 req/s по умолчанию, override через
+<span class="n">tenant_settings</span>. Под feature flag
+<span class="s">`rate_limiter_v2`</span>.</pre>
+        <p style="margin-top: 0.6em; font-size: 0.92em;"><strong>Почему хорошо:</strong> конкретно <em>что</em> (rate limit), <em>где</em> (/api/v1/*), <em>сколько</em> (100rps), <em>как настраивается</em> (tenant_settings), <em>как откатить</em> (feature flag).</p>
+      </div>
+      <div class="box accent-orange">
+        <span class="badge orange">✕ НЕПРАВИЛЬНО</span>
+        <pre class="code orange" data-lang="markdown" style="margin-top: 0.6em;">
+<span class="k">## Goal</span>
+<span class="c"># вариант 1 — размыто</span>
+Улучшить производительность API.
+
+<span class="c"># вариант 2 — слишком общо</span>
+Добавить rate limiting в систему.
+
+<span class="c"># вариант 3 — без границы</span>
+Защитить API от перегрузки.</pre>
+        <p style="margin-top: 0.6em; font-size: 0.92em;"><strong>Почему плохо:</strong> агенту негде остановиться. «Защитить» — где, на каком уровне, на каких эндпоинтах? Без чисел и границ — fail.</p>
+      </div>
+    </div>
+  </div>
+  <div class="rail bot"><span class="left">step.02 · goal</span><span class="right pg"></span></div>
+</section>
+
+<!-- 07 STEP 2 — NON-GOALS -->
+<section class="slide" id="s7">
+  <div class="rail top"><span class="left">§ 03 · шаг 02 (2/2)</span><span class="right">non-goals</span></div>
+  <div class="slide-content center">
+    <div class="reveal d1 grid grid-split" style="align-items: end;">
+      <div><div class="eyebrow">шаг</div><div class="bignum orange" style="margin-top: 0.1em;">02</div></div>
+      <div>
+        <h2>Non-goals — то, что <em style="color: var(--orange);">намеренно</em> не делаем.</h2>
+        <p class="lead" style="margin-top: 0.5em;">Без non-goals агент расползётся в смежные области. С non-goals — у вас есть контракт, на который можно сослаться при ревью.</p>
+      </div>
+    </div>
+    <span class="reveal d2 accent-line orange"></span>
+    <div class="reveal d3 grid grid-split">
+      <pre class="code orange" data-lang="markdown">
+<span class="k">## Non-goals</span>
+
+<span class="c"># соседние фичи</span>
+- Global rate limit (есть отдельный SDD-043)
+- DDoS-mitigation — на уровне CDN
+- Rate limit на /admin/* — отдельный scope
+
+<span class="c"># «удобные расширения»</span>
+- Динамическая подкрутка лимитов без рестарта
+- UI для управления лимитами
+- Метрики стоимости запросов в биллинге
+
+<span class="c"># «давайте заодно»</span>
+- Изменение схемы tenant_settings
+- Рефакторинг middleware пайплайна
+- Миграция на новую версию Redis</pre>
+      <div class="box accent-orange">
+        <h3 style="color: var(--orange);">3 категории non-goals</h3>
+        <ul class="dash orange" style="margin-top: 0.6em;">
+          <li><strong>Соседние фичи</strong> — то, что выглядит как часть, но имеет свой SDD</li>
+          <li><strong>«Удобные расширения»</strong> — то, что агент захочет добавить «пока работает»</li>
+          <li><strong>«Давайте заодно»</strong> — рефакторинги в смежных областях</li>
+        </ul>
+        <div style="height: 1px; background: var(--line); margin: 0.8em 0;"></div>
+        <p style="font-size: 0.92em;"><strong>Метрика:</strong> если у тебя &lt; 3 non-goals — ты ещё не подумал. Хороший SDD имеет 5–8 non-goals.</p>
+      </div>
+    </div>
+  </div>
+  <div class="rail bot"><span class="left">step.02 · non-goals</span><span class="right pg"></span></div>
+</section>
+
+<!-- 08 STEP 3 — AC → TEST MAPPING SVG -->
+<section class="slide" id="s8">
+  <div class="rail top"><span class="left">§ 03 · шаг 03 · SCHEMA #2</span><span class="right">AC → test mapping</span></div>
+  <div class="slide-content start">
+    <div class="reveal d1 grid grid-split" style="align-items: end;">
+      <div><div class="eyebrow">★ главный артефакт</div><div class="bignum" style="margin-top: 0.1em;">03</div></div>
+      <div>
+        <h2>Acceptance criteria<br>→ <em>тесты</em> один-к-одному.</h2>
+        <p class="lead" style="margin-top: 0.5em;">Каждый AC превращается в один test case. Если AC можно прочитать неоднозначно — невозможно написать однозначный тест.</p>
+      </div>
+    </div>
+    <span class="reveal d2 accent-line"></span>
+    <div class="reveal d3" style="display: flex; justify-content: center; flex: 1; min-height: 0;">
+      <svg viewBox="0 0 1200 340" class="diagram" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+        <!-- column headers -->
+        <text x="160" y="30" text-anchor="middle" class="mono" font-size="11" fill="#d4ff00" font-weight="700" letter-spacing="2">SDD · AC</text>
+        <text x="560" y="30" text-anchor="middle" class="mono" font-size="11" fill="#6da6ff" font-weight="700" letter-spacing="2">TEST CASE</text>
+        <text x="940" y="30" text-anchor="middle" class="mono" font-size="11" fill="#ff5a36" font-weight="700" letter-spacing="2">EVAL RESULT</text>
+
+        <!-- AC-1 -->
+        <g transform="translate(20 50)">
+          <rect width="280" height="78" fill="#161719" stroke="#d4ff00" stroke-width="1.5"/>
+          <text x="10" y="20" class="mono" font-size="12" font-weight="700" fill="#d4ff00">AC-1</text>
+          <text x="10" y="38" font-size="11" fill="#6da6ff">Given limit=100rps,</text>
+          <text x="10" y="52" font-size="11" fill="#ff5a36">When 100 req/s,</text>
+          <text x="10" y="66" font-size="11" fill="#d4ff00">Then все 200 OK.</text>
+        </g>
+        <path d="M 300 89 L 420 89" stroke="#d4ff00" stroke-width="1.5" fill="none" marker-end="url(#aLime)"/>
+
+        <g transform="translate(430 50)">
+          <rect width="260" height="78" fill="#161719" stroke="#6da6ff" stroke-width="1.5"/>
+          <text x="10" y="22" class="mono" font-size="11" fill="#6da6ff">tests/contract/</text>
+          <text x="10" y="38" class="mono" font-size="11" fill="#f4f3ee">test_rate_limit.py</text>
+          <text x="10" y="58" class="mono" font-size="10" fill="#d4ff00">def test_ac1_happy():</text>
+          <text x="20" y="72" class="mono" font-size="10" fill="#9aa0a8">assert all(r == 200)</text>
+        </g>
+        <path d="M 690 89 L 810 89" stroke="#6da6ff" stroke-width="1.5" fill="none" marker-end="url(#aBlue)"/>
+
+        <g transform="translate(820 50)">
+          <rect width="240" height="78" fill="#161719" stroke="#5fd99c" stroke-width="1.5"/>
+          <text x="10" y="22" class="mono" font-size="10" fill="#5f656d">pass@5</text>
+          <text x="60" y="22" class="mono" font-size="12" font-weight="700" fill="#5fd99c">1.00</text>
+          <text x="10" y="40" class="mono" font-size="10" fill="#5f656d">pass^5</text>
+          <text x="60" y="40" class="mono" font-size="12" font-weight="700" fill="#5fd99c">1.00</text>
+          <text x="10" y="62" class="mono" font-size="9" fill="#5fd99c">✓ stable across runs</text>
+        </g>
+
+        <!-- AC-2 -->
+        <g transform="translate(20 145)">
+          <rect width="280" height="78" fill="#161719" stroke="#d4ff00" stroke-width="1.5"/>
+          <text x="10" y="20" class="mono" font-size="12" font-weight="700" fill="#d4ff00">AC-2</text>
+          <text x="10" y="38" font-size="11" fill="#6da6ff">Given limit=100rps,</text>
+          <text x="10" y="52" font-size="11" fill="#ff5a36">When 150 req/s,</text>
+          <text x="10" y="66" font-size="11" fill="#d4ff00">Then ≥500 ответов 429.</text>
+        </g>
+        <path d="M 300 184 L 420 184" stroke="#d4ff00" stroke-width="1.5" fill="none" marker-end="url(#aLime)"/>
+
+        <g transform="translate(430 145)">
+          <rect width="260" height="78" fill="#161719" stroke="#6da6ff" stroke-width="1.5"/>
+          <text x="10" y="22" class="mono" font-size="11" fill="#6da6ff">tests/contract/</text>
+          <text x="10" y="38" class="mono" font-size="11" fill="#f4f3ee">test_rate_limit.py</text>
+          <text x="10" y="58" class="mono" font-size="10" fill="#d4ff00">def test_ac2_throttle():</text>
+          <text x="20" y="72" class="mono" font-size="10" fill="#9aa0a8">assert n_429 ≥ 500</text>
+        </g>
+        <path d="M 690 184 L 810 184" stroke="#6da6ff" stroke-width="1.5" fill="none" marker-end="url(#aBlue)"/>
+
+        <g transform="translate(820 145)">
+          <rect width="240" height="78" fill="#161719" stroke="#5fd99c" stroke-width="1.5"/>
+          <text x="10" y="22" class="mono" font-size="10" fill="#5f656d">pass@5</text>
+          <text x="60" y="22" class="mono" font-size="12" font-weight="700" fill="#5fd99c">0.98</text>
+          <text x="10" y="40" class="mono" font-size="10" fill="#5f656d">pass^5</text>
+          <text x="60" y="40" class="mono" font-size="12" font-weight="700" fill="#ffb84a">0.80</text>
+          <text x="10" y="62" class="mono" font-size="9" fill="#ffb84a">~ timing-dependent</text>
+        </g>
+
+        <!-- AC-3 negative -->
+        <g transform="translate(20 240)">
+          <rect width="280" height="78" fill="#161719" stroke="#ff5a36" stroke-width="1.5"/>
+          <text x="10" y="20" class="mono" font-size="12" font-weight="700" fill="#ff5a36">AC-3 [neg]</text>
+          <text x="10" y="38" font-size="11" fill="#6da6ff">Given Redis недоступен,</text>
+          <text x="10" y="52" font-size="11" fill="#ff5a36">When 100 req/s,</text>
+          <text x="10" y="66" font-size="11" fill="#d4ff00">Then fallback in-memory.</text>
+        </g>
+        <path d="M 300 279 L 420 279" stroke="#ff5a36" stroke-width="1.5" fill="none" marker-end="url(#aOrange)"/>
+
+        <g transform="translate(430 240)">
+          <rect width="260" height="78" fill="#161719" stroke="#6da6ff" stroke-width="1.5"/>
+          <text x="10" y="22" class="mono" font-size="11" fill="#6da6ff">tests/chaos/</text>
+          <text x="10" y="38" class="mono" font-size="11" fill="#f4f3ee">test_redis_down.py</text>
+          <text x="10" y="58" class="mono" font-size="10" fill="#d4ff00">def test_ac3_fallback():</text>
+          <text x="20" y="72" class="mono" font-size="10" fill="#9aa0a8">assert metrics.fallback</text>
+        </g>
+        <path d="M 690 279 L 810 279" stroke="#6da6ff" stroke-width="1.5" fill="none" marker-end="url(#aBlue)"/>
+
+        <g transform="translate(820 240)">
+          <rect width="240" height="78" fill="#161719" stroke="#5fd99c" stroke-width="1.5"/>
+          <text x="10" y="22" class="mono" font-size="10" fill="#5f656d">chaos</text>
+          <text x="60" y="22" class="mono" font-size="12" font-weight="700" fill="#5fd99c">PASS</text>
+          <text x="10" y="40" class="mono" font-size="10" fill="#5f656d">metric</text>
+          <text x="60" y="40" class="mono" font-size="11" fill="#d4ff00">rl_fallback=1</text>
+          <text x="10" y="62" class="mono" font-size="9" fill="#5fd99c">✓ degraded ok</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+  <div class="rail bot"><span class="left">ac → test mapping</span><span class="right pg"></span></div>
+</section>
+
+<!-- 09 STEP 3 — AC EXAMPLES -->
+<section class="slide" id="s9">
+  <div class="rail top"><span class="left">§ 03 · шаг 03 · примеры</span><span class="right">acceptance criteria</span></div>
+  <div class="slide-content center">
+    <div class="reveal d1 eyebrow">Given · When · Then</div>
+    <h2 class="reveal d2" style="margin-top: 0.3em;">Хороший AC <em>vs</em> плохой AC.</h2>
+    <span class="reveal d3 accent-line"></span>
+    <div class="reveal d4 grid grid-2" style="margin-top: 0.5em;">
+      <div class="box accent">
+        <span class="badge lime">✓ ХОРОШО</span>
+        <pre class="code" data-lang="text" style="margin-top: 0.6em;">
+<span class="f">AC-2</span>  <span class="n">Given</span> tenant T с limit=100rps,
+      <span class="n">When</span>  отправлено 150 req/s
+            в течение 10 секунд,
+      <span class="n">Then</span>  ≥ 500 ответов имеют код 429
+            И каждый 429 содержит header
+              <span class="s">Retry-After</span> ≤ 1
+            И header <span class="s">X-RateLimit-Remaining</span> = 0.</pre>
+        <ul class="dash check" style="margin-top: 0.6em; font-size: 0.9em;">
+          <li>Конкретные числа (150 rps, 500, ≤1)</li>
+          <li>Длительность измерения указана (10 сек)</li>
+          <li>Headers названы дословно</li>
+          <li>Все условия в Then — проверяемы</li>
+        </ul>
+      </div>
+      <div class="box accent-orange">
+        <span class="badge orange">✕ ПЛОХО</span>
+        <pre class="code orange" data-lang="text" style="margin-top: 0.6em;">
+<span class="f">AC-2</span>  <span class="n">Given</span> высокая нагрузка,
+      <span class="n">When</span>  превышен лимит,
+      <span class="n">Then</span>  система должна правильно
+            обрабатывать запросы и возвращать
+            подходящие коды ошибок.</pre>
+        <ul class="dash cross" style="margin-top: 0.6em; font-size: 0.9em;">
+          <li>«Высокая» — сколько? Прилагательное вместо числа.</li>
+          <li>«Правильно обрабатывать» — это не проверяемо.</li>
+          <li>«Подходящие коды» — какие именно?</li>
+          <li>Невозможно сконвертировать в test case.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="reveal d5 pull" style="margin-top: 0.8em;">
+      Тест-имени: <em>def test_ac2_throttle_returns_429_with_retry_after()</em>.<br>Если из AC такое имя не выводится — переписывай.
+    </div>
+  </div>
+  <div class="rail bot"><span class="left">ac examples</span><span class="right pg"></span></div>
+</section>
+
+<!-- 10 STEP 4 — NEGATIVE -->
+<section class="slide" id="s10">
+  <div class="rail top"><span class="left">§ 03 · шаг 04</span><span class="right">negative cases</span></div>
+  <div class="slide-content center">
+    <div class="reveal d1 grid grid-split" style="align-items: end;">
+      <div><div class="eyebrow">шаг</div><div class="bignum orange" style="margin-top: 0.1em;">04</div></div>
+      <div>
+        <h2>Negative <em style="color: var(--orange);">cases.</em></h2>
+        <p class="lead" style="margin-top: 0.5em;">Минимум 2 negative case на SDD. Тест на честность спецификации: если не можешь сформулировать чего НЕ должно случиться — ты не понимаешь поведение.</p>
+      </div>
+    </div>
+    <span class="reveal d2 accent-line orange"></span>
+    <pre class="reveal d3 code orange" data-lang="markdown">
+<span class="k">## Acceptance criteria — negative</span>
+
+<span class="f">AC-4</span> <span class="c">[negative]</span>  «новый клиент без settings»
+     <span class="n">Given</span> tenant T <strong>без</strong> tenant_settings (новый клиент),
+     <span class="n">When</span>  отправлен 1 запрос,
+     <span class="n">Then</span>  200 OK (НЕ блокировать как unconfigured)
+           И применён default 100rps.
+
+<span class="f">AC-5</span> <span class="c">[negative]</span>  «фичефлаг выключен»
+     <span class="n">Given</span> feature flag <span class="s">rate_limiter_v2 = off</span>,
+     <span class="n">When</span>  отправлено 10 000 req/s,
+     <span class="n">Then</span>  <strong>никаких 429</strong>, поведение идентично baseline.
+
+<span class="f">AC-6</span> <span class="c">[negative]</span>  «медленный Redis не блокирует»
+     <span class="n">Given</span> tenant T с limit=100rps,
+     <span class="n">When</span>  Redis отвечает с задержкой &gt; 200ms,
+     <span class="n">Then</span>  fallback срабатывает на этом запросе
+           И запрос НЕ блокируется ожиданием Redis.</pre>
+    <div class="reveal d4 pull orange" style="margin-top: 0.8em;">
+      Любой инженер скажет, что должно работать.<br><em>Только хороший</em> скажет, что должно ломаться. И&nbsp;как.
+      <span class="attr">negative-case-first design</span>
+    </div>
+  </div>
+  <div class="rail bot"><span class="left">step.04 — negative</span><span class="right pg"></span></div>
+</section>
+
+<!-- 11 STEP 5 — INVARIANTS -->
+<section class="slide" id="s11">
+  <div class="rail top"><span class="left">§ 03 · шаг 05 (1/2)</span><span class="right">invariants</span></div>
+  <div class="slide-content center">
+    <div class="reveal d1 grid grid-split" style="align-items: end;">
+      <div><div class="eyebrow">шаг</div><div class="bignum" style="margin-top: 0.1em;">05</div></div>
+      <div>
+        <h2>Invariants — что <em>не двигается.</em></h2>
+        <p class="lead" style="margin-top: 0.5em;">Свойства, сохраняющиеся <strong>после</strong> изменения. Каждый инвариант — измеримое утверждение, не пожелание.</p>
+      </div>
+    </div>
+    <span class="reveal d2 accent-line"></span>
+    <pre class="reveal d3 code" data-lang="markdown">
+<span class="k">## Invariants</span>
+
+<span class="f">▸ Performance</span>
+  - p99 latency POST /api/v1/* увеличится не более чем на 5ms от baseline
+  - p99.9 latency не вырастет более чем на 10ms
+  - throughput на однопроцессном инстансе не упадёт ниже 800 rps
+
+<span class="f">▸ Contract</span>
+  - Никаких изменений в схеме ответа /api/v1/* кроме headers (X-RateLimit-*)
+  - Никаких новых required-параметров
+  - Backwards-compatible с openapi/v1.4.0
+
+<span class="f">▸ Security</span>
+  - Никаких новых scopes в IAM
+  - tenant_settings читаются только из доверенного источника (БД), не из request
+  - Логи не содержат plain rate-limit threshold (только tier name)
+
+<span class="f">▸ Observability</span>
+  - Все существующие алерты продолжают работать
+  - trace_id сохраняется во всех путях (включая fallback)</pre>
+  </div>
+  <div class="rail bot"><span class="left">step.05 · invariants</span><span class="right pg"></span></div>
+</section>
+
+<!-- 12 STEP 5 — HOW TO CHOOSE INVARIANTS -->
+<section class="slide" id="s12">
+  <div class="rail top"><span class="left">§ 03 · шаг 05 (2/2)</span><span class="right">как выбирать инварианты</span></div>
+  <div class="slide-content center">
+    <div class="reveal d1 eyebrow">методика</div>
+    <h2 class="reveal d2" style="margin-top: 0.3em;">Как <em>выбрать</em> инварианты,<br>а не угадать.</h2>
+    <span class="reveal d3 accent-line"></span>
+    <div class="reveal d4 grid grid-2" style="margin-top: 0.5em;">
+      <div class="box accent">
+        <h3>5 источников инвариантов</h3>
+        <ol class="steps" style="margin-top: 0.6em;">
+          <li><strong>SLO документ сервиса</strong> — каждый SLO становится инвариантом дословно</li>
+          <li><strong>«Что вас разбудит ночью»</strong> — спроси у platform-команды</li>
+          <li><strong>Existing contract tests</strong> — найди их, перечитай: это обещания, которые нельзя нарушить</li>
+          <li><strong>Threat model</strong> — если её нет, время написать</li>
+          <li><strong>Точки наблюдения клиентов</strong> — что кэшируют, на что полагаются</li>
+        </ol>
+      </div>
+      <div class="box accent-blue">
+        <h3>Признаки хорошего инварианта</h3>
+        <ul class="dash check" style="margin-top: 0.6em;">
+          <li><strong>Измерим автоматически</strong> — есть метрика или тест</li>
+          <li><strong>Имеет число или формальный предикат</strong> — «p99 +≤ 5ms», не «быстро»</li>
+          <li><strong>Привязан к существующей метрике</strong> — не «давайте измерим»</li>
+          <li><strong>Будет проверяться в CI</strong> — не «вручную»</li>
+        </ul>
+        <div style="height: 1px; background: var(--line); margin: 0.8em 0;"></div>
+        <h3 style="color: var(--orange); font-size: 1em;">Признаки плохого инварианта</h3>
+        <ul class="dash cross" style="margin-top: 0.5em; font-size: 0.92em;">
+          <li>«Не должно деградировать» — без числа</li>
+          <li>«Сохранить надёжность» — без определения</li>
+          <li>«Не сломать существующее поведение» — слишком широко</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="rail bot"><span class="left">choosing invariants</span><span class="right pg"></span></div>
+</section>
+
+<!-- 13 STEP 6 — RISK CLASS TABLE -->
+<section class="slide" id="s13">
+  <div class="rail top"><span class="left">§ 03 · шаг 06 (1/2)</span><span class="right">risk class · таблица</span></div>
+  <div class="slide-content center">
+    <div class="reveal d1 grid grid-split" style="align-items: end;">
+      <div><div class="eyebrow">шаг</div><div class="bignum" style="margin-top: 0.1em;">06</div></div>
+      <div>
+        <h2>Risk class — где сработает <em>merge gate.</em></h2>
+        <p class="lead" style="margin-top: 0.5em;">Один из R0…R5. Определяет, какие hooks отработают, нужен ли human approval, какой формат evidence требуется.</p>
+      </div>
+    </div>
+    <span class="reveal d2 accent-line"></span>
+    <div class="reveal d3 box" style="padding: 0;">
+      <table class="data">
+        <thead><tr><th>class</th><th style="width: 28%">scope</th><th>autonomy</th><th>что в SDD дополнительно</th></tr></thead>
+        <tbody>
+          <tr><td class="mono r0">R0</td><td>docs, comments, formatting</td><td>auto-merge</td><td>SDD не обязателен</td></tr>
+          <tr><td class="mono r1">R1</td><td>tests, local refactor, non-prod</td><td>auto + post-hooks</td><td>SDD-lite</td></tr>
+          <tr><td class="mono r2">R2</td><td>feature code behind flag</td><td>agent PR + review</td><td>полный SDD, ≥ 5 AC</td></tr>
+          <tr><td class="mono r3">R3</td><td>auth, payments, PII, infra</td><td>draft + security review</td><td>+ threat model, ≥ 7 AC, SAST</td></tr>
+          <tr><td class="mono r4">R4</td><td>production data, IAM, migrations</td><td>human approval</td><td>+ rollback plan, separation of duties</td></tr>
+          <tr><td class="mono r5">R5</td><td>regulated model / risk logic</td><td>change advisory</td><td>+ regulator audit package</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="reveal d4 pull">
+      Не уверен между R2 и R3? <em>Бери R3.</em><br>Лишний security review дешевле пропущенной PII-утечки.
+    </div>
+  </div>
+  <div class="rail bot"><span class="left">risk class table</span><span class="right pg"></span></div>
+</section>
+
+<!-- 14 STEP 6 — RISK LADDER SVG -->
+<section class="slide" id="s14">
+  <div class="rail top"><span class="left">§ 03 · шаг 06 (2/2) · SCHEMA #3</span><span class="right">risk ladder</span></div>
+  <div class="slide-content start">
+    <div class="reveal d1 eyebrow">схема #3 · лестница рисков</div>
+    <h2 class="reveal d2" style="margin-top: 0.3em;">autonomy ↓ &nbsp; human oversight ↑ &nbsp; audit depth ↑</h2>
+    <span class="reveal d3 accent-line"></span>
+    <div class="reveal d4" style="display: flex; justify-content: center; flex: 1; min-height: 0;">
+      <svg viewBox="0 0 1200 380" class="diagram" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="riskGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#6da6ff"/>
+            <stop offset="0.2" stop-color="#6da6ff"/>
+            <stop offset="0.4" stop-color="#d4ff00"/>
+            <stop offset="0.6" stop-color="#ffb84a"/>
+            <stop offset="0.8" stop-color="#ff5a36"/>
+            <stop offset="1" stop-color="#ff5ccc"/>
+          </linearGradient>
+        </defs>
+
+        <!-- top label bar -->
+        <text x="20" y="25" class="mono" font-size="11" fill="#5f656d" letter-spacing="2">LOW RISK</text>
+        <text x="1180" y="25" text-anchor="end" class="mono" font-size="11" fill="#ff5ccc" letter-spacing="2">REGULATED</text>
+        <rect x="20" y="35" width="1160" height="6" fill="url(#riskGrad)"/>
+
+        <!-- ladder rungs -->
+        <g font-size="13">
+          <!-- R0 -->
+          <rect x="20" y="65" width="200" height="44" fill="#161719" stroke="#6da6ff" stroke-width="2"/>
+          <text x="40" y="93" class="mono" font-size="22" font-weight="700" fill="#6da6ff">R0</text>
+          <text x="100" y="83" font-size="12" fill="#f4f3ee">docs, comments,</text>
+          <text x="100" y="98" font-size="12" fill="#f4f3ee">formatting</text>
+          <text x="240" y="93" class="mono" font-size="12" font-weight="700" fill="#6da6ff">AUTO</text>
+          <text x="340" y="93" font-size="12" fill="#9aa0a8">no review · JSONL only</text>
+          <text x="700" y="83" class="mono" font-size="10" fill="#5fd99c">hooks: ~</text>
+          <text x="700" y="98" class="mono" font-size="10" fill="#5f656d">SDD not required</text>
+
+          <!-- R1 -->
+          <rect x="20" y="115" width="260" height="44" fill="#161719" stroke="#6da6ff" stroke-width="2"/>
+          <text x="40" y="143" class="mono" font-size="22" font-weight="700" fill="#6da6ff">R1</text>
+          <text x="100" y="133" font-size="12" fill="#f4f3ee">tests, local refactor,</text>
+          <text x="100" y="148" font-size="12" fill="#f4f3ee">non-prod code</text>
+          <text x="300" y="143" class="mono" font-size="12" font-weight="700" fill="#6da6ff">AUTO + hooks</text>
+          <text x="450" y="143" font-size="12" fill="#9aa0a8">post-hook quality gate</text>
+          <text x="780" y="133" class="mono" font-size="10" fill="#5fd99c">hooks: post-quality</text>
+          <text x="780" y="148" class="mono" font-size="10" fill="#5f656d">SDD-lite (1 AC)</text>
+
+          <!-- R2 -->
+          <rect x="20" y="165" width="320" height="44" fill="#161719" stroke="#d4ff00" stroke-width="2"/>
+          <text x="40" y="193" class="mono" font-size="22" font-weight="700" fill="#d4ff00">R2</text>
+          <text x="100" y="183" font-size="12" fill="#f4f3ee">feature code</text>
+          <text x="100" y="198" font-size="12" fill="#f4f3ee">behind flag</text>
+          <text x="360" y="193" class="mono" font-size="12" font-weight="700" fill="#d4ff00">AGENT PR + review</text>
+          <text x="560" y="193" font-size="12" fill="#9aa0a8">human review mandatory</text>
+          <text x="860" y="183" class="mono" font-size="10" fill="#d4ff00">+ pre-tool checks</text>
+          <text x="860" y="198" class="mono" font-size="10" fill="#5f656d">full SDD, ≥ 5 AC</text>
+
+          <!-- R3 -->
+          <rect x="20" y="215" width="380" height="44" fill="#161719" stroke="#ffb84a" stroke-width="2"/>
+          <text x="40" y="243" class="mono" font-size="22" font-weight="700" fill="#ffb84a">R3</text>
+          <text x="100" y="233" font-size="12" fill="#f4f3ee">auth, payments,</text>
+          <text x="100" y="248" font-size="12" fill="#f4f3ee">PII, infra</text>
+          <text x="420" y="243" class="mono" font-size="12" font-weight="700" fill="#ffb84a">DRAFT + security review</text>
+          <text x="640" y="243" font-size="12" fill="#9aa0a8">SAST + eval set</text>
+          <text x="900" y="233" class="mono" font-size="10" fill="#ffb84a">+ pii-boundary hook</text>
+          <text x="900" y="248" class="mono" font-size="10" fill="#5f656d">+ threat model</text>
+
+          <!-- R4 -->
+          <rect x="20" y="265" width="440" height="44" fill="#161719" stroke="#ff5a36" stroke-width="2"/>
+          <text x="40" y="293" class="mono" font-size="22" font-weight="700" fill="#ff5a36">R4</text>
+          <text x="100" y="283" font-size="12" fill="#f4f3ee">production data,</text>
+          <text x="100" y="298" font-size="12" fill="#f4f3ee">IAM, migrations</text>
+          <text x="480" y="293" class="mono" font-size="12" font-weight="700" fill="#ff5a36">HUMAN APPROVAL</text>
+          <text x="660" y="293" font-size="12" fill="#9aa0a8">separation of duties</text>
+          <text x="940" y="283" class="mono" font-size="10" fill="#ff5a36">+ destructive blocker</text>
+          <text x="940" y="298" class="mono" font-size="10" fill="#5f656d">+ rollback plan</text>
+
+          <!-- R5 -->
+          <rect x="20" y="315" width="500" height="44" fill="#161719" stroke="#ff5ccc" stroke-width="2"/>
+          <text x="40" y="343" class="mono" font-size="22" font-weight="700" fill="#ff5ccc">R5</text>
+          <text x="100" y="333" font-size="12" fill="#f4f3ee">regulated model</text>
+          <text x="100" y="348" font-size="12" fill="#f4f3ee">/ risk logic</text>
+          <text x="540" y="343" class="mono" font-size="12" font-weight="700" fill="#ff5ccc">CHANGE ADVISORY</text>
+          <text x="730" y="343" font-size="12" fill="#9aa0a8">regulator audit package</text>
+          <text x="980" y="333" class="mono" font-size="10" fill="#ff5ccc">+ full compliance</text>
+          <text x="980" y="348" class="mono" font-size="10" fill="#5f656d">+ audit retention 7y</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+  <div class="rail bot"><span class="left">risk ladder</span><span class="right pg"></span></div>
+</section>
+
+<!-- 15 STEP 7 — MANUAL APPROVAL -->
+<section class="slide" id="s15">
+  <div class="rail top"><span class="left">§ 03 · шаг 07</span><span class="right">manual approval</span></div>
+  <div class="slide-content center">
+    <div class="reveal d1 grid grid-split" style="align-items: end;">
+      <div><div class="eyebrow">шаг</div><div class="bignum" style="margin-top: 0.1em;">07</div></div>
+      <div>
+        <h2>Manual approval — <em>где обязателен человек.</em></h2>
+        <p class="lead" style="margin-top: 0.5em;">Явно перечисли моменты, где автоматика останавливается. Approval — <em>именной</em>: кто конкретно подписывает, не «команда».</p>
+      </div>
+    </div>
+    <span class="reveal d2 accent-line"></span>
+    <div class="reveal d3 grid grid-split">
+      <pre class="code" data-lang="markdown">
+<span class="k">## Manual approval points</span>
+
+<span class="f">▸ merge в main</span>
+  - required review: <span class="s">@security-team</span>
+  - не менее 2 approvals
+  - все checks зелёные
+
+<span class="f">▸ enable feature flag в prod</span>
+  - change advisory ticket
+  - presence of rollback runbook
+  - on-call notified в #platform-ops
+
+<span class="f">▸ изменение tenant_settings schema</span>
+  - migration review by <span class="s">@db-team</span>
+  - separation of duties (не автор)
+
+<span class="f">▸ deletion of rate-limit record</span>
+  - 4-eyes principle
+  - audit log retention 7 years</pre>
+      <div class="box accent-amber">
+        <h3 style="color: var(--amber);">Где обычно нужен человек</h3>
+        <ul class="dash" style="margin-top: 0.6em;">
+          <li>Изменения в IAM / RBAC</li>
+          <li>Migrations с DROP / ALTER на больших таблицах</li>
+          <li>Включение фичефлага в production</li>
+          <li>Удаление данных пользователей</li>
+          <li>Изменение секретов в Vault</li>
+          <li>Деплой в financial / health системы</li>
+          <li>Любое R4+ — по определению</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="rail bot"><span class="left">step.07 — approval</span><span class="right pg"></span></div>
+</section>
+
+<!-- 16 STEP 8 — EVIDENCE -->
+<section class="slide" id="s16">
+  <div class="rail top"><span class="left">§ 03 · шаг 08</span><span class="right">evidence required</span></div>
+  <div class="slide-content center">
+    <div class="reveal d1 grid grid-split" style="align-items: end;">
+      <div><div class="eyebrow">шаг</div><div class="bignum" style="margin-top: 0.1em;">08</div></div>
+      <div>
+        <h2>Evidence — <em>что должно быть в bundle.</em></h2>
+        <p class="lead" style="margin-top: 0.5em;">Список доказательств. <strong>Stop hook</strong> не закроет задачу, пока всё перечисленное не появится в evidence bundle.</p>
+      </div>
+    </div>
+    <span class="reveal d2 accent-line"></span>
+    <pre class="reveal d3 code" data-lang="markdown">
+<span class="k">## Evidence required</span>
+
+<span class="f">▸ Tests</span>
+  - AC-1..6 в <span class="s">tests/contract/test_rate_limit.py</span>
+  - pass@5 ≥ 0.95 на eval-suite <span class="s">rate_limiter_caps</span>
+  - pass^5 ≥ 0.80 на regression-suite
+
+<span class="f">▸ Performance</span>
+  - benchmark до/после: <span class="s">tools/bench_p99.py</span>
+  - delta p99 ≤ 5ms (см. invariants)
+
+<span class="f">▸ Security</span>
+  - SAST clean (semgrep, bandit)
+  - secrets scan clean (gitleaks)
+  - threat model updated в <span class="s">docs/threat-models/rate-limit.md</span>
+
+<span class="f">▸ Resilience</span>
+  - redis-down chaos test пройден (<span class="s">tests/chaos/test_redis_down.py</span>)
+  - timeout-based fallback подтверждён</pre>
+    <div class="reveal d4 pull">
+      Если evidence пуст — задача не сделана.<br>«Все тесты прошли» <em>не</em> evidence. Имена suite, файлов, метрик — evidence.
+    </div>
+  </div>
+  <div class="rail bot"><span class="left">step.08 — evidence</span><span class="right pg"></span></div>
+</section>
+
+<!-- 17 EVIDENCE PIPELINE SVG -->
+<section class="slide" id="s17">
+  <div class="rail top"><span class="left">§ 04 — связи · SCHEMA #4</span><span class="right">evidence pipeline</span></div>
+  <div class="slide-content start">
+    <div class="reveal d1 eyebrow">схема #4 · как SDD превращается в evidence</div>
+    <h2 class="reveal d2" style="margin-top: 0.3em;">От SDD к merged PR<br>— <em>детерминированный pipeline.</em></h2>
+    <span class="reveal d3 accent-line"></span>
+    <div class="reveal d4" style="display: flex; justify-content: center; flex: 1; min-height: 0;">
+      <svg viewBox="0 0 1200 360" class="diagram" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+        <!-- nodes -->
+        <g>
+          <!-- SDD -->
+          <rect x="20" y="100" width="140" height="80" fill="#161719" stroke="#d4ff00" stroke-width="2"/>
+          <text x="90" y="125" text-anchor="middle" class="mono" font-size="10" fill="#d4ff00" letter-spacing="2">SDD</text>
+          <text x="90" y="148" text-anchor="middle" font-size="13" font-weight="700" fill="#f4f3ee">Spec doc</text>
+          <text x="90" y="166" text-anchor="middle" font-size="10" fill="#9aa0a8">AC · invariants</text>
+
+          <!-- arrow -->
+          <path d="M 165 140 L 215 140" stroke="#d4ff00" stroke-width="2" fill="none" marker-end="url(#aLime)"/>
+          <text x="190" y="130" text-anchor="middle" class="mono" font-size="9" fill="#5f656d">parse</text>
+
+          <!-- AC scaffolding -->
+          <rect x="220" y="100" width="160" height="80" fill="#161719" stroke="#6da6ff" stroke-width="2"/>
+          <text x="300" y="125" text-anchor="middle" class="mono" font-size="10" fill="#6da6ff" letter-spacing="2">SCAFFOLD</text>
+          <text x="300" y="148" text-anchor="middle" font-size="13" font-weight="700" fill="#f4f3ee">Stub tests</text>
+          <text x="300" y="166" text-anchor="middle" font-size="10" fill="#9aa0a8">def test_ac_N()</text>
+
+          <path d="M 385 140 L 435 140" stroke="#6da6ff" stroke-width="2" fill="none" marker-end="url(#aBlue)"/>
+          <text x="410" y="130" text-anchor="middle" class="mono" font-size="9" fill="#5f656d">agent</text>
+          <text x="410" y="158" text-anchor="middle" class="mono" font-size="9" fill="#5f656d">implements</text>
+
+          <!-- impl + tests -->
+          <rect x="440" y="100" width="160" height="80" fill="#161719" stroke="#d4ff00" stroke-width="2"/>
+          <text x="520" y="125" text-anchor="middle" class="mono" font-size="10" fill="#d4ff00" letter-spacing="2">CODE + TESTS</text>
+          <text x="520" y="148" text-anchor="middle" font-size="13" font-weight="700" fill="#f4f3ee">Implementation</text>
+          <text x="520" y="166" text-anchor="middle" font-size="10" fill="#9aa0a8">+ test cases pass</text>
+
+          <path d="M 605 140 L 655 140" stroke="#d4ff00" stroke-width="2" fill="none" marker-end="url(#aLime)"/>
+          <text x="630" y="130" text-anchor="middle" class="mono" font-size="9" fill="#5f656d">run</text>
+
+          <!-- evals -->
+          <rect x="660" y="100" width="160" height="80" fill="#161719" stroke="#ffb84a" stroke-width="2"/>
+          <text x="740" y="125" text-anchor="middle" class="mono" font-size="10" fill="#ffb84a" letter-spacing="2">EVAL SUITE</text>
+          <text x="740" y="148" text-anchor="middle" font-size="13" font-weight="700" fill="#f4f3ee">pass@k · pass^k</text>
+          <text x="740" y="166" text-anchor="middle" font-size="10" fill="#9aa0a8">SAST · chaos · bench</text>
+
+          <path d="M 825 140 L 875 140" stroke="#ffb84a" stroke-width="2" fill="none" marker-end="url(#aLime)"/>
+
+          <!-- evidence bundle -->
+          <rect x="860" y="100" width="200" height="80" fill="#d4ff00" stroke="#d4ff00" stroke-width="2"/>
+          <text x="960" y="124" text-anchor="middle" class="mono" font-size="11" fill="#0d0e10" letter-spacing="2" font-weight="700">★ EVIDENCE</text>
+          <text x="960" y="148" text-anchor="middle" font-size="14" font-weight="700" fill="#0d0e10">Bundle</text>
+          <text x="960" y="168" text-anchor="middle" class="mono" font-size="10" fill="#0d0e10">bundle.json</text>
+
+          <path d="M 1065 140 L 1105 140" stroke="#5fd99c" stroke-width="2" fill="none" marker-end="url(#aLime)"/>
+
+          <!-- PR -->
+          <rect x="1110" y="100" width="80" height="80" fill="#161719" stroke="#5fd99c" stroke-width="2"/>
+          <text x="1150" y="125" text-anchor="middle" class="mono" font-size="9" fill="#5fd99c" letter-spacing="2">MERGE</text>
+          <text x="1150" y="148" text-anchor="middle" font-size="13" font-weight="700" fill="#f4f3ee">PR</text>
+          <text x="1150" y="166" text-anchor="middle" font-size="10" fill="#9aa0a8">gate</text>
+
+          <!-- hooks above -->
+          <text x="20" y="50" class="mono" font-size="11" fill="#ff5a36" letter-spacing="2">▸ HOOKS ALONG THE WAY</text>
+          <rect x="220" y="60" width="160" height="22" fill="#0d0e10" stroke="#ff5a36" stroke-width="1" stroke-dasharray="3 2"/>
+          <text x="300" y="76" text-anchor="middle" class="mono" font-size="10" fill="#ff5a36">UserPromptSubmit</text>
+          <rect x="440" y="60" width="160" height="22" fill="#0d0e10" stroke="#ff5a36" stroke-width="1" stroke-dasharray="3 2"/>
+          <text x="520" y="76" text-anchor="middle" class="mono" font-size="10" fill="#ff5a36">PreToolUse · PostToolUse</text>
+          <rect x="660" y="60" width="160" height="22" fill="#0d0e10" stroke="#ff5a36" stroke-width="1" stroke-dasharray="3 2"/>
+          <text x="740" y="76" text-anchor="middle" class="mono" font-size="10" fill="#ff5a36">quality gate</text>
+          <rect x="860" y="60" width="200" height="22" fill="#0d0e10" stroke="#ff5a36" stroke-width="1" stroke-dasharray="3 2"/>
+          <text x="960" y="76" text-anchor="middle" class="mono" font-size="10" fill="#ff5a36">Stop hook = enforcer</text>
+
+          <!-- evidence bundle expanded below -->
+          <text x="600" y="225" text-anchor="middle" class="mono" font-size="11" fill="#d4ff00" letter-spacing="2">▸ EVIDENCE BUNDLE CONTAINS</text>
+
+          <rect x="100" y="240" width="180" height="90" fill="#161719" stroke="#2a2d33" stroke-width="1"/>
+          <text x="190" y="260" text-anchor="middle" class="mono" font-size="10" fill="#d4ff00">tests</text>
+          <text x="190" y="280" text-anchor="middle" font-size="11" fill="#f4f3ee">AC coverage matrix</text>
+          <text x="190" y="296" text-anchor="middle" font-size="11" fill="#f4f3ee">pass@k · pass^k</text>
+          <text x="190" y="318" text-anchor="middle" font-size="10" fill="#9aa0a8">tests/contract/*.py</text>
+
+          <rect x="300" y="240" width="180" height="90" fill="#161719" stroke="#2a2d33" stroke-width="1"/>
+          <text x="390" y="260" text-anchor="middle" class="mono" font-size="10" fill="#ffb84a">performance</text>
+          <text x="390" y="280" text-anchor="middle" font-size="11" fill="#f4f3ee">benchmark delta</text>
+          <text x="390" y="296" text-anchor="middle" font-size="11" fill="#f4f3ee">p99 / p99.9</text>
+          <text x="390" y="318" text-anchor="middle" font-size="10" fill="#9aa0a8">tools/bench_p99.py</text>
+
+          <rect x="500" y="240" width="180" height="90" fill="#161719" stroke="#2a2d33" stroke-width="1"/>
+          <text x="590" y="260" text-anchor="middle" class="mono" font-size="10" fill="#ff5a36">security</text>
+          <text x="590" y="280" text-anchor="middle" font-size="11" fill="#f4f3ee">SAST clean</text>
+          <text x="590" y="296" text-anchor="middle" font-size="11" fill="#f4f3ee">secrets scan</text>
+          <text x="590" y="318" text-anchor="middle" font-size="10" fill="#9aa0a8">semgrep · gitleaks</text>
+
+          <rect x="700" y="240" width="180" height="90" fill="#161719" stroke="#2a2d33" stroke-width="1"/>
+          <text x="790" y="260" text-anchor="middle" class="mono" font-size="10" fill="#6da6ff">resilience</text>
+          <text x="790" y="280" text-anchor="middle" font-size="11" fill="#f4f3ee">chaos passed</text>
+          <text x="790" y="296" text-anchor="middle" font-size="11" fill="#f4f3ee">fallback verified</text>
+          <text x="790" y="318" text-anchor="middle" font-size="10" fill="#9aa0a8">tests/chaos/*.py</text>
+
+          <rect x="900" y="240" width="180" height="90" fill="#161719" stroke="#2a2d33" stroke-width="1"/>
+          <text x="990" y="260" text-anchor="middle" class="mono" font-size="10" fill="#ff5ccc">audit</text>
+          <text x="990" y="280" text-anchor="middle" font-size="11" fill="#f4f3ee">JSONL trail</text>
+          <text x="990" y="296" text-anchor="middle" font-size="11" fill="#f4f3ee">hook decisions</text>
+          <text x="990" y="318" text-anchor="middle" font-size="10" fill="#9aa0a8">append-only log</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+  <div class="rail bot"><span class="left">evidence pipeline</span><span class="right pg"></span></div>
+</section>
+
+<!-- 18 FULL EXAMPLE -->
+<section class="slide" id="s18">
+  <div class="rail top"><span class="left">§ 05 — пример</span><span class="right">SDD целиком</span></div>
+  <div class="slide-content start">
+    <div class="reveal d1 eyebrow">полный пример · все 8 секций</div>
+    <h2 class="reveal d2" style="margin-top: 0.3em;">SDD-2026-042 <em>целиком.</em></h2>
+    <span class="reveal d3 accent-line"></span>
+    <div class="reveal d4" style="flex: 1; overflow: hidden; min-height: 0;">
+      <pre class="code" data-lang="markdown" style="height: 100%; overflow: auto;">
+<span class="c">---</span>
+<span class="n">id</span>: <span class="s">SDD-2026-042</span>
+<span class="n">title</span>: <span class="s">"Rate limiter for /api/v1/* with Redis + in-memory fallback"</span>
+<span class="n">owner</span>: <span class="s">@platform-team</span>
+<span class="n">status</span>: <span class="s">ready-for-ai</span>
+<span class="n">risk_class</span>: <span class="f">R2</span>
+<span class="n">related</span>: [<span class="s">ADR-017</span>, <span class="s">JIRA PLAT-1284</span>]
+<span class="c">---</span>
+
+<span class="k">## Goal</span>
+Ввести per-tenant rate limiting на /api/v1/*, 100 req/s по умолчанию,
+override через tenant_settings. Под feature flag <span class="s">`rate_limiter_v2`</span>.
+
+<span class="k">## Non-goals</span>
+- Global rate limit (есть отдельный SDD-043)
+- DDoS-mitigation — на уровне CDN
+- Динамическая подкрутка лимитов без рестарта
+- Изменение схемы tenant_settings
+
+<span class="k">## Acceptance criteria</span>
+<span class="f">AC-1</span> Given limit=100rps, When 100 req/s, Then все 200 OK.
+<span class="f">AC-2</span> Given limit=100rps, When 150 req/s, Then ≥500 ответов 429 с Retry-After ≤ 1s.
+<span class="f">AC-3</span> Given Redis недоступен, When 100 req/s, Then fallback in-memory, rl_fallback_active=1.
+<span class="f">AC-4 [neg]</span> Given без settings, When 1 req, Then 200 OK + default 100rps.
+<span class="f">AC-5 [neg]</span> Given flag=off, When 10000 req/s, Then никаких 429, baseline.
+<span class="f">AC-6 [neg]</span> Given Redis lag > 200ms, When req, Then fallback без блокировки.
+
+<span class="k">## Invariants</span>
+- p99 latency POST /api/v1/* +≤ 5ms от baseline
+- Схема ответа /api/v1/* без изменений (кроме X-RateLimit-* headers)
+- Никаких новых scopes в IAM
+- trace_id сохраняется во всех путях (включая fallback)
+
+<span class="k">## Manual approval</span>
+- merge в main: review @security-team, ≥ 2 approvals
+- enable flag в prod: change advisory ticket
+- изменение tenant_settings schema: review @db-team (separation of duties)
+
+<span class="k">## Evidence required</span>
+- AC-1..6 в tests/contract/test_rate_limit.py, pass@5 ≥ 0.95
+- redis-down chaos test пройден (tests/chaos/test_redis_down.py)
+- benchmark p99 до/после (tools/bench_p99.py), delta ≤ 5ms
+- SAST + secrets scan clean (semgrep, gitleaks)
+- openapi.yaml обновлён (новые X-RateLimit-* headers)
+- runbook «как откатить feature flag» в docs/runbooks/</pre>
+    </div>
+  </div>
+  <div class="rail bot"><span class="left">example.full</span><span class="right pg"></span></div>
+</section>
+
+<!-- 19 LIFECYCLE SVG -->
+<section class="slide" id="s19">
+  <div class="rail top"><span class="left">§ 06 — lifecycle · SCHEMA #5</span><span class="right">SDD состояния</span></div>
+  <div class="slide-content start">
+    <div class="reveal d1 eyebrow">схема #5 · жизненный цикл SDD</div>
+    <h2 class="reveal d2" style="margin-top: 0.3em;">От <em>draft</em> до <em>archived</em>.</h2>
+    <span class="reveal d3 accent-line"></span>
+    <div class="reveal d4" style="display: flex; justify-content: center; flex: 1; min-height: 0;">
+      <svg viewBox="0 0 1200 320" class="diagram" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+        <!-- states -->
+        <g>
+          <!-- draft -->
+          <circle cx="100" cy="160" r="56" fill="#161719" stroke="#5f656d" stroke-width="2"/>
+          <text x="100" y="155" text-anchor="middle" font-size="14" font-weight="700" fill="#f4f3ee">draft</text>
+          <text x="100" y="175" text-anchor="middle" class="mono" font-size="10" fill="#9aa0a8">work in progress</text>
+
+          <path d="M 158 160 L 232 160" stroke="#d4ff00" stroke-width="2" fill="none" marker-end="url(#aLime)"/>
+          <text x="195" y="148" text-anchor="middle" class="mono" font-size="10" fill="#d4ff00">submit PR</text>
+
+          <!-- review -->
+          <circle cx="290" cy="160" r="56" fill="#161719" stroke="#6da6ff" stroke-width="2"/>
+          <text x="290" y="155" text-anchor="middle" font-size="14" font-weight="700" fill="#f4f3ee">review</text>
+          <text x="290" y="175" text-anchor="middle" class="mono" font-size="10" fill="#9aa0a8">mob elaboration</text>
+
+          <path d="M 348 160 L 422 160" stroke="#d4ff00" stroke-width="2" fill="none" marker-end="url(#aLime)"/>
+          <text x="385" y="148" text-anchor="middle" class="mono" font-size="10" fill="#d4ff00">approve</text>
+
+          <!-- ready -->
+          <circle cx="480" cy="160" r="56" fill="#d4ff00" stroke="#d4ff00" stroke-width="2"/>
+          <text x="480" y="153" text-anchor="middle" font-size="13" font-weight="700" fill="#0d0e10">ready-for-ai</text>
+          <text x="480" y="171" text-anchor="middle" class="mono" font-size="10" fill="#0d0e10">agent picks up</text>
+
+          <path d="M 538 160 L 612 160" stroke="#d4ff00" stroke-width="2" fill="none" marker-end="url(#aLime)"/>
+          <text x="575" y="148" text-anchor="middle" class="mono" font-size="10" fill="#d4ff00">agent builds</text>
+          <text x="575" y="180" text-anchor="middle" class="mono" font-size="10" fill="#5f656d">evidence bundle</text>
+
+          <!-- implemented -->
+          <circle cx="670" cy="160" r="56" fill="#161719" stroke="#5fd99c" stroke-width="2"/>
+          <text x="670" y="155" text-anchor="middle" font-size="13" font-weight="700" fill="#f4f3ee">implemented</text>
+          <text x="670" y="175" text-anchor="middle" class="mono" font-size="10" fill="#9aa0a8">PR merged</text>
+
+          <path d="M 728 160 L 802 160" stroke="#5fd99c" stroke-width="2" fill="none" marker-end="url(#aLime)"/>
+          <text x="765" y="148" text-anchor="middle" class="mono" font-size="10" fill="#5fd99c">stable in prod</text>
+          <text x="765" y="180" text-anchor="middle" class="mono" font-size="10" fill="#5f656d">≥ 30 days</text>
+
+          <!-- archived -->
+          <circle cx="860" cy="160" r="56" fill="#161719" stroke="#5f656d" stroke-width="2"/>
+          <text x="860" y="155" text-anchor="middle" font-size="14" font-weight="700" fill="#f4f3ee">archived</text>
+          <text x="860" y="175" text-anchor="middle" class="mono" font-size="10" fill="#9aa0a8">reference only</text>
+
+          <!-- changed / superseded path -->
+          <path d="M 480 110 Q 670 30 860 110" stroke="#ff5a36" stroke-width="2" fill="none" marker-end="url(#aOrange)" stroke-dasharray="5 4"/>
+          <text x="670" y="48" text-anchor="middle" class="mono" font-size="11" fill="#ff5a36">superseded by new SDD</text>
+
+          <!-- bounce-back review -->
+          <path d="M 270 218 Q 250 270 130 218" stroke="#ff5a36" stroke-width="2" fill="none" marker-end="url(#aOrange)" stroke-dasharray="5 4"/>
+          <text x="200" y="262" text-anchor="middle" class="mono" font-size="11" fill="#ff5a36">changes requested</text>
+
+          <!-- side annotations: who acts -->
+          <text x="1000" y="55" class="mono" font-size="11" fill="#5f656d" letter-spacing="2">▸ WHO ACTS:</text>
+          <text x="1000" y="80" font-size="12" fill="#f4f3ee">author</text>
+          <text x="1000" y="95" font-size="11" fill="#5f656d">→ draft, ревизии</text>
+          <text x="1000" y="120" font-size="12" fill="#6da6ff">peer + agent-persona</text>
+          <text x="1000" y="135" font-size="11" fill="#5f656d">→ review</text>
+          <text x="1000" y="160" font-size="12" fill="#d4ff00">agent</text>
+          <text x="1000" y="175" font-size="11" fill="#5f656d">→ implementation</text>
+          <text x="1000" y="200" font-size="12" fill="#5fd99c">reviewer + Stop hook</text>
+          <text x="1000" y="215" font-size="11" fill="#5f656d">→ merge gate</text>
+          <text x="1000" y="240" font-size="12" fill="#9aa0a8">archiver bot</text>
+          <text x="1000" y="255" font-size="11" fill="#5f656d">→ index cleanup</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+  <div class="rail bot"><span class="left">lifecycle</span><span class="right pg"></span></div>
+</section>
+
+<!-- 20 MOB ELABORATION -->
+<section class="slide" id="s20">
+  <div class="rail top"><span class="left">§ 07 — ритуал</span><span class="right">mob elaboration</span></div>
+  <div class="slide-content center">
+    <div class="reveal d1 eyebrow">ритуал команды</div>
+    <h2 class="reveal d2" style="margin-top: 0.3em;">Как писать SDD <em>не в одиночку.</em></h2>
+    <p class="reveal d3 lead" style="margin-top: 0.5em;">Mob Elaboration — командный ритуал 60–90 минут вместо асинхронного PR-ревью спецификации. Все будущие ревьюеры — уже в контексте.</p>
+    <span class="reveal d4 accent-line"></span>
+    <div class="reveal d5 grid" style="grid-template-columns: repeat(5, 1fr); gap: 1px; background: var(--line);">
+      <div class="box accent" style="border-left-width: 0; border-top: 3px solid var(--lime);">
+        <div class="mono" style="font-size: 0.7em; color: var(--lime); letter-spacing: 0.2em;">10 МИН</div>
+        <h3 style="margin-top: 0.5em;">Контекст</h3>
+        <p style="margin-top: 0.3em; font-size: 0.92em;">Author читает PRFAQ + ADR вслух.</p>
+      </div>
+      <div class="box" style="border-left-width: 0; border-top: 3px solid var(--blue);">
+        <div class="mono" style="font-size: 0.7em; color: var(--blue); letter-spacing: 0.2em;">20—40 МИН</div>
+        <h3 style="margin-top: 0.5em;">Draft AC</h3>
+        <p style="margin-top: 0.3em; font-size: 0.92em;">Команда диктует Given/When/Then.</p>
+      </div>
+      <div class="box" style="border-left-width: 0; border-top: 3px solid var(--orange);">
+        <div class="mono" style="font-size: 0.7em; color: var(--orange); letter-spacing: 0.2em;">15 МИН</div>
+        <h3 style="margin-top: 0.5em;">Agent-persona</h3>
+        <p style="margin-top: 0.3em; font-size: 0.92em;">Кто-то читает «как агент» — ищет дыры.</p>
+      </div>
+      <div class="box" style="border-left-width: 0; border-top: 3px solid var(--orange);">
+        <div class="mono" style="font-size: 0.7em; color: var(--orange); letter-spacing: 0.2em;">10 МИН</div>
+        <h3 style="margin-top: 0.5em;">Negative cases</h3>
+        <p style="margin-top: 0.3em; font-size: 0.92em;">Чего не должно произойти.</p>
+      </div>
+      <div class="box invert" style="border-left-width: 0;">
+        <div class="mono" style="font-size: 0.7em; color: var(--bg); letter-spacing: 0.2em; font-weight: 700;">5 МИН</div>
+        <h3 style="margin-top: 0.5em; color: var(--bg);">Sign-off</h3>
+        <p style="margin-top: 0.3em; font-size: 0.92em; color: var(--bg);">Risk + approval + evidence.</p>
+      </div>
+    </div>
+    <div class="reveal d5 pull" style="margin-top: 1em;">
+      <em>Выход:</em> SDD готов к Mob Construction. Все, кто будет ревьюить или писать код — уже в контексте.
+      <span class="attr">~60–90 мин всего</span>
+    </div>
+  </div>
+  <div class="rail bot"><span class="left">mob.elaboration</span><span class="right pg"></span></div>
+</section>
+
+<!-- 21 CHECKLIST -->
+<section class="slide" id="s21">
+  <div class="rail top"><span class="left">§ 08 — ревью</span><span class="right">checklist</span></div>
+  <div class="slide-content center">
+    <div class="reveal d1 eyebrow">перед публикацией</div>
+    <h2 class="reveal d2" style="margin-top: 0.3em;">SDD готов, <em>если…</em></h2>
+    <span class="reveal d3 accent-line"></span>
+    <div class="reveal d4 grid grid-2">
+      <div class="box accent">
+        <h3 style="color: var(--lime);">Содержание</h3>
+        <ul class="dash check" style="margin-top: 0.6em;">
+          <li>Goal — одно предложение, конкретно</li>
+          <li>Non-goals содержат ≥ 3 пункта</li>
+          <li>Acceptance criteria ≥ 5 (для R2+)</li>
+          <li>Минимум 2 negative case</li>
+          <li>Каждый AC выводится в test name дословно</li>
+          <li>Инварианты измеримы автоматически</li>
+          <li>Risk class соответствует scope</li>
+          <li>Evidence-секция упоминает имена файлов</li>
+        </ul>
+      </div>
+      <div class="box accent-blue">
+        <h3 style="color: var(--blue);">Качество формулировок</h3>
+        <ul class="dash check" style="margin-top: 0.6em;">
+          <li>Никаких «оптимизировать», «улучшить»</li>
+          <li>Все числа конкретны (100rps, не «много»)</li>
+          <li>Метрики и headers названы дословно</li>
+          <li>Owners — конкретные люди или команды</li>
+          <li>Related ссылки рабочие (ADR, JIRA)</li>
+          <li>SDD прошёл agent-persona reading</li>
+          <li>Все non-goals — категоризированы</li>
+        </ul>
+      </div>
+    </div>
+    <div class="reveal d5 pull" style="margin-top: 0.8em;">
+      Финальный тест: дай SDD незнакомому человеку. За 5 минут не скажет, <em>что надо проверить</em> — переписывай.
+    </div>
+  </div>
+  <div class="rail bot"><span class="left">checklist</span><span class="right pg"></span></div>
+</section>
+
+<!-- 22 ANTIPATTERNS -->
+<section class="slide" id="s22">
+  <div class="rail top"><span class="left">§ 09 — антипаттерны</span><span class="right">specification debt</span></div>
+  <div class="slide-content center">
+    <div class="reveal d1 eyebrow">антипаттерны</div>
+    <h2 class="reveal d2" style="margin-top: 0.3em;">Как <em style="color: var(--orange);">не надо</em> писать SDD.</h2>
+    <span class="reveal d3 accent-line orange"></span>
+    <div class="reveal d4 grid grid-3">
+      <div class="box accent-orange">
+        <h3 style="color: var(--orange);">«Документ-тикет»</h3>
+        <p style="margin-top: 0.5em;"><strong>Симптом:</strong> «реализовать рейт-лимитер». Это тикет, не SDD.</p>
+      </div>
+      <div class="box accent-orange">
+        <h3 style="color: var(--orange);">Размытый Goal</h3>
+        <p style="margin-top: 0.5em;"><strong>Симптом:</strong> «улучшить производительность». На какой метрике? На сколько?</p>
+      </div>
+      <div class="box accent-orange">
+        <h3 style="color: var(--orange);">AC как описание</h3>
+        <p style="margin-top: 0.5em;"><strong>Симптом:</strong> «должен корректно обрабатывать». Невозможно в тест.</p>
+      </div>
+      <div class="box accent-orange">
+        <h3 style="color: var(--orange);">Нет negative cases</h3>
+        <p style="margin-top: 0.5em;"><strong>Симптом:</strong> только happy path. Edge cases агент додумает неправильно.</p>
+      </div>
+      <div class="box accent-orange">
+        <h3 style="color: var(--orange);">Risk class занижен</h3>
+        <p style="margin-top: 0.5em;"><strong>Симптом:</strong> auth-фича помечена R1, чтобы не ждать security review.</p>
+      </div>
+      <div class="box accent-orange">
+        <h3 style="color: var(--orange);">Evidence «всё прошло»</h3>
+        <p style="margin-top: 0.5em;"><strong>Симптом:</strong> Stop hook пропустит, регуляторный аудит — нет.</p>
+      </div>
+    </div>
+    <div class="reveal d5 pull orange" style="margin-top: 0.8em;">
+      Specification debt — техдолг, не видный в коде.<br>Gartner: <em>−25%</em> velocity к 2027 у организаций без SDD.
+    </div>
+  </div>
+  <div class="rail bot"><span class="left">antipatterns</span><span class="right pg"></span></div>
+</section>
+
+<!-- 23 TOOLS -->
+<section class="slide" id="s23">
+  <div class="rail top"><span class="left">§ 10 — инструменты</span><span class="right">templates</span></div>
+  <div class="slide-content center">
+    <div class="reveal d1 eyebrow">инструментарий</div>
+    <h2 class="reveal d2" style="margin-top: 0.3em;">Инструменты <em>и шаблоны.</em></h2>
+    <span class="reveal d3 accent-line"></span>
+    <div class="reveal d4 grid grid-split">
+      <div>
+        <div class="box accent">
+          <h3>Где хранить SDD</h3>
+          <ul class="dash" style="margin-top: 0.6em;">
+            <li><strong>В репозитории</strong>, не в Confluence. <span class="mono">docs/sdd/SDD-YYYY-NNN.md</span></li>
+            <li>Под git — версионируется как код</li>
+            <li>Рядом со связанным кодом, не в отдельном репо</li>
+            <li>Index <span class="mono">docs/sdd/README.md</span> — список и статусы</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <h3 style="color: var(--lime);">Минимальный шаблон R1</h3>
+        <pre class="code" data-lang="markdown" style="margin-top: 0.5em;">
+<span class="c">---</span>
+<span class="n">id</span>: <span class="s">SDD-YYYY-NNN</span>
+<span class="n">owner</span>: <span class="s">@you</span>
+<span class="n">risk_class</span>: <span class="f">R1</span>
+<span class="c">---</span>
+
+<span class="k">## Goal</span>
+&lt;одно предложение&gt;
+
+<span class="k">## Acceptance criteria</span>
+<span class="f">AC-1</span> Given … When … Then …
+<span class="f">AC-2 [neg]</span> …
+
+<span class="k">## Evidence</span>
+- tests/…
+- bench p99 …</pre>
+      </div>
+    </div>
+    <div class="reveal d5 grid grid-3" style="margin-top: 0.8em;">
+      <div class="box"><h3 style="font-size: 1em;">UserPromptSubmit hook</h3><p style="margin-top: 0.3em; font-size: 0.9em;">Проверяет SDD link, risk class, AC. Блокирует без них.</p></div>
+      <div class="box"><h3 style="font-size: 1em;">Linter для SDD</h3><p style="margin-top: 0.3em; font-size: 0.9em;">YAML valid, AC формат корректен, ссылки рабочие.</p></div>
+      <div class="box"><h3 style="font-size: 1em;">SDD → tests scaffold</h3><p style="margin-top: 0.3em; font-size: 0.9em;">Автогенерация stub-тестов: один AC = один <span class="mono">def test_ac_N()</span>.</p></div>
+    </div>
+  </div>
+  <div class="rail bot"><span class="left">tools</span><span class="right pg"></span></div>
+</section>
+
+<!-- 24 QUICK REF -->
+<section class="slide" id="s24">
+  <div class="rail top"><span class="left">§ 11 — финал</span><span class="right">quick reference</span></div>
+  <div class="hero-bg-num">END</div>
+  <div class="slide-content center">
+    <div class="reveal d1 eyebrow">карточка-памятка</div>
+    <h1 class="reveal d2" style="margin-top: 0.3em; font-size: clamp(2rem, 5.5vw, 4rem);">SDD за <em>60 секунд.</em></h1>
+    <span class="reveal d3 accent-line"></span>
+    <div class="reveal d4 grid grid-2">
+      <div class="box invert">
+        <h3 style="color: var(--bg);">Если только начинаешь</h3>
+        <ol class="steps" style="margin-top: 0.6em;">
+          <li style="color: var(--bg);">Скопируй шаблон R1 → заполни header (5 мин)</li>
+          <li style="color: var(--bg);">Напиши Goal в одно предложение</li>
+          <li style="color: var(--bg);">Сформулируй 3 happy AC в Given/When/Then</li>
+          <li style="color: var(--bg);">Добавь 1 negative case</li>
+          <li style="color: var(--bg);">Назови файлы test/eval — это evidence</li>
+          <li style="color: var(--bg);">Дай прочитать коллеге как agent-persona</li>
+          <li style="color: var(--bg);">Переведи status в ready-for-ai</li>
+        </ol>
+      </div>
+      <div class="box accent">
+        <h3 style="color: var(--lime);">Семь правил, которые работают</h3>
+        <ul class="dash check" style="margin-top: 0.6em;">
+          <li><strong>Числа &gt; прилагательные.</strong> 100rps, не «быстро».</li>
+          <li><strong>Имена &gt; описания.</strong> Конкретные test-файлы.</li>
+          <li><strong>Negative-first.</strong> Что НЕ должно случиться — сразу.</li>
+          <li><strong>Owner — человек,</strong> не «команда».</li>
+          <li><strong>Risk class +1.</strong> Если сомневаешься — выше.</li>
+          <li><strong>1 AC = 1 тест.</strong></li>
+          <li><strong>Прочитай вслух.</strong> Заикнулся — переписывай.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="reveal d5 pull" style="margin-top: 1em;">
+      SDD — работа, которую делаешь <em>один раз</em>,<br>чтобы агент сделал остальное <em>десять раз без тебя.</em>
+      <span class="attr">главная инверсия PDLC</span>
+    </div>
+  </div>
+  <div class="rail bot"><span class="left">end · sdd-howto v1.0</span><span class="right pg"></span></div>
+</section>
+
+<nav class="nav-dots" id="navDots"></nav>
+
+<script>
+(() => {
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const dotsEl = document.getElementById('navDots');
+  const total = slides.length;
+  slides.forEach((s, i) => {
+    const pg = s.querySelector('.rail.bot .pg');
+    if (pg) pg.textContent = String(i+1).padStart(2,'0') + ' / ' + String(total).padStart(2,'0');
+  });
+  slides.forEach((s, i) => {
+    const b = document.createElement('button');
+    b.setAttribute('aria-label', `Slide ${i+1}`);
+    b.addEventListener('click', () => s.scrollIntoView({behavior: 'smooth'}));
+    dotsEl.appendChild(b);
+  });
+  const dots = Array.from(dotsEl.children);
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting && e.intersectionRatio > 0.55) {
+        const idx = slides.indexOf(e.target);
+        slides.forEach(s => s.classList.remove('active'));
+        e.target.classList.add('active');
+        dots.forEach((d,i) => d.classList.toggle('on', i === idx));
+      }
+    });
+  }, {threshold: [0.55, 0.7]});
+  slides.forEach(s => io.observe(s));
+  slides[0].classList.add('active');
+  dots[0].classList.add('on');
+  document.addEventListener('keydown', (e) => {
+    const cur = slides.findIndex(s => s.classList.contains('active'));
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      e.preventDefault();
+      if (cur < slides.length - 1) slides[cur+1].scrollIntoView({behavior: 'smooth'});
+    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      e.preventDefault();
+      if (cur > 0) slides[cur-1].scrollIntoView({behavior: 'smooth'});
+    } else if (e.key === 'Home') {
+      slides[0].scrollIntoView({behavior: 'smooth'});
+    } else if (e.key === 'End') {
+      slides[slides.length-1].scrollIntoView({behavior: 'smooth'});
+    }
+  });
+})();
+</script>
+</body>
+</html>
