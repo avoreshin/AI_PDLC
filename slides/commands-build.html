@@ -546,7 +546,7 @@ ul.cyber-list li::before {
 
 <nav class="nav-dots" id="navDots"></nav>
 <div class="brand-logo" aria-label="Antifraud Team"><img src="../assets/AntifraudTeam.svg" alt="Antifraud Team"></div>
-<div class="keyboard-hint"><span class="k">→</span> next step &nbsp;·&nbsp; <span class="k">←</span> back &nbsp;·&nbsp; <span class="k">PgDn</span> next slide</div>
+<div class="keyboard-hint"><span class="k">→</span> / <span class="k">scroll</span> next step &nbsp;·&nbsp; <span class="k">←</span> back &nbsp;·&nbsp; <span class="k">PgDn</span> next slide</div>
 
 <!-- ============================================
      SLIDE 01 — SPEAKER + TOPIC (intro)
@@ -1105,9 +1105,14 @@ ul.cyber-list li::before {
   let currentSlide = 0;
   let currentStep = 0;
   const lastStepPerSlide = slides.map(() => 0);
+  const builtSet = new Set(); // slides the user is incrementally building via keys
 
   function stepsOn(idx) {
     return slides[idx].querySelectorAll('.reveal').length;
+  }
+
+  function fullStep(idx) {
+    return Math.max(0, stepsOn(idx) - 1);
   }
 
   function paint() {
@@ -1139,10 +1144,12 @@ ul.cyber-list li::before {
     const total = stepsOn(currentSlide);
     if (currentStep < total - 1) {
       currentStep++;
+      builtSet.add(currentSlide);
       paint();
     } else if (currentSlide < slides.length - 1) {
       currentSlide++;
       currentStep = 0;
+      builtSet.add(currentSlide);
       paint();
       scrollToCurrent('smooth');
     }
@@ -1151,10 +1158,12 @@ ul.cyber-list li::before {
   function retreat() {
     if (currentStep > 0) {
       currentStep--;
+      builtSet.add(currentSlide);
       paint();
     } else if (currentSlide > 0) {
       currentSlide--;
-      currentStep = stepsOn(currentSlide) - 1;
+      currentStep = fullStep(currentSlide);
+      builtSet.add(currentSlide);
       paint();
       scrollToCurrent('smooth');
     }
@@ -1163,7 +1172,7 @@ ul.cyber-list li::before {
   function nextSlide() {
     if (currentSlide < slides.length - 1) {
       currentSlide++;
-      currentStep = 0;
+      currentStep = fullStep(currentSlide);
       paint();
       scrollToCurrent('smooth');
     }
@@ -1171,7 +1180,7 @@ ul.cyber-list li::before {
   function prevSlide() {
     if (currentSlide > 0) {
       currentSlide--;
-      currentStep = stepsOn(currentSlide) - 1;
+      currentStep = fullStep(currentSlide);
       paint();
       scrollToCurrent('smooth');
     }
@@ -1179,7 +1188,7 @@ ul.cyber-list li::before {
 
   function jumpTo(idx, mode) {
     currentSlide = Math.max(0, Math.min(idx, slides.length - 1));
-    currentStep = (mode === 'last') ? stepsOn(currentSlide) - 1 : 0;
+    currentStep = (mode === 'first') ? 0 : fullStep(currentSlide);
     paint();
     scrollToCurrent('smooth');
   }
@@ -1229,13 +1238,52 @@ ul.cyber-list li::before {
         const idx = slides.indexOf(e.target);
         if (idx !== currentSlide) {
           currentSlide = idx;
-          currentStep = lastStepPerSlide[idx]; // resume from where we left
+          // scroll-arrival fallback (programmatic scrollIntoView, scrollbar drag):
+          // fully reveal unless user is mid-build on this slide
+          currentStep = builtSet.has(idx) ? lastStepPerSlide[idx] : fullStep(idx);
           paint();
         }
       }
     });
   }, { threshold: [0.55] });
   slides.forEach(function (s) { io.observe(s); });
+
+  // Wheel / trackpad: each scroll tick === one ArrowRight / ArrowLeft press.
+  // Hijack native scroll so the build advances step-by-step, not jumps slides.
+  let wheelLock = false;
+  let wheelAccum = 0;
+  window.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    if (wheelLock) return;
+    // accumulate small trackpad deltas so a single swipe = single step
+    wheelAccum += e.deltaY;
+    if (Math.abs(wheelAccum) < 24) return;
+    const dir = wheelAccum > 0 ? 1 : -1;
+    wheelAccum = 0;
+    wheelLock = true;
+    setTimeout(function () { wheelLock = false; }, 480);
+    if (dir > 0) advance(); else retreat();
+  }, { passive: false });
+
+  // Touch: vertical swipe === one step in that direction.
+  let touchStartY = null;
+  let touchActive = false;
+  window.addEventListener('touchstart', function (e) {
+    if (e.touches.length !== 1) return;
+    touchStartY = e.touches[0].clientY;
+    touchActive = true;
+  }, { passive: true });
+  window.addEventListener('touchmove', function (e) {
+    if (touchActive) e.preventDefault();
+  }, { passive: false });
+  window.addEventListener('touchend', function (e) {
+    if (!touchActive || touchStartY === null) return;
+    touchActive = false;
+    const dy = touchStartY - (e.changedTouches[0] ? e.changedTouches[0].clientY : touchStartY);
+    touchStartY = null;
+    if (Math.abs(dy) < 40) return;
+    if (dy > 0) advance(); else retreat();
+  }, { passive: true });
 
   // Initial render
   paint();
