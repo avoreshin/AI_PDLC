@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI DISRUPT PDLC v3.5 // VISION 2029 — Executive Briefing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* === VIEWPORT BASE === */
+html, body { height: 100%; overflow-x: hidden; }
+html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+.slide {
+  width: 100vw; height: 100vh; height: 100dvh;
+  overflow: hidden; scroll-snap-align: start;
+  display: flex; flex-direction: column; position: relative;
+}
+.slide-content {
+  flex: 1; display: flex; flex-direction: column;
+  justify-content: center;
+  max-height: 100%; overflow: hidden;
+  padding: var(--slide-padding);
+}
+:root {
+  --title-size: clamp(1.5rem, 5vw, 4rem);
+  --h2-size: clamp(1.25rem, 3.5vw, 2.5rem);
+  --h3-size: clamp(1rem, 2.5vw, 1.75rem);
+  --body-size: clamp(0.75rem, 1.5vw, 1.125rem);
+  --small-size: clamp(0.65rem, 1vw, 0.875rem);
+  --slide-padding: clamp(1rem, 4vw, 4rem);
+  --content-gap: clamp(0.5rem, 2vw, 2rem);
+  --element-gap: clamp(0.25rem, 1vw, 1rem);
+
+  --bg: #07020d;
+  --bg-2: #0d0418;
+  --grid: rgba(255, 0, 170, 0.08);
+  --neon-pink: #ff2bd6;
+  --neon-cyan: #00f0ff;
+  --neon-yellow: #f5ff4f;
+  --neon-violet: #8a2bff;
+  --neon-green: #4fffa3;
+  --text: #e6f1ff;
+  --muted: #6b7a99;
+}
+@media (max-height: 700px) { :root { --slide-padding: clamp(0.75rem,3vw,2rem); --content-gap: clamp(0.4rem,1.5vw,1rem); --title-size: clamp(1.25rem,4.5vw,2.5rem); --h2-size: clamp(1rem,3vw,1.75rem); } }
+@media (max-height: 600px) { :root { --slide-padding: clamp(0.5rem,2.5vw,1.5rem); --content-gap: clamp(0.3rem,1vw,0.75rem); --title-size: clamp(1.1rem,4vw,2rem); --body-size: clamp(0.7rem,1.2vw,0.95rem); } .nav-dots, .keyboard-hint { display: none; } }
+@media (max-height: 500px) { :root { --slide-padding: clamp(0.4rem,2vw,1rem); --title-size: clamp(1rem,3.5vw,1.5rem); --h2-size: clamp(0.9rem,2.5vw,1.25rem); --body-size: clamp(0.65rem,1vw,0.85rem); } }
+@media (max-width: 600px) { :root { --title-size: clamp(1.25rem,7vw,2.5rem); } .grid { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; } html { scroll-behavior: auto; } }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.01em;
+}
+
+.slide {
+  background:
+    radial-gradient(ellipse at 20% 10%, rgba(255,43,214,0.12), transparent 50%),
+    radial-gradient(ellipse at 80% 90%, rgba(0,240,255,0.10), transparent 55%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+}
+.slide::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: clamp(28px, 4vw, 64px) clamp(28px, 4vw, 64px);
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  opacity: 0.7;
+}
+.slide::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 3px);
+  mix-blend-mode: overlay;
+}
+
+.frame { position: absolute; inset: clamp(0.6rem, 2vw, 1.4rem); pointer-events: none; }
+.frame::before, .frame::after {
+  content: ""; position: absolute; width: clamp(14px, 2vw, 28px); height: clamp(14px, 2vw, 28px);
+  border: 1px solid var(--neon-cyan);
+}
+.frame::before { top: 0; left: 0; border-right: none; border-bottom: none; }
+.frame::after { bottom: 0; right: 0; border-left: none; border-top: none; }
+
+.hud {
+  position: absolute; top: clamp(1rem, 3vw, 2rem); left: clamp(1rem, 3vw, 2rem);
+  font-size: var(--small-size); color: var(--neon-cyan);
+  letter-spacing: 0.2em; text-transform: uppercase;
+  display: flex; gap: 0.5em; align-items: center;
+  z-index: 5;
+}
+.hud .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--neon-pink); box-shadow: 0 0 12px var(--neon-pink);
+  animation: pulse 1.4s infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+.counter {
+  position: absolute; bottom: clamp(1rem, 3vw, 2rem); right: clamp(1rem, 3vw, 2rem);
+  font-size: var(--small-size); color: var(--muted);
+  letter-spacing: 0.25em; z-index: 5;
+}
+.counter b { color: var(--neon-yellow); }
+
+.build-marker {
+  position: absolute; bottom: clamp(1rem, 3vw, 2rem); left: clamp(1rem, 3vw, 2rem);
+  display: flex; gap: 0.7em; align-items: center;
+  color: var(--muted); font-size: var(--small-size); letter-spacing: 0.2em;
+  z-index: 5;
+}
+.build-marker .bar {
+  width: clamp(80px, 12vw, 160px); height: 2px;
+  background: rgba(255,255,255,0.15); position: relative; overflow: hidden;
+}
+.build-marker .bar::before {
+  content: ""; position: absolute; left: 0; top: 0; height: 100%;
+  width: var(--p, 0%); background: var(--neon-pink);
+  box-shadow: 0 0 8px var(--neon-pink);
+  transition: width 0.3s ease-out;
+}
+
+/* === TYPOGRAPHY === */
+h1, h2, h3 {
+  font-family: 'Unbounded', 'JetBrains Mono', sans-serif;
+  font-weight: 900;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+h1 { font-size: var(--title-size); }
+h2 { font-size: var(--h2-size); }
+h3 { font-size: var(--h3-size); }
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+.neon-pink { color: var(--neon-pink); text-shadow: 0 0 14px rgba(255,43,214,0.55); }
+.neon-cyan { color: var(--neon-cyan); text-shadow: 0 0 14px rgba(0,240,255,0.55); }
+.neon-yellow { color: var(--neon-yellow); text-shadow: 0 0 12px rgba(245,255,79,0.45); }
+.neon-green { color: var(--neon-green); text-shadow: 0 0 12px rgba(79,255,163,0.45); }
+
+.glitch { position: relative; display: inline-block; }
+.glitch::before, .glitch::after {
+  content: attr(data-text); position: absolute; left: 0; top: 0; width: 100%;
+  overflow: hidden; clip-path: inset(0 0 0 0);
+}
+.glitch::before { color: var(--neon-pink); transform: translate(-2px, 0); mix-blend-mode: screen; animation: glitchA 3.2s infinite steps(1); }
+.glitch::after  { color: var(--neon-cyan); transform: translate(2px, 0);  mix-blend-mode: screen; animation: glitchB 2.6s infinite steps(1); }
+@keyframes glitchA { 0%,93%,100% { clip-path: inset(0 0 100% 0); } 94% { clip-path: inset(20% 0 60% 0); } 96% { clip-path: inset(60% 0 10% 0); } 98% { clip-path: inset(0 0 80% 0); } }
+@keyframes glitchB { 0%,90%,100% { clip-path: inset(0 0 100% 0); } 91% { clip-path: inset(70% 0 10% 0); } 93% { clip-path: inset(10% 0 70% 0); } 95% { clip-path: inset(40% 0 30% 0); } }
+
+.title-stack { display: flex; flex-direction: column; gap: clamp(0.4rem, 1.5vw, 1rem); align-items: flex-start; }
+.kicker {
+  font-size: var(--small-size); letter-spacing: 0.4em;
+  color: var(--neon-yellow); text-transform: uppercase;
+  padding: 0.4em 0.8em; border: 1px solid var(--neon-yellow);
+  border-radius: 2px;
+}
+.subtitle { font-size: var(--h3-size); color: var(--muted); max-width: 60ch; }
+.signature {
+  margin-top: clamp(1rem, 3vw, 2rem);
+  font-size: var(--small-size); color: var(--muted);
+  border-left: 2px solid var(--neon-pink); padding-left: 0.8em;
+}
+
+.eyebrow {
+  font-size: var(--small-size); letter-spacing: 0.35em; color: var(--neon-cyan);
+  text-transform: uppercase; margin-bottom: 0.6em;
+}
+.lede { font-size: var(--h3-size); color: var(--text); max-width: 70ch; line-height: 1.35; }
+.note { font-size: var(--small-size); color: var(--muted); max-width: 75ch; line-height: 1.45; }
+
+.cards {
+  display: grid; gap: clamp(0.5rem, 1.5vw, 1.2rem);
+  margin-top: clamp(0.8rem, 2vw, 1.6rem);
+}
+.cards.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.cards.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.cards.cols-4 { grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 900px) { .cards.cols-4 { grid-template-columns: repeat(4, 1fr); } }
+
+.card-c {
+  position: relative;
+  border: 1px solid rgba(0,240,255,0.25);
+  background: linear-gradient(180deg, rgba(13,4,24,0.7), rgba(7,2,13,0.85));
+  padding: clamp(0.7rem, 1.6vw, 1.2rem);
+  font-size: var(--body-size);
+  overflow: hidden;
+}
+.card-c::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan));
+}
+.card-c h3 { font-size: clamp(0.9rem, 1.8vw, 1.2rem); margin-bottom: 0.35em; }
+.card-c .tag {
+  display: inline-block; font-size: clamp(0.6rem, 1vw, 0.75rem);
+  letter-spacing: 0.2em; color: var(--neon-yellow);
+  padding: 0.15em 0.5em; border: 1px solid var(--neon-yellow);
+  margin-bottom: 0.5em;
+}
+.card-c p { color: var(--muted); line-height: 1.4; font-size: clamp(0.72rem, 1.2vw, 0.95rem); }
+.card-c .meta { margin-top: 0.6em; font-size: var(--small-size); color: var(--neon-cyan); }
+
+ul.cyber-list { list-style: none; display: flex; flex-direction: column; gap: clamp(0.4rem, 1vh, 0.9rem); }
+ul.cyber-list li {
+  position: relative; padding-left: 1.6em;
+  font-size: var(--body-size); line-height: 1.45;
+}
+ul.cyber-list li::before {
+  content: "▸"; position: absolute; left: 0; top: 0;
+  color: var(--neon-pink); text-shadow: 0 0 10px var(--neon-pink);
+}
+
+.forbid {
+  border: 1px solid var(--neon-pink); padding: clamp(0.6rem, 1.4vw, 1rem);
+  background: rgba(255,43,214,0.04);
+  display: flex; gap: 0.7em; align-items: flex-start;
+  font-size: var(--body-size);
+}
+.forbid .x { color: var(--neon-pink); font-weight: 900; font-size: 1.2em; }
+
+.cta-block { text-align: center; }
+.cta-block h1 { margin-bottom: 0.4em; }
+.cta-prompt {
+  display: inline-block; margin-top: clamp(1rem, 2vw, 1.5rem);
+  font-family: 'JetBrains Mono'; font-size: var(--h3-size);
+  padding: 0.5em 1em; border: 1px solid var(--neon-cyan);
+  color: var(--neon-cyan);
+  position: relative;
+}
+.cta-prompt::after { content: "_"; animation: blink 1s infinite step-end; color: var(--neon-pink); }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* === STEP REVEAL === */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.45s ease-out, transform 0.45s ease-out;
+  pointer-events: none;
+}
+.reveal.shown {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+@media print {
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { height: auto; overflow: visible; scroll-snap-type: none; }
+  .nav-dots, .keyboard-hint, .build-marker { display: none !important; }
+  .slide {
+    width: 1600px; height: 900px;
+    page-break-after: always; break-after: page;
+    scroll-snap-align: none;
+  }
+  .slide:last-child { page-break-after: auto; break-after: auto; }
+  .reveal { opacity: 1 !important; transform: none !important; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+}
+
+.nav-dots { position: fixed; right: clamp(0.6rem, 1.5vw, 1.2rem); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 0.5em; z-index: 10; }
+.nav-dots a { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.15); display: block; transition: 0.3s; cursor: pointer; }
+.nav-dots a.active { background: var(--neon-pink); box-shadow: 0 0 10px var(--neon-pink); }
+
+.keyboard-hint {
+  position: fixed; bottom: clamp(0.6rem, 1.5vw, 1.2rem); left: 50%; transform: translateX(-50%);
+  font-size: var(--small-size); color: rgba(107,122,153,0.5);
+  letter-spacing: 0.2em; z-index: 5; pointer-events: none;
+  text-transform: uppercase;
+}
+.keyboard-hint .k { color: var(--neon-cyan); }
+
+.brand-logo {
+  position: fixed;
+  top: clamp(1rem, 3vw, 2rem);
+  right: clamp(1rem, 3vw, 2rem);
+  z-index: 6;
+  pointer-events: none;
+  height: clamp(26px, 3.4vw, 42px);
+  display: flex; align-items: center;
+}
+.brand-logo img {
+  height: 100%; width: auto;
+  mix-blend-mode: screen;
+  opacity: 0.9;
+  filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.25));
+}
+
+/* === TITLE SLIDE === */
+.intro-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: center;
+  width: 100%;
+}
+@media (max-width: 800px) { .intro-grid { grid-template-columns: 1fr; gap: 1rem; } }
+.intro-photo-wrap {
+  position: relative;
+  width: 100%;
+  max-width: clamp(260px, 42vw, 560px);
+  aspect-ratio: 1 / 1;
+  justify-self: center;
+}
+.intro-photo-wrap::before,
+.intro-photo-wrap::after {
+  content: ""; position: absolute;
+  width: clamp(18px, 2.8vw, 36px);
+  height: clamp(18px, 2.8vw, 36px);
+  border: 1px solid var(--neon-cyan);
+  pointer-events: none;
+}
+.intro-photo-wrap::before {
+  top: clamp(-14px, -1.4vw, -8px); left: clamp(-14px, -1.4vw, -8px);
+  border-right: none; border-bottom: none;
+}
+.intro-photo-wrap::after {
+  bottom: clamp(-14px, -1.4vw, -8px); right: clamp(-14px, -1.4vw, -8px);
+  border-left: none; border-top: none;
+}
+.intro-photo-wrap img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: saturate(0.85) contrast(1.05);
+  box-shadow: 0 0 32px rgba(0, 240, 255, 0.18);
+}
+.intro-info { display: flex; flex-direction: column; gap: clamp(0.4rem, 1vw, 0.8rem); min-width: 0; }
+.intro-role { font-size: var(--small-size); color: var(--muted); letter-spacing: 0.2em; text-transform: uppercase; line-height: 1.5; }
+.intro-name { font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: clamp(1.4rem, 4vw, 3rem); color: var(--neon-yellow); text-shadow: 0 0 20px rgba(245,255,79,0.45); line-height: 1.05; text-transform: uppercase; letter-spacing: 0.08em; }
+.intro-divider { height: 1px; background: linear-gradient(90deg, var(--neon-pink), transparent); margin: clamp(0.6rem, 1.6vw, 1rem) 0; max-width: 70%; }
+.intro-topic { font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: clamp(1.1rem, 2.6vw, 2rem); line-height: 1.1; text-transform: uppercase; letter-spacing: 0.04em; }
+.intro-subtitle { font-size: var(--body-size); color: var(--muted); line-height: 1.45; max-width: 36ch; margin-top: 0.4em; }
+
+/* === PILLARS === */
+.three-pillars {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(0.6rem, 1.6vw, 1.4rem);
+  margin-top: clamp(0.8rem, 2vw, 1.5rem);
+}
+@media (max-width: 800px) { .three-pillars { grid-template-columns: 1fr; } }
+.pillar {
+  position: relative;
+  padding: clamp(0.9rem, 1.8vw, 1.4rem);
+  border: 1px solid rgba(0,240,255,0.3);
+  background: linear-gradient(180deg, rgba(13,4,24,0.7), rgba(7,2,13,0.85));
+  display: flex; flex-direction: column; gap: 0.6em;
+}
+.pillar::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--accent, var(--neon-cyan));
+  box-shadow: 0 0 12px var(--accent, var(--neon-cyan));
+}
+.pillar.a { --accent: var(--neon-pink); }
+.pillar.b { --accent: var(--neon-cyan); }
+.pillar.c { --accent: var(--neon-yellow); }
+.pillar .pill-num { font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: clamp(1.4rem, 3vw, 2.4rem); color: var(--accent, var(--neon-cyan)); }
+.pillar h3 { font-size: clamp(1rem, 2vw, 1.4rem); color: var(--accent, var(--neon-cyan)); }
+.pillar p { color: var(--text); font-size: var(--body-size); line-height: 1.45; }
+
+/* === STORY CARDS === */
+.story-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(0.8rem, 2vw, 1.6rem);
+  margin-top: clamp(0.6rem, 1.5vw, 1.2rem);
+}
+@media (max-width: 800px) { .story-row { grid-template-columns: 1fr; } }
+.story {
+  border: 1px solid rgba(0,240,255,0.3);
+  background: linear-gradient(180deg, rgba(13,4,24,0.7), rgba(7,2,13,0.85));
+  padding: clamp(0.8rem, 1.8vw, 1.3rem);
+  position: relative;
+}
+.story::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--neon-pink), var(--neon-yellow));
+}
+.story .num {
+  font-family: 'Unbounded', sans-serif; font-weight: 900;
+  font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+  color: var(--neon-yellow);
+  line-height: 1; display: block; margin-bottom: 0.25em;
+}
+.story .head {
+  font-family: 'Unbounded', sans-serif; font-weight: 900;
+  font-size: clamp(0.9rem, 1.6vw, 1.2rem);
+  color: var(--neon-pink);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  margin-bottom: 0.5em;
+}
+.story p { color: var(--text); font-size: var(--body-size); line-height: 1.45; }
+.story .before-after {
+  margin-top: 0.7em; padding-top: 0.6em;
+  border-top: 1px dashed rgba(0,240,255,0.2);
+  font-size: var(--small-size); color: var(--muted);
+  display: flex; gap: 0.5em; flex-wrap: wrap;
+}
+.story .before-after .b { color: var(--neon-pink); }
+.story .before-after .a { color: var(--neon-cyan); }
+.story .before-after .arr { color: var(--neon-yellow); }
+
+/* === METRIC TABLE === */
+.metric-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr;
+  gap: 0;
+  margin-top: clamp(0.6rem, 1.5vw, 1.2rem);
+  font-size: var(--body-size);
+  border: 1px solid rgba(0,240,255,0.25);
+}
+.metric-grid > div {
+  padding: clamp(0.55rem, 1.2vw, 0.85rem) clamp(0.6rem, 1.4vw, 1rem);
+  border-bottom: 1px solid rgba(0,240,255,0.12);
+  line-height: 1.4; font-size: clamp(0.72rem, 1.2vw, 0.95rem);
+}
+.metric-grid > div:nth-child(3n+2),
+.metric-grid > div:nth-child(3n+3) {
+  border-left: 1px solid rgba(0,240,255,0.12);
+  text-align: center;
+}
+.metric-grid .hd {
+  background: rgba(0,240,255,0.08);
+  color: var(--neon-cyan);
+  font-family: 'Unbounded', sans-serif; font-weight: 700;
+  font-size: clamp(0.65rem, 1.1vw, 0.85rem);
+  letter-spacing: 0.18em; text-transform: uppercase;
+}
+.metric-grid .baseline { color: var(--neon-pink); font-weight: 700; }
+.metric-grid .target { color: var(--neon-green); font-weight: 700; }
+.metric-grid .name { color: var(--text); }
+.metric-grid .name .sub { display: block; color: var(--muted); font-size: 0.8em; margin-top: 0.15em; }
+
+/* === CATEGORY BADGES === */
+.cat-badges {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(0.5rem, 1.4vw, 1.1rem);
+  margin-top: clamp(0.6rem, 1.5vw, 1.2rem);
+}
+@media (max-width: 800px) { .cat-badges { grid-template-columns: repeat(2, 1fr); } }
+.cat {
+  border: 1px solid var(--accent, var(--neon-cyan));
+  background: rgba(0,240,255,0.05);
+  padding: clamp(0.7rem, 1.5vw, 1.1rem);
+  position: relative;
+}
+.cat .cat-name {
+  font-family: 'Unbounded', sans-serif; font-weight: 900;
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  color: var(--accent, var(--neon-cyan)); text-transform: uppercase;
+  margin-bottom: 0.3em; letter-spacing: 0.05em;
+}
+.cat .cat-q { font-size: var(--small-size); color: var(--neon-yellow); margin-bottom: 0.6em; letter-spacing: 0.1em; }
+.cat .cat-list { list-style: none; font-size: clamp(0.7rem, 1.15vw, 0.9rem); display: flex; flex-direction: column; gap: 0.25em; color: var(--text); line-height: 1.4; }
+.cat.v { --accent: var(--neon-cyan); background: rgba(0,240,255,0.05); }
+.cat.q { --accent: var(--neon-pink); background: rgba(255,43,214,0.06); }
+.cat.c { --accent: var(--neon-yellow); background: rgba(245,255,79,0.05); }
+.cat.t { --accent: var(--neon-green); background: rgba(79,255,163,0.05); }
+
+/* === LOOP DIAGRAM === */
+.loop-diagram {
+  display: grid;
+  grid-template-columns: 1fr 0.4fr 1fr;
+  gap: clamp(0.6rem, 1.6vw, 1.2rem);
+  margin-top: clamp(0.6rem, 1.5vw, 1.1rem);
+  align-items: stretch;
+}
+@media (max-width: 800px) { .loop-diagram { grid-template-columns: 1fr; } }
+.loop-box {
+  border: 1px solid var(--lacc, var(--neon-cyan));
+  background: rgba(0,240,255,0.04);
+  padding: clamp(0.8rem, 1.6vw, 1.2rem);
+  position: relative;
+}
+.loop-box::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--lacc, var(--neon-cyan));
+  box-shadow: 0 0 10px var(--lacc, var(--neon-cyan));
+}
+.loop-box.intent { --lacc: var(--neon-pink); }
+.loop-box.impl { --lacc: var(--neon-cyan); }
+.loop-box h3 { color: var(--lacc, var(--neon-cyan)); font-size: clamp(0.95rem, 1.8vw, 1.3rem); margin-bottom: 0.35em; }
+.loop-box .meta { font-size: var(--small-size); color: var(--muted); margin-bottom: 0.6em; letter-spacing: 0.1em; }
+.loop-box ul { list-style: none; font-size: clamp(0.72rem, 1.2vw, 0.95rem); color: var(--text); line-height: 1.5; display: flex; flex-direction: column; gap: 0.3em; }
+.loop-box ul li::before { content: "·"; color: var(--lacc, var(--neon-cyan)); margin-right: 0.5em; }
+.loop-bridge {
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 0.4em;
+}
+.loop-bridge .arr { font-size: clamp(1.4rem, 3vw, 2.4rem); color: var(--neon-yellow); }
+.loop-bridge .lbl { font-size: var(--small-size); color: var(--neon-yellow); letter-spacing: 0.15em; text-transform: uppercase; text-align: center; }
+
+/* === RISK ROW === */
+.risk-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: clamp(0.6rem, 1.5vw, 1.2rem);
+  margin-top: clamp(0.6rem, 1.5vw, 1.1rem);
+}
+@media (max-width: 800px) { .risk-row { grid-template-columns: 1fr; } }
+.risk-card {
+  border: 1px solid var(--neon-pink);
+  background: rgba(255,43,214,0.05);
+  padding: clamp(0.8rem, 1.6vw, 1.2rem);
+  position: relative;
+}
+.risk-card::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--neon-pink); box-shadow: 0 0 10px var(--neon-pink);
+}
+.risk-card .tag { display: inline-block; font-size: var(--small-size); color: var(--neon-pink); letter-spacing: 0.2em; border: 1px solid var(--neon-pink); padding: 0.15em 0.5em; margin-bottom: 0.5em; }
+.risk-card h3 { color: var(--neon-pink); font-size: clamp(0.95rem, 1.7vw, 1.2rem); margin-bottom: 0.4em; }
+.risk-card .num { font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: clamp(1rem, 2vw, 1.5rem); color: var(--neon-yellow); margin-bottom: 0.3em; display: block; }
+.risk-card p { color: var(--text); font-size: clamp(0.72rem, 1.2vw, 0.95rem); line-height: 1.45; }
+.risk-card .mit { margin-top: 0.6em; font-size: var(--small-size); color: var(--neon-cyan); border-left: 2px solid var(--neon-cyan); padding-left: 0.6em; line-height: 1.5; }
+
+/* === HORIZON CARDS === */
+.horizon {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(0.6rem, 1.5vw, 1.1rem);
+  margin-top: clamp(0.5rem, 1.4vw, 1rem);
+}
+.hcard {
+  display: grid;
+  grid-template-columns: 0.5fr 1.5fr 1fr;
+  gap: clamp(0.6rem, 1.4vw, 1rem);
+  padding: clamp(0.7rem, 1.5vw, 1.1rem);
+  border: 1px solid var(--hacc, var(--neon-cyan));
+  background: rgba(0,240,255,0.04);
+  position: relative;
+  align-items: center;
+}
+@media (max-width: 800px) { .hcard { grid-template-columns: 1fr; } }
+.hcard.h1 { --hacc: var(--neon-yellow); background: rgba(245,255,79,0.04); }
+.hcard.h2 { --hacc: var(--neon-cyan); }
+.hcard.h3 { --hacc: var(--neon-pink); background: rgba(255,43,214,0.05); }
+.hcard .h-id { font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: clamp(1rem, 2.2vw, 1.8rem); color: var(--hacc, var(--neon-cyan)); }
+.hcard .h-id .sub { display: block; font-size: var(--small-size); color: var(--muted); letter-spacing: 0.15em; margin-top: 0.2em; }
+.hcard .h-body h4 { font-family: 'Unbounded', sans-serif; color: var(--text); font-size: clamp(0.85rem, 1.5vw, 1.1rem); margin-bottom: 0.3em; }
+.hcard .h-body p { font-size: clamp(0.72rem, 1.2vw, 0.93rem); color: var(--muted); line-height: 1.45; }
+.hcard .h-kpi { font-size: clamp(0.72rem, 1.2vw, 0.93rem); color: var(--text); line-height: 1.5; }
+.hcard .h-kpi b { color: var(--hacc, var(--neon-cyan)); display: block; font-size: var(--small-size); letter-spacing: 0.15em; margin-bottom: 0.3em; font-weight: 700; }
+
+/* === ROLE GRID === */
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(0.5rem, 1.3vw, 1rem);
+  margin-top: clamp(0.5rem, 1.4vw, 1rem);
+}
+@media (min-width: 900px) { .role-grid { grid-template-columns: repeat(4, 1fr); } }
+.role-card {
+  border: 1px solid rgba(0,240,255,0.25);
+  background: linear-gradient(180deg, rgba(13,4,24,0.7), rgba(7,2,13,0.85));
+  padding: clamp(0.6rem, 1.3vw, 1rem);
+  position: relative;
+}
+.role-card::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--racc, var(--neon-cyan));
+}
+.role-card.new { --racc: var(--neon-pink); }
+.role-card.evo { --racc: var(--neon-cyan); }
+.role-card.fdng { --racc: var(--neon-yellow); }
+.role-card .role-tag { font-size: clamp(0.6rem, 1vw, 0.72rem); color: var(--racc, var(--neon-cyan)); letter-spacing: 0.18em; text-transform: uppercase; }
+.role-card h3 { color: var(--racc, var(--neon-cyan)); font-size: clamp(0.8rem, 1.4vw, 1.05rem); margin: 0.25em 0 0.35em; }
+.role-card p { color: var(--text); font-size: clamp(0.68rem, 1.1vw, 0.85rem); line-height: 1.45; }
+
+/* === LADDER L0-L5 === */
+.ladder { display: flex; flex-direction: column; gap: clamp(0.3rem, 0.8vw, 0.5rem); margin-top: clamp(0.5rem, 1.4vw, 1rem); }
+.rung {
+  display: grid; grid-template-columns: 5em 1.2fr 1.5fr 6em; gap: clamp(0.5rem, 1.5vw, 1rem);
+  padding: clamp(0.45rem, 1vw, 0.7rem) clamp(0.6rem, 1.5vw, 1rem);
+  border-left: 3px solid var(--rgacc, var(--muted));
+  background: var(--rgbg, rgba(255,255,255,0.02));
+  font-size: clamp(0.72rem, 1.2vw, 0.95rem);
+  align-items: center;
+}
+.rung .lvl { font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: clamp(0.85rem, 1.7vw, 1.2rem); color: var(--rgacc, var(--muted)); }
+.rung .name { color: var(--text); font-weight: 700; }
+.rung .where { color: var(--muted); font-size: 0.92em; }
+.rung .badge { font-size: var(--small-size); letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); text-align: right; }
+.rung.l0 { --rgacc: var(--muted); }
+.rung.l1 { --rgacc: var(--muted); }
+.rung.l2 { --rgacc: rgba(0,240,255,0.4); }
+.rung.l3 { --rgacc: var(--neon-yellow); --rgbg: rgba(245,255,79,0.04); }
+.rung.l4 { --rgacc: var(--neon-cyan); --rgbg: rgba(0,240,255,0.07); }
+.rung.l5 { --rgacc: var(--neon-pink); --rgbg: rgba(255,43,214,0.07); }
+.rung.l4 .name, .rung.l4 .lvl, .rung.l4 .badge { color: var(--neon-cyan); }
+.rung.l5 .name, .rung.l5 .lvl, .rung.l5 .badge { color: var(--neon-pink); }
+.rung.l3 .badge { color: var(--neon-yellow); }
+
+/* === ANTI-PATTERN GRID === */
+.anti-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: clamp(0.5rem, 1.3vw, 1rem); margin-top: clamp(0.5rem, 1.4vw, 1rem); }
+@media (max-width: 800px) { .anti-grid { grid-template-columns: 1fr; } }
+.anti {
+  border: 1px solid rgba(255,43,214,0.3);
+  background: rgba(255,43,214,0.03);
+  padding: clamp(0.5rem, 1.2vw, 0.85rem) clamp(0.6rem, 1.4vw, 1rem);
+  display: grid;
+  grid-template-columns: 1.4em 1fr;
+  gap: 0.7em;
+  align-items: flex-start;
+  font-size: clamp(0.7rem, 1.15vw, 0.92rem);
+  line-height: 1.45;
+}
+.anti .x { color: var(--neon-pink); font-weight: 900; font-size: 1.2em; }
+.anti b { color: var(--text); display: block; margin-bottom: 0.2em; }
+.anti span { color: var(--muted); font-size: 0.92em; }
+
+/* === HIGHLIGHT QUOTE === */
+.callout {
+  border: 1px solid var(--neon-yellow);
+  background: rgba(245,255,79,0.05);
+  padding: clamp(0.8rem, 1.6vw, 1.2rem) clamp(1rem, 2vw, 1.5rem);
+  margin-top: clamp(0.6rem, 1.5vw, 1.2rem);
+  font-size: var(--body-size);
+  position: relative;
+}
+.callout::before {
+  content: "//"; position: absolute; top: 0.6em; left: 0.8em;
+  color: var(--neon-yellow); font-size: var(--small-size); letter-spacing: 0.2em;
+  font-family: 'Unbounded', sans-serif; font-weight: 900;
+}
+.callout .ctxt { color: var(--text); padding-left: 2.2em; line-height: 1.5; }
+.callout strong { color: var(--neon-yellow); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<nav class="nav-dots" id="navDots"></nav>
+<div class="brand-logo" aria-label="Antifraud Team"><img src="../assets/AntifraudTeam.svg" alt="Antifraud Team"></div>
+<div class="keyboard-hint"><span class="k">→</span> / <span class="k">scroll</span> next step &nbsp;·&nbsp; <span class="k">←</span> back &nbsp;·&nbsp; <span class="k">PgDn</span> next slide</div>
+
+<!-- ============================================
+     SLIDE 01 — SPEAKER INTRO
+============================================ -->
+<section class="slide" id="s01">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> SPEAKER · INTRO</div>
+  <div class="slide-content intro-grid">
+    <div class="intro-photo-wrap">
+      <img src="../assets/author_oreshin.png" alt="Орешин Андрей">
+    </div>
+    <div class="intro-info">
+      <span class="kicker" style="align-self:flex-start">// SPEAKER</span>
+      <div class="intro-role">Главный инженер по разработке</div>
+      <h1 class="intro-name">Орешин Андрей</h1>
+      <div class="intro-divider"></div>
+      <span class="kicker" style="align-self:flex-start; color: var(--neon-cyan); border-color: var(--neon-cyan)">// ТЕМА ДОКЛАДА</span>
+      <div class="intro-topic">
+        <span class="glitch" data-text="VISION">VISION</span> <span class="neon-pink">2029</span> <span class="neon-cyan">//</span> <span class="neon-yellow">EXECUTIVE BRIEF</span>
+      </div>
+      <p class="intro-subtitle">
+        Целевое состояние AI DISRUPT PDLC на горизонт 3 лет. Wow-истории, метрики, процесс, роли, риски — для тех, кто подписывает мандаты.
+      </p>
+    </div>
+  </div>
+  <div class="counter"><b>01</b> / 22</div>
+</section>
+
+<!-- ============================================
+     SLIDE 02 — TITLE
+============================================ -->
+<section class="slide" id="s02">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> SYS://VISION_2029 · BRIEF · LIVE</div>
+  <div class="slide-content">
+    <div class="title-stack">
+      <span class="kicker">// EXECUTIVE BRIEF · v1.0</span>
+      <h1>
+        <span class="glitch" data-text="ВИДЕНИЕ">ВИДЕНИЕ</span><br>
+        <span class="neon-pink">//</span> <span class="neon-cyan">2029</span>
+      </h1>
+      <p class="subtitle">
+        Внутренние инструменты позволяют разрабатывать с <span class="neon-yellow">качеством</span> и <span class="neon-yellow">скоростью</span> передовых GenAI-компаний.
+      </p>
+      <div class="signature">
+        audience: CTO · CIO · CAIO · CRO &nbsp;·&nbsp; horizon: 36 months &nbsp;·&nbsp; source: AI DISRUPT PDLC v3.5
+      </div>
+    </div>
+  </div>
+  <div class="counter"><b>02</b> / 22</div>
+</section>
+
+<!-- ============================================
+     SLIDE 03 — HARNESS OVER MODEL (KEY THESIS)
+============================================ -->
+<section class="slide" id="s03">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> THESIS · 01 / 01 · CORE</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// архитектурный выбор горизонта</div>
+    <h2 class="reveal">HARNESS <span class="neon-pink">&gt;</span> MODEL</h2>
+    <p class="lede reveal" style="margin-top:0.5em">
+      Реверс-инжиниринг Claude Code: <span class="neon-yellow">98.4%</span> кодовой базы — детерминированная обвязка, <span class="neon-yellow">1.6%</span> — AI logic. Инженерная ценность — в permission gates, context management, tool routing, audit. Не в выборе модели.
+    </p>
+    <div class="three-pillars">
+      <div class="pillar a reveal">
+        <span class="pill-num">01</span>
+        <h3>OpEx</h3>
+        <p><span class="neon-pink">Выбор модели</span>, Copilot-интеграции. Амортизируется со сменой поколения LLM каждые <span class="neon-yellow">6–9</span> месяцев.</p>
+      </div>
+      <div class="pillar b reveal">
+        <span class="pill-num">02</span>
+        <h3>CapEx</h3>
+        <p><span class="neon-cyan">Свой Agent Runtime</span>, Policy Hook Framework, Context Supply Chain. Накапливается; не зависит от вендора.</p>
+      </div>
+      <div class="pillar c reveal">
+        <span class="pill-num">03</span>
+        <h3>Соотношение</h3>
+        <p>Доля <span class="neon-yellow">CapEx</span> в AI-бюджете определяет, кто выиграет окно <span class="neon-yellow">2026–2027</span>. Это не «купить лучшие модели».</p>
+      </div>
+    </div>
+    <div class="callout reveal">
+      <div class="ctxt">
+        К <strong>2029</strong> внутренняя IDP даёт регулируемому банку то, что Anthropic / OpenAI / Cursor дают фронтиру: единый Agent Runtime, paved roads, policy enforcement, observability. Разница — <strong>compliance-by-design</strong>, а не post-hoc audit.
+      </div>
+    </div>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>03</b> / 22</div>
+</section>
+
+<!-- ============================================
+     SLIDE 04 — TL;DR · ТРИ КАПИТАЛЬНЫЕ ИНВЕСТИЦИИ
+============================================ -->
+<section class="slide" id="s04">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> КРАТКО · 3 ИНВЕСТИЦИИ</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// на что подписывается руководитель</div>
+    <h2 class="reveal">ТРИ <span class="neon-pink">КАПИТАЛЬНЫЕ</span> ИНВЕСТИЦИИ</h2>
+    <p class="lede reveal" style="margin-top:0.5em">
+      Горизонт 2026–2029 — это не закупка инструментов. Это построение трёх слоёв, которые накапливаются и <span class="neon-yellow">не амортизируются</span> со сменой моделей.
+    </p>
+    <div class="cards cols-3" style="margin-top:1rem">
+      <div class="card-c reveal">
+        <span class="tag">01 · СРЕДА ВЫПОЛНЕНИЯ</span>
+        <h3 class="neon-pink">Платформа разработки <span style="color:var(--muted);font-size:0.75em;font-weight:400">(IDP)</span></h3>
+        <p>Единая платформа с <span class="neon-cyan">средой выполнения агентов</span> в ядре: общий цикл, диспетчер инструментов, шлюз прав, песочница, восстановление после сбоев.</p>
+        <p class="meta">Что даёт: одинаковая семантика агента из Jira, IDE, CI/CD, портала. Смена модели не ломает процесс — обвязка переживает поколения LLM.</p>
+      </div>
+      <div class="card-c reveal">
+        <span class="tag">02 · УПРАВЛЕНИЕ</span>
+        <h3 class="neon-cyan">Политики и матрица риска <span style="color:var(--muted);font-size:0.75em;font-weight:400">(R0–R5)</span></h3>
+        <p>Регуляторные требования выражены кодом: <span class="neon-yellow">детерминированные хуки</span> (PreToolUse, Stop, PII boundary) + шкала автономии от R0 (авто) до R5 (CAB).</p>
+        <p class="meta">Что даёт: соответствие EU AI Act, DORA, ISO/IEC 42001 — встроено в runtime, не делается «по факту инцидента». Аудит для регулятора готов всегда.</p>
+      </div>
+      <div class="card-c reveal">
+        <span class="tag">03 · КОНТЕКСТ</span>
+        <h3 class="neon-yellow">Цепочка поставок контекста</h3>
+        <p>SDD, AGENTS.md, навыки и эвалы — как <span class="neon-cyan">управляемый supply-chain объект</span> с владельцем, версией, last-review и SBOM-метаданными.</p>
+        <p class="meta">Что даёт: знания команды накапливаются между сессиями и людьми; защита от context poisoning и устаревания; онбординг агентов и людей — в часах, не неделях.</p>
+      </div>
+    </div>
+    <p class="note reveal" style="margin-top:1rem">
+      Сегодня: <span class="neon-cyan">DORA-замер</span> для baseline · <span class="neon-cyan">AI Champion</span> назначить · <span class="neon-cyan">мандат на 18 месяцев</span> утвердить.
+    </p>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>04</b> / 22</div>
+</section>
+
+<!-- ============================================
+     SLIDE 05 — WOW STORIES PT.1
+============================================ -->
+<section class="slide" id="s05">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> WOW · 1 / 3 · OPERATIONAL PROOF</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// что должно стать возможным к 2029</div>
+    <h2 class="reveal">WOW · <span class="neon-pink">CVE-BATCH</span> &amp; <span class="neon-cyan">PSD3</span></h2>
+    <div class="story-row">
+      <div class="story reveal">
+        <span class="num">01</span>
+        <div class="head">Ночной CVE-batch</div>
+        <p>Пятница <span class="neon-yellow">23:47</span> — критический CVE в популярной библиотеке. К утру понедельника Remediation Agent создал <span class="neon-cyan">412 PR</span> через сотни сервисов, прогнал regression-evals, собрал evidence bundles, эскалировал <span class="neon-pink">3 случая</span> в R3. Релиз-инженер одобряет batch за 30 минут.</p>
+        <div class="before-after">
+          <span class="b">2026: 2 недели команды из 8</span> <span class="arr">→</span> <span class="a">2029: ночь + 30 минут</span>
+        </div>
+      </div>
+      <div class="story reveal">
+        <span class="num">02</span>
+        <div class="head">Tiny team закрывает PSD3</div>
+        <p><span class="neon-cyan">3 продакт-инженера</span> + 7 специализированных subagents за <span class="neon-yellow">6 недель</span> сдают регуляторный compliance-пакет. Каждое решение — с SDD, evidence bundle и audit trail для регулятора.</p>
+        <div class="before-after">
+          <span class="b">2026: 25 человек × 9 месяцев</span> <span class="arr">→</span> <span class="a">2029: 3 человека × 6 недель</span>
+        </div>
+      </div>
+    </div>
+    <p class="note reveal" style="margin-top:1rem">
+      Это не про производительность — это про <span class="neon-cyan">новую operational модель</span>. Event-driven Agent Factory + tiny team formation.
+    </p>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>05</b> / 22</div>
+</section>
+
+<!-- ============================================
+     SLIDE 06 — WOW STORIES PT.2
+============================================ -->
+<section class="slide" id="s06">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> WOW · 2 / 3 · OPERATIONAL PROOF</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// continued</div>
+    <h2 class="reveal">WOW · <span class="neon-pink">SPEC→PROD</span> &amp; <span class="neon-cyan">NIGHT SHIFT</span></h2>
+    <div class="story-row">
+      <div class="story reveal">
+        <span class="num">03</span>
+        <div class="head">Spec → production за 2 часа</div>
+        <p>От PRFAQ до production deploy типовой фичи под флагом — <span class="neon-yellow">менее 2 часов</span> pipeline. Полный цикл Plan → Test → Coding → Review → Security → Evidence без вынужденных пауз.</p>
+        <div class="before-after">
+          <span class="b">2026: 2–3 спринта</span> <span class="arr">→</span> <span class="a">2029: 2 часа</span>
+        </div>
+      </div>
+      <div class="story reveal">
+        <span class="num">04</span>
+        <div class="head">Утреннее ревью night shift</div>
+        <p>В <span class="neon-yellow">09:00</span> lead открывает портал: <span class="neon-cyan">23 задачи</span>, выполненные агентами ночью. <span class="neon-cyan">19</span> готовы к merge, <span class="neon-yellow">2</span> — R3 security escalation, <span class="neon-pink">2</span> заблокированы hooks с понятной причиной. Очистка дашборда — <span class="neon-yellow">40 минут</span>.</p>
+        <div class="before-after">
+          <span class="b">human-in-the-loop</span> <span class="arr">→</span> <span class="a">human-on-the-loop</span>
+        </div>
+      </div>
+    </div>
+    <p class="note reveal" style="margin-top:1rem">
+      Auto-approve rate senior операторов — <span class="neon-cyan">60%+</span>. Governance — в hooks, а не в кликах «yes».
+    </p>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>06</b> / 22</div>
+</section>
+
+<!-- ============================================
+     SLIDE 07 — WOW STORIES PT.3
+============================================ -->
+<section class="slide" id="s07">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> WOW · 3 / 3 · OPERATIONAL PROOF</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// continued</div>
+    <h2 class="reveal">WOW · <span class="neon-pink">MTTR 6 МИН</span> &amp; <span class="neon-cyan">ONBOARDING 47 МИН</span></h2>
+    <div class="story-row">
+      <div class="story reveal">
+        <span class="num">05</span>
+        <div class="head">Production incident — MTTR 6 минут</div>
+        <p>Investigation Agent собирает контекст за <span class="neon-yellow">90 секунд</span> (logs, traces, recent changes, related incidents); Fix Agent предлагает rollback или forward fix; человек одобряет.</p>
+        <div class="before-after">
+          <span class="b">2026: MTTR 45–90 минут</span> <span class="arr">→</span> <span class="a">2029: MTTR 6 минут</span>
+        </div>
+      </div>
+      <div class="story reveal">
+        <span class="num">06</span>
+        <div class="head">Onboarding нового микросервиса</div>
+        <p>SDD-черновик → staging со скаффолдингом, тестами, observability, security policies — <span class="neon-yellow">47 минут</span>. Junior product engineer без backend-опыта успешно пилотирует.</p>
+        <div class="before-after">
+          <span class="b">2026: 2–4 недели на скаффолд</span> <span class="arr">→</span> <span class="a">2029: paved road, 47 минут</span>
+        </div>
+      </div>
+    </div>
+    <p class="note reveal" style="margin-top:1rem">
+      Шесть нарративов — это <span class="neon-yellow">operational proof points</span> для board, регулятора, инвесторов. Они либо случаются, либо нет — третьего не дано.
+    </p>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>07</b> / 22</div>
+</section>
+
+<!-- ============================================
+     SLIDE 08 — 4-CATEGORY DASHBOARD
+============================================ -->
+<section class="slide" id="s08">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> METRICS · 4 CATEGORIES · §6.7</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// dashboard CTO</div>
+    <h2 class="reveal">МЕТРИКИ · <span class="neon-cyan">4 КАТЕГОРИИ</span></h2>
+    <p class="lede reveal" style="margin-top:0.5em">
+      Одной метрики недостаточно. Velocity без Quality / Cost / Trust — это <span class="neon-pink">agent-washing speed</span>: организация выглядит быстрой, но накапливает технический и регуляторный долг.
+    </p>
+    <div class="cat-badges">
+      <div class="cat v reveal">
+        <div class="cat-name">Velocity <span style="color:var(--muted);font-size:0.6em;font-weight:400">(Скорость)</span></div>
+        <div class="cat-q">// сколько / как быстро?</div>
+        <ul class="cat-list">
+          <li>Spec → Deploy Time <span style="color:var(--muted)">(от спеки до прода)</span></li>
+          <li>AI Task Completion Rate <span style="color:var(--muted)">(доля выполненных задач)</span></li>
+          <li>Deployment Frequency <span style="color:var(--muted)">(частота деплоев)</span></li>
+          <li>MTTR <span style="color:var(--muted)">(время восстановления)</span></li>
+          <li>Auto-approve rate <span style="color:var(--muted)">(авто-одобрение)</span></li>
+        </ul>
+      </div>
+      <div class="cat q reveal">
+        <div class="cat-name">Quality <span style="color:var(--muted);font-size:0.6em;font-weight:400">(Качество)</span></div>
+        <div class="cat-q">// насколько хорошо?</div>
+        <ul class="cat-list">
+          <li>AI Code Defect Density <span style="color:var(--muted)">(плотность дефектов)</span></li>
+          <li>Vuln Auto-Remediation <span style="color:var(--muted)">(авто-фикс уязвимостей)</span></li>
+          <li>Evidence Bundle Coverage <span style="color:var(--muted)">(покрытие EB)</span></li>
+          <li>Specification Compliance <span style="color:var(--muted)">(соответствие SDD)</span></li>
+          <li>Change Failure Rate <span style="color:var(--muted)">(доля провальных релизов)</span></li>
+        </ul>
+      </div>
+      <div class="cat c reveal">
+        <div class="cat-name">Cost <span style="color:var(--muted);font-size:0.6em;font-weight:400">(Стоимость)</span></div>
+        <div class="cat-q">// почём?</div>
+        <ul class="cat-list">
+          <li>Token Cost per merged PR <span style="color:var(--muted)">(токены на PR)</span></li>
+          <li>Context Budget Utilization <span style="color:var(--muted)">(использование контекста)</span></li>
+          <li>Model Selection Mix <span style="color:var(--muted)">(распределение моделей)</span></li>
+          <li>Cost per Feature <span style="color:var(--muted)">(стоимость фичи)</span></li>
+        </ul>
+      </div>
+      <div class="cat t reveal">
+        <div class="cat-name">Trust <span style="color:var(--muted);font-size:0.6em;font-weight:400">(Доверие)</span></div>
+        <div class="cat-q">// можно ли доверять?</div>
+        <ul class="cat-list">
+          <li>Human Intervention Rate <span style="color:var(--muted)">(доля ручных правок)</span></li>
+          <li>Hook-block rate <span style="color:var(--muted)">(срабатывание hooks)</span></li>
+          <li>Context Drift Rate <span style="color:var(--muted)">(дрейф контекста)</span></li>
+          <li>L4/L5 Coverage <span style="color:var(--muted)">(покрытие зрелости)</span></li>
+          <li>Audit Trail Coverage <span style="color:var(--muted)">(покрытие аудита)</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>08</b> / 22</div>
+</section>
+
+<!-- ============================================
+     SLIDE 09 — VELOCITY · QUALITY METRICS
+============================================ -->
+<section class="slide" id="s09">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> METRICS · VELOCITY + QUALITY</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// baseline 2026 → target 2029</div>
+    <h2 class="reveal"><span class="neon-cyan">VELOCITY</span> + <span class="neon-pink">QUALITY</span></h2>
+    <div class="metric-grid reveal" style="margin-top:0.6rem">
+      <div class="hd">Метрика</div>
+      <div class="hd">2026 baseline</div>
+      <div class="hd">2029 target</div>
+
+      <div class="name">Specification → Deploy Time <span style="color:var(--muted)">(от спеки до прода)</span><span class="sub">медиана типовой фичи (R0–R2)</span></div>
+      <div class="baseline">2–5 дней</div>
+      <div class="target">&lt; 4 часа</div>
+
+      <div class="name">AI Task Completion Rate <span style="color:var(--muted)">(доля выполненных AI-задач)</span><span class="sub">merged без откатов / всего задач</span></div>
+      <div class="baseline">~30%</div>
+      <div class="target">&gt; 70%</div>
+
+      <div class="name">Deployment Frequency <span style="color:var(--muted)">(частота деплоев · DORA)</span><span class="sub">деплои в prod / период</span></div>
+      <div class="baseline">baseline</div>
+      <div class="target">2× и выше</div>
+
+      <div class="name">MTTR <span style="color:var(--muted)">(время восстановления · DORA)</span><span class="sub">время от detected до restored</span></div>
+      <div class="baseline">baseline</div>
+      <div class="target">−50…−70%</div>
+
+      <div class="name">AI Code Defect Density <span style="color:var(--muted)">(плотность дефектов AI-кода)</span><span class="sub">дефекты / 1000 строк AI-кода</span></div>
+      <div class="baseline">~1.5 / KLOC</div>
+      <div class="target">&lt; 0.5 / KLOC</div>
+
+      <div class="name">Vulnerability Auto-Remediation <span style="color:var(--muted)">(авто-фикс уязвимостей)</span><span class="sub">severity ≥ medium, fixed агентом</span></div>
+      <div class="baseline">&lt; 30%</div>
+      <div class="target">&gt; 90%</div>
+
+      <div class="name">Evidence Bundle Completeness <span style="color:var(--muted)">(полнота пакета доказательств)</span><span class="sub">R1+ задачи с полным EB</span></div>
+      <div class="baseline">n / a</div>
+      <div class="target">100%</div>
+    </div>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>09</b> / 22</div>
+</section>
+
+<!-- ============================================
+     SLIDE 10 — COST · TRUST METRICS
+============================================ -->
+<section class="slide" id="s10">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> METRICS · COST + TRUST</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// baseline 2026 → target 2029</div>
+    <h2 class="reveal"><span class="neon-yellow">COST</span> + <span class="neon-green">TRUST</span></h2>
+    <div class="metric-grid reveal" style="margin-top:0.6rem">
+      <div class="hd">Метрика</div>
+      <div class="hd">2026 baseline</div>
+      <div class="hd">2029 target</div>
+
+      <div class="name">Token Cost per merged PR <span style="color:var(--muted)">(стоимость токенов на PR)</span><span class="sub">$-затраты на токены / merged_PR</span></div>
+      <div class="baseline">базовый</div>
+      <div class="target">−50% к 2027</div>
+
+      <div class="name">Context Budget Utilization <span style="color:var(--muted)">(использование контекста)</span><span class="sub">used_tokens / window_size</span></div>
+      <div class="baseline">~70%</div>
+      <div class="target">40–55%</div>
+
+      <div class="name">Model Selection Mix <span style="color:var(--muted)">(распределение моделей)</span><span class="sub">cheap / frontier routing</span></div>
+      <div class="baseline">ad-hoc</div>
+      <div class="target">70 / 30 по policy</div>
+
+      <div class="name">Human Intervention Rate <span style="color:var(--muted)">(доля ручных правок)</span><span class="sub">interventions / agent_tasks</span></div>
+      <div class="baseline">60–90%</div>
+      <div class="target">&lt; 20%</div>
+
+      <div class="name">Hook-block rate <span style="color:var(--muted)">(срабатывание hooks)</span><span class="sub">hook_blocks / total_tool_calls</span></div>
+      <div class="baseline">n / a</div>
+      <div class="target">&gt; 0 (сигнал), &lt; 5%</div>
+
+      <div class="name">L4 / L5 Coverage <span style="color:var(--muted)">(покрытие целевой зрелости)</span><span class="sub">критические домены на maturity</span></div>
+      <div class="baseline">L1 (большинство)</div>
+      <div class="target">L4 critical · L5 supporting</div>
+
+      <div class="name">Audit Trail Coverage <span style="color:var(--muted)">(покрытие журнала аудита)</span><span class="sub">append-only JSONL по всем actions</span></div>
+      <div class="baseline">partial</div>
+      <div class="target">100%</div>
+    </div>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>10</b> / 22</div>
+</section>
+
+<!-- ============================================
+     SLIDE 11 — TWO-LOOP MODEL
+============================================ -->
+<section class="slide" id="s11">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> PROCESS · TWO-LOOP MODEL · §2.1</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// операционная модель 2029</div>
+    <h2 class="reveal">ПРОЦЕСС · <span class="neon-pink">ДВУХПЕТЛЕВАЯ</span> МОДЕЛЬ</h2>
+    <p class="lede reveal" style="margin-top:0.5em">
+      Классический SDLC сохраняет стадии, но <span class="neon-yellow">меняется исполнитель</span> каждой. Связь между петлями — через SDD как первичный артефакт и Evidence Bundle как протокол завершения.
+    </p>
+    <div class="loop-diagram">
+      <div class="loop-box intent reveal">
+        <h3>INTENT LOOP</h3>
+        <div class="meta">// люди + AI-фасилитаторы · дни / недели</div>
+        <ul>
+          <li>Артефакты: SDD, PRFAQ, ADR, User Story Map</li>
+          <li>Ритуал: Mob Elaboration (30–90 мин)</li>
+          <li>Acceptance criteria: Given-When-Then</li>
+          <li>Участники: продакты, архитекторы, FDE</li>
+          <li>Декларативная, человеко-ориентированная</li>
+        </ul>
+      </div>
+      <div class="loop-bridge reveal">
+        <div class="arr">⇄</div>
+        <div class="lbl">SDD<br>+<br>Evidence Bundle</div>
+      </div>
+      <div class="loop-box impl reveal">
+        <h3>IMPLEMENTATION LOOP</h3>
+        <div class="meta">// AI-агенты под надзором · минуты / часы</div>
+        <ul>
+          <li>Артефакты: код, тесты, deploy-artefacts</li>
+          <li>Ритуал: Mob Construction (2–4 часа, R2+)</li>
+          <li>Цепочка: Plan → Test → Coding → Review → Security</li>
+          <li>Участники: 6 ролей subagents</li>
+          <li>Императивная, агент-ориентированная</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>11</b> / 22</div>
+</section>
+
+<!-- ============================================
+     SLIDE 12 — OPERATIONAL STANDARDS 2029
+============================================ -->
+<section class="slide" id="s12">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> PROCESS · OPERATIONAL STANDARDS</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// что становится нормой</div>
+    <h2 class="reveal">СТАНДАРТЫ <span class="neon-cyan">ОПЕРАЦИОННОЙ</span> МОДЕЛИ</h2>
+    <div class="cards cols-3" style="margin-top:0.6rem">
+      <div class="card-c reveal">
+        <span class="tag">SPEC-AS-SOURCE</span>
+        <h3 class="neon-pink">SDD — первичный артефакт</h3>
+        <p>Изменение требования = update SDD → regenerate, <span class="neon-yellow">не refactor</span>. Код — производный, эфемерный.</p>
+      </div>
+      <div class="card-c reveal">
+        <span class="tag">EVENT-DRIVEN</span>
+        <h3 class="neon-cyan">Agent Factory</h3>
+        <p>CVE-волны, regulatory campaigns, migration, deprecation — agentic chain без человека на <span class="neon-yellow">«зелёных» путях</span>.</p>
+      </div>
+      <div class="card-c reveal">
+        <span class="tag">HEADLESS CI/CD</span>
+        <h3 class="neon-yellow">IDE опциональна</h3>
+        <p>Большая часть кода в репо <span class="neon-cyan">никогда не открывается в IDE</span>. The Decentering of the IDE состоялось.</p>
+      </div>
+      <div class="card-c reveal">
+        <span class="tag">EVAL-DRIVEN</span>
+        <h3 class="neon-pink">Eval-suite до релиза</h3>
+        <p>Каждая фича и инструмент имеет capability + regression evals <span class="neon-yellow">до</span> релиза. Не после.</p>
+      </div>
+      <div class="card-c reveal">
+        <span class="tag">EVIDENCE</span>
+        <h3 class="neon-cyan">Bundle обязателен</h3>
+        <p>R1+ задача не закрыта без EB: diff, tests, lint, security scan, assumptions, risk class. Stop-hook enforced.</p>
+      </div>
+      <div class="card-c reveal">
+        <span class="tag">RISK LADDER</span>
+        <h3 class="neon-yellow">R0–R5 встроен в IAM</h3>
+        <p>Agent identity и delegated OAuth scopes. <span class="neon-pink">Approval fatigue не используется</span> как governance.</p>
+      </div>
+    </div>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>12</b> / 22</div>
+</section>
+
+<!-- ============================================
+     SLIDE 13 — ROLES · ОТ ИСПОЛНИТЕЛЯ К ОРКЕСТРАТОРУ
+============================================ -->
+<section class="slide" id="s13">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> ROLES · 1 / 3 · TRANSFORMATION</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// что происходит с инженером</div>
+    <h2 class="reveal">ОТ <span class="neon-pink">ИСПОЛНИТЕЛЯ</span> К <span class="neon-cyan">ОРКЕСТРАТОРУ</span></h2>
+    <p class="lede reveal" style="margin-top:0.5em">
+      К 2030 году роль <span class="neon-yellow">product engineer</span> заменит 50%+ традиционных рабочих мест разработчиков (Gartner). Узкое место — не скорость печати, а <span class="neon-cyan">качество верификации</span>.
+    </p>
+    <div class="role-grid">
+      <div class="role-card evo reveal">
+        <span class="role-tag">// эволюция</span>
+        <h3>Product Engineer</h3>
+        <p>Senior Eng → оркестрирует <span class="neon-yellow">3–7</span> параллельных subagents. Владеет доменом, не пишет код руками для большинства задач.</p>
+      </div>
+      <div class="role-card evo reveal">
+        <span class="role-tag">// эволюция</span>
+        <h3>Agent Supervisor</h3>
+        <p>Tech Lead → portfolio агентных задач. Распределяет paved roads / custom; эскалирует R3+ на security review.</p>
+      </div>
+      <div class="role-card evo reveal">
+        <span class="role-tag">// эволюция</span>
+        <h3>AI Architect</h3>
+        <p>Architect → token economics, multi-model strategy, extension paths для harness. FinOps для AI.</p>
+      </div>
+      <div class="role-card fdng reveal">
+        <span class="role-tag">// новая</span>
+        <h3>Forward-Deployed Engineer</h3>
+        <p>Встроен в business unit (модель Palantir). Замыкает <span class="neon-yellow">delta-echo</span> цикл; снимает разрыв 45% стратегий vs 28% операционной интеграции.</p>
+      </div>
+    </div>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>13</b> / 22</div>
+</section>
+
+<!-- ============================================
+     SLIDE 14 — НОВЫЕ КЛЮЧЕВЫЕ РОЛИ
+============================================ -->
+<section class="slide" id="s14">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> ROLES · 2 / 3 · NEW INFRASTRUCTURE</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// четыре столпа инфраструктурного слоя</div>
+    <h2 class="reveal">НОВЫЕ <span class="neon-pink">ENTERPRISE</span> РОЛИ</h2>
+    <p class="lede reveal" style="margin-top:0.5em">
+      Это — <span class="neon-yellow">capital roles</span>. Их работа накапливается в harness, hooks, policies, audit. Без них вы покупаете модели, а не строите capability.
+    </p>
+    <div class="role-grid">
+      <div class="role-card new reveal">
+        <span class="role-tag">// новая · capital</span>
+        <h3>Harness Platform Engineer</h3>
+        <p>Agent Runtime, permission gateway, sandbox, recovery. Owner SLO самого harness. <span class="neon-yellow">Самая дорогая роль 2029</span> — но производит capital asset.</p>
+      </div>
+      <div class="role-card new reveal">
+        <span class="role-tag">// новая</span>
+        <h3>Guardian Agent Engineer</h3>
+        <p>Policy Hook Framework: PreToolUse blockers, PII boundary, cost circuit breakers. <span class="neon-cyan">Policy-as-code</span> для R3+.</p>
+      </div>
+      <div class="role-card new reveal">
+        <span class="role-tag">// новая</span>
+        <h3>AI Security Officer</h3>
+        <p>Owner Risk Ladder R0–R5 → IAM. Реагирует на LLM/harness CVE-классы. Compliance: EU AI Act, ISO/IEC 42001, DORA.</p>
+      </div>
+      <div class="role-card new reveal">
+        <span class="role-tag">// новая</span>
+        <h3>Context Supply Chain Owner</h3>
+        <p>Lifecycle всех AGENTS.md, skills, evals. Context registry с <span class="neon-cyan">SBOM-метаданными</span>: автор, версия, last review, owner.</p>
+      </div>
+      <div class="role-card new reveal">
+        <span class="role-tag">// новая</span>
+        <h3>AgentOps Engineer</h3>
+        <p>Observability агентных workflows. JSONL audit, token budgets, compaction events, tool-use traces. Diagnostics паттернов отказа.</p>
+      </div>
+      <div class="role-card new reveal">
+        <span class="role-tag">// новая</span>
+        <h3>Agent Governance Lead</h3>
+        <p>Portfolio-level: Agent Registry, AMP lifecycle, quarterly review eval-suite. Защита от <span class="neon-pink">Agent Population Sprawl</span>.</p>
+      </div>
+      <div class="role-card fdng reveal" style="grid-column: span 2">
+        <span class="role-tag">// вытесняются / трансформируются</span>
+        <h3>Manual QA · Junior Dev · Tech Writer · Build Engineer</h3>
+        <p><span class="neon-yellow">QA</span> → eval-engineering + exploratory. <span class="neon-yellow">Junior</span> → mandatory hybrid code+explanation pattern, иначе deskilling. <span class="neon-yellow">Tech writer</span> → Context Supply Chain Owner. <span class="neon-yellow">Build</span> → AgentOps + compliance release.</p>
+      </div>
+    </div>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>14</b> / 22</div>
+</section>
+
+<!-- ============================================
+     SLIDE 15 — TINY TEAMS
+============================================ -->
+<section class="slide" id="s15">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> ROLES · 3 / 3 · TINY TEAMS</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// formation default 2029</div>
+    <h2 class="reveal">TINY TEAMS · <span class="neon-cyan">2–3 ЧЕЛОВЕКА</span> + ИИ</h2>
+    <p class="lede reveal" style="margin-top:0.5em">
+      Стандартная формация для новых инициатив — <span class="neon-yellow">2–3 человека + 5–10 subagents</span> под одной IDP. Координационный оверхед падает с <span class="neon-pink">30–40%</span> до <span class="neon-cyan">5–10%</span>.
+    </p>
+    <div class="metric-grid reveal" style="margin-top:0.8rem">
+      <div class="hd">Параметр</div>
+      <div class="hd">Классическая 8–12</div>
+      <div class="hd">Tiny Team 2–3 + ИИ</div>
+
+      <div class="name">Координационный оверхед</div>
+      <div class="baseline">30–40%</div>
+      <div class="target">5–10%</div>
+
+      <div class="name">Скорость принятия решений</div>
+      <div class="baseline">дни / недели</div>
+      <div class="target">часы</div>
+
+      <div class="name">Специализация</div>
+      <div class="baseline">узкие по ролям</div>
+      <div class="target">full-stack + ИИ</div>
+
+      <div class="name">Onboarding нового участника</div>
+      <div class="baseline">недели</div>
+      <div class="target">агент — минуты</div>
+
+      <div class="name">Узкое место</div>
+      <div class="baseline">коммуникация</div>
+      <div class="target">скорость верификации</div>
+    </div>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>15</b> / 22</div>
+</section>
+
+<!-- ============================================
+     SLIDE 16 — MATURITY L0-L5 TARGET
+============================================ -->
+<section class="slide" id="s16">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> MATURITY · L0–L5 · §3.6</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// целевое распределение по портфелю</div>
+    <h2 class="reveal">ЗРЕЛОСТЬ · <span class="neon-cyan">L4</span> + <span class="neon-pink">L5</span></h2>
+    <div class="ladder">
+      <div class="rung l0 reveal"><div class="lvl">L0</div><div class="name">Chat-assisted</div><div class="where">AI вне SDLC, без audit</div><div class="badge">deprecated</div></div>
+      <div class="rung l1 reveal"><div class="lvl">L1</div><div class="name">Repo-context</div><div class="where">AGENTS.md / CLAUDE.md, базовые команды</div><div class="badge">legacy</div></div>
+      <div class="rung l2 reveal"><div class="lvl">L2</div><div class="name">Verified assistant</div><div class="where">Plan Mode, TDD, hooks, PR evidence</div><div class="badge">migration</div></div>
+      <div class="rung l3 reveal"><div class="lvl">L3</div><div class="name">Agentic workflow</div><div class="where">Subagents, headless CI, issue-to-PR · только переходные legacy-зоны</div><div class="badge">&lt; 15% портфеля</div></div>
+      <div class="rung l4 reveal"><div class="lvl">L4</div><div class="name">Governed Autonomy</div><div class="where">Risk-adaptive permissions, policy-as-code, token budgets · auth · payments · PII · infra · ledger · risk</div><div class="badge">target · critical</div></div>
+      <div class="rung l5 reveal"><div class="lvl">L5</div><div class="name">Autonomous PDLC</div><div class="where">Human-on-the-loop, event-driven factory, full audit/evals · internal tools · docs · dashboards · dev tooling</div><div class="badge">target · supporting</div></div>
+    </div>
+    <p class="note reveal" style="margin-top:0.8rem">
+      L4 — для всего, что может ударить по клиенту или регулятору. L5 — где радиус инцидента ограничен внутренней командой. Что-то ниже L3 — план миграции <span class="neon-yellow">обязателен</span>.
+    </p>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>16</b> / 22</div>
+</section>
+
+<!-- ============================================
+     SLIDE 17 — TOP-3 EXISTENTIAL RISKS
+============================================ -->
+<section class="slide" id="s17">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> RISKS · 1 / 2 · EXISTENTIAL</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// что должен лично удерживать руководитель</div>
+    <h2 class="reveal">ТРИ <span class="neon-pink">ЭКЗИСТЕНЦИАЛЬНЫХ</span> РИСКА</h2>
+    <p class="lede reveal" style="margin-top:0.5em">
+      Десять рисков в полном регистре. <span class="neon-yellow">Три</span> из них — категории, которые делегировать вниз нельзя: они проявляются за горизонт 2–3 лет и убивают трансформацию изнутри.
+    </p>
+    <div class="risk-row">
+      <div class="risk-card reveal">
+        <span class="num">01</span>
+        <span class="tag">DESKILL</span>
+        <h3>Деквалификация инженеров</h3>
+        <p>RCT Anthropic 2026: группа с ИИ — <span class="neon-yellow">−17%</span> на тесте мастерства. Наибольший разрыв — в задачах отладки. Через 2–3 года команда теряет способность работать без AI.</p>
+        <div class="mit">Митигация: mandatory manual sprints, hybrid code+explanation pattern, технические интервью без AI, pair programming для junior.</div>
+      </div>
+      <div class="risk-card reveal">
+        <span class="num">02</span>
+        <span class="tag">GOVERNANCE</span>
+        <h3>Compliance theatre</h3>
+        <p><span class="neon-yellow">93%</span> prompts одобряются без изучения (Anthropic, март 2026). Если governance построен на user approval — он сломан by design. Регуляторный риск максимальный.</p>
+        <div class="mit">Митигация: primary control — hooks + policy-as-code. Risk Ladder R0–R5 → IAM. Approval — supplementary signal, не основа.</div>
+      </div>
+      <div class="risk-card reveal">
+        <span class="num">03</span>
+        <span class="tag">LOCK-IN</span>
+        <h3>Vendor lock-in через инерцию</h3>
+        <p>Концентрация на одной LLM делает уязвимым к pricing, model deprecation, политическим рискам. Горизонт <span class="neon-yellow">6–9 месяцев</span> — стратегический.</p>
+        <div class="mit">Митигация: multi-model strategy by design (3+ в prod), MCP-абстракция, on-prem fallback. SLA harness: model swap &lt; 2 недели.</div>
+      </div>
+    </div>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>17</b> / 22</div>
+</section>
+
+<!-- ============================================
+     SLIDE 18 — FULL RISK REGISTER
+============================================ -->
+<section class="slide" id="s18">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> RISKS · 2 / 2 · FULL REGISTER</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// quarterly review CTO + CRO</div>
+    <h2 class="reveal">РЕГИСТР · <span class="neon-pink">10 РИСКОВ</span></h2>
+    <div class="metric-grid reveal" style="margin-top:0.6rem">
+      <div class="hd">Риск</div>
+      <div class="hd">Влияние</div>
+      <div class="hd">Owner</div>
+
+      <div class="name">AI-техдолг (+40.7% complexity, 25% persist)</div>
+      <div class="baseline">высокое</div>
+      <div class="target" style="color: var(--neon-cyan)">Agent Supervisor</div>
+
+      <div class="name">Деквалификация инженеров (RCT −17%)</div>
+      <div class="baseline">высокое</div>
+      <div class="target" style="color: var(--neon-cyan)">Agent Supervisor + HR</div>
+
+      <div class="name">Model Sprawl + Vendor Lock-in</div>
+      <div class="baseline">средне–высокое</div>
+      <div class="target" style="color: var(--neon-cyan)">AI Architect</div>
+
+      <div class="name">Утечка данных / Context Poisoning</div>
+      <div class="baseline">высокое</div>
+      <div class="target" style="color: var(--neon-cyan)">AI Security Officer</div>
+
+      <div class="name">Pre-Trust Init Window (CVE-2025-59536)</div>
+      <div class="baseline">очень высокое</div>
+      <div class="target" style="color: var(--neon-cyan)">Security + Platform</div>
+
+      <div class="name">Approval Fatigue (93% auto-approve)</div>
+      <div class="baseline">высокое</div>
+      <div class="target" style="color: var(--neon-cyan)">Security + Guardian</div>
+
+      <div class="name">Agent Population Sprawl</div>
+      <div class="baseline">высокое</div>
+      <div class="target" style="color: var(--neon-cyan)">Agent Governance Lead</div>
+
+      <div class="name">Регуляторные (EU AI Act, DORA, ISO 42001)</div>
+      <div class="baseline">очень высокое</div>
+      <div class="target" style="color: var(--neon-cyan)">Security + Legal</div>
+
+      <div class="name">Token Cost Overrun</div>
+      <div class="baseline">среднее</div>
+      <div class="target" style="color: var(--neon-cyan)">AI Architect + AgentOps</div>
+
+      <div class="name">Agent-Washing Adoption</div>
+      <div class="baseline">среднее</div>
+      <div class="target" style="color: var(--neon-cyan)">Governance + Procurement</div>
+    </div>
+    <p class="note reveal" style="margin-top:0.8rem">
+      Каждый — с природой, вероятностью, влиянием, митигацией, leading-indicator. Полный регистр — <span class="mono neon-cyan">docs/governance/vision-2029-executive-brief.md §7</span>.
+    </p>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>18</b> / 22</div>
+</section>
+
+<!-- ============================================
+     SLIDE 19 — H1 + H2 ROADMAP
+============================================ -->
+<section class="slide" id="s19">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> ROADMAP · 1 / 2 · H1 + H2</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// дорожная карта — горизонты 1 и 2</div>
+    <h2 class="reveal">ГОРИЗОНТЫ · <span class="neon-yellow">ФУНДАМЕНТ</span> + <span class="neon-cyan">МАСШТАБ</span></h2>
+    <div class="horizon">
+      <div class="hcard h1 reveal">
+        <div class="h-id">H1<span class="sub">0–6 МЕС</span></div>
+        <div class="h-body">
+          <h4>Фундамент · L1 → L2</h4>
+          <p>AGENTS.md template · SDD-lite · evidence bundle обязателен · PreToolUse blockers · Stop-hook · token budget · PR labeling. 2–3 pilot teams.</p>
+        </div>
+        <div class="h-kpi">
+          <b>// gate to H2</b>
+          AI Tool Integration &gt; 60% <span style="color:var(--muted)">(охват AI-инструментами)</span><br>
+          DF +15–20% <span style="color:var(--muted)">(Deployment Frequency, частота деплоев)</span><br>
+          EB completeness ≥ 95% <span style="color:var(--muted)">(полнота Evidence Bundle)</span><br>
+          hook-block rate &gt; 0 <span style="color:var(--muted)">(хуки реально срабатывают)</span>
+        </div>
+      </div>
+      <div class="hcard h2 reveal">
+        <div class="h-id">H2<span class="sub">6–18 МЕС</span></div>
+        <div class="h-body">
+          <h4>Масштабирование · L2 → L3</h4>
+          <p>Subagent profiles · headless CI · Policy Hook Framework расширен (PII / cost / EB) · Risk Ladder R0–R5 в IAM · AgentOps dashboard · найм 4 capital-ролей · Context Supply Chain Owner.</p>
+        </div>
+        <div class="h-kpi">
+          <b>// gate to H3</b>
+          Feature Throughput +50–80% <span style="color:var(--muted)">(пропускная способность по фичам)</span><br>
+          Spec Compliance &gt; 80% <span style="color:var(--muted)">(соответствие SDD)</span><br>
+          HIR &lt; 35% <span style="color:var(--muted)">(Human Intervention Rate, ручные правки)</span><br>
+          L3 supporting · model swap drill <span style="color:var(--muted)">(учения по смене модели)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>19</b> / 22</div>
+</section>
+
+<!-- ============================================
+     SLIDE 20 — H3 ROADMAP + GATE-CRITERIA
+============================================ -->
+<section class="slide" id="s20">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> ROADMAP · 2 / 2 · H3 + GATES</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// дорожная карта — финальный горизонт</div>
+    <h2 class="reveal">ГОРИЗОНТ · <span class="neon-pink">AI-NATIVE</span> FACTORY</h2>
+    <div class="horizon">
+      <div class="hcard h3 reveal">
+        <div class="h-id">H3<span class="sub">18–36 МЕС</span></div>
+        <div class="h-body">
+          <h4>AI-Native · L3 → L4 / L5</h4>
+          <p>Event-driven Agent Factory · Agent Registry · L4 maturity critical · L5 supporting · Audit Trail 100% · ISO/IEC 42001 · multi-model swap drill &lt; 2 недели · Tiny Teams formation default.</p>
+        </div>
+        <div class="h-kpi">
+          <b>// target 2029</b>
+          Feature Throughput ≥ 2× baseline <span style="color:var(--muted)">(пропускная способность по фичам)</span><br>
+          HIR &lt; 20% <span style="color:var(--muted)">(Human Intervention Rate, ручные правки)</span><br>
+          AI Tool Integration &gt; 85% <span style="color:var(--muted)">(охват AI-инструментами)</span><br>
+          Vuln Auto-Remediation &gt; 90% <span style="color:var(--muted)">(авто-фикс уязвимостей)</span>
+        </div>
+      </div>
+    </div>
+    <div class="callout reveal" style="margin-top:1rem">
+      <div class="ctxt">
+        <strong>Правило перехода:</strong> между горизонтами движемся <strong>по метрикам, не по календарю</strong>. Если EB completeness &lt; 95% — H1 не закрыт. Если HIR ≥ 35% — H2 не закрыт. Не «пропустить шаг» — переписать его.
+      </div>
+    </div>
+    <p class="note reveal" style="margin-top:0.6rem">
+      Все промежуточные KPI и чек-листы — <span class="mono neon-cyan">docs/governance/vision-2029-executive-brief.md §8</span>.
+    </p>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>20</b> / 22</div>
+</section>
+
+<!-- ============================================
+     SLIDE 21 — ANTI-PATTERNS
+============================================ -->
+<section class="slide" id="s21">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> ANTI-PATTERNS · NEGATIVE GUIDANCE</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// чего НЕ делать руководителю</div>
+    <h2 class="reveal">АНТИПАТТЕРНЫ · <span class="neon-pink">12 ПУНКТОВ</span></h2>
+    <div class="anti-grid">
+      <div class="anti reveal"><span class="x">✕</span><div><b>«AI Everywhere, Process Nowhere»</b><span>Внедрение без стандартизации → Tool sprawl, несопоставимые результаты.</span></div></div>
+      <div class="anti reveal"><span class="x">✕</span><div><b>«Specification Debt»</b><span>Пропуск SDD → AI генерирует то, что не было заказано.</span></div></div>
+      <div class="anti reveal"><span class="x">✕</span><div><b>«Metrics Blindness»</b><span>Внедрение AI без baseline → невозможно доказать ROI.</span></div></div>
+      <div class="anti reveal"><span class="x">✕</span><div><b>«Security Theater»</b><span>Формальная политика без enforcement → compliance-инциденты.</span></div></div>
+      <div class="anti reveal"><span class="x">✕</span><div><b>«Deskilling Spiral»</b><span>Без manual sprints и hybrid pattern — команда теряет компетенции.</span></div></div>
+      <div class="anti reveal"><span class="x">✕</span><div><b>«Vendor Lock-in через инерцию»</b><span>Зависимость от одного LLM → стратегический риск.</span></div></div>
+      <div class="anti reveal"><span class="x">✕</span><div><b>«Big Bang AI Transformation»</b><span>Одновременный rollout без gate-метрик.</span></div></div>
+      <div class="anti reveal"><span class="x">✕</span><div><b>«Agent-Washing Adoption»</b><span>Переименование RPA в agentic → потерянные инвестиции.</span></div></div>
+      <div class="anti reveal"><span class="x">✕</span><div><b>«Compliance через CLAUDE.md»</b><span>Guidance ≠ enforcement → регуляторный риск.</span></div></div>
+      <div class="anti reveal"><span class="x">✕</span><div><b>«Governance через user approval»</b><span>93% approvals — без изучения → иллюзия контроля.</span></div></div>
+      <div class="anti reveal"><span class="x">✕</span><div><b>«Много агентов» без изоляции</b><span>Context contamination, security leaks, audit-сюрпризы.</span></div></div>
+      <div class="anti reveal"><span class="x">✕</span><div><b>«Метрики только speed»</b><span>Velocity без Quality / Cost / Trust = agent-washing speed.</span></div></div>
+    </div>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>21</b> / 22</div>
+</section>
+
+<!-- ============================================
+     SLIDE 22 — CTA · ТРИ РЕШЕНИЯ СЕГОДНЯ
+============================================ -->
+<section class="slide" id="s22">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> READY · DECISIONS_PENDING</div>
+  <div class="slide-content" style="align-items:center; justify-content:center">
+    <div class="cta-block">
+      <div class="eyebrow reveal">// три решения, которые принимаются сегодня</div>
+      <h1 class="reveal">
+        <span class="glitch" data-text="ACT">ACT</span>
+        <span class="neon-pink">/</span>
+        <span class="neon-cyan">NOW</span>
+      </h1>
+      <p class="subtitle reveal" style="max-width:60ch; margin:1rem auto 0">
+        <span class="neon-cyan">«Мы начали раньше»</span> — самая выгодная фраза в трансформации. Горизонт капитальных решений закрывается в <span class="neon-yellow">2026–2027</span>.
+      </p>
+      <ul class="cyber-list reveal" style="margin:1.4rem auto 0; max-width:54ch; text-align:left">
+        <li>Заказать <span class="neon-cyan">DORA Assessment</span> — baseline по 7 ключевым возможностям AI-инженерии</li>
+        <li>Назначить <span class="neon-cyan">AI Champion</span> (50%, не 100%) и запустить 90-day MVP на 2–3 pilot teams</li>
+        <li>Утвердить инвестиционный <span class="neon-cyan">мандат на 18 месяцев</span> на Agent Runtime + Policy Hook Framework</li>
+      </ul>
+      <div class="cta-prompt reveal">open docs/governance/vision-2029-executive-brief.md</div>
+      <div class="signature reveal" style="margin:1.8rem auto 0; max-width:60ch; text-align:left">
+        AI DISRUPT PDLC v3.5 &nbsp;·&nbsp; Vision 2029 — Executive Briefing &nbsp;·&nbsp; v1.0 · 2026-05-28
+      </div>
+    </div>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>22</b> / 22</div>
+</section>
+
+<script>
+(function () {
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const navContainer = document.getElementById('navDots');
+  slides.forEach((s, i) => {
+    const a = document.createElement('a');
+    a.href = 'javascript:void(0)';
+    a.title = 'Slide ' + (i + 1);
+    a.addEventListener('click', function () { jumpTo(i, 'last'); });
+    navContainer.appendChild(a);
+  });
+  const dots = Array.from(navContainer.querySelectorAll('a'));
+
+  let currentSlide = 0;
+  let currentStep = 0;
+  const lastStepPerSlide = slides.map(() => 0);
+  const builtSet = new Set();
+
+  function stepsOn(idx) { return slides[idx].querySelectorAll('.reveal').length; }
+  function fullStep(idx) { return Math.max(0, stepsOn(idx) - 1); }
+
+  function paint() {
+    const slide = slides[currentSlide];
+    const steps = slide.querySelectorAll('.reveal');
+    steps.forEach(function (el, i) {
+      el.classList.toggle('shown', i <= currentStep);
+    });
+    dots.forEach(function (d, i) { d.classList.toggle('active', i === currentSlide); });
+    lastStepPerSlide[currentSlide] = currentStep;
+
+    const total = stepsOn(currentSlide);
+    const marker = slide.querySelector('.build-marker');
+    if (marker) {
+      const bar = marker.querySelector('.bar');
+      const txt = marker.querySelector('.text');
+      const p = total > 0 ? ((currentStep + 1) / total) * 100 : 0;
+      if (bar) bar.style.setProperty('--p', p + '%');
+      if (txt) txt.textContent = (currentStep + 1) + ' / ' + total;
+    }
+  }
+
+  function scrollToCurrent(behavior) {
+    const slide = slides[currentSlide];
+    slide.scrollIntoView({ behavior: behavior || 'smooth', block: 'start' });
+  }
+
+  function advance() {
+    const total = stepsOn(currentSlide);
+    if (currentStep < total - 1) {
+      currentStep++; builtSet.add(currentSlide); paint();
+    } else if (currentSlide < slides.length - 1) {
+      currentSlide++; currentStep = 0; builtSet.add(currentSlide); paint(); scrollToCurrent('smooth');
+    }
+  }
+
+  function retreat() {
+    if (currentStep > 0) {
+      currentStep--; builtSet.add(currentSlide); paint();
+    } else if (currentSlide > 0) {
+      currentSlide--; currentStep = fullStep(currentSlide); builtSet.add(currentSlide); paint(); scrollToCurrent('smooth');
+    }
+  }
+
+  function nextSlide() {
+    if (currentSlide < slides.length - 1) {
+      currentSlide++; currentStep = fullStep(currentSlide); paint(); scrollToCurrent('smooth');
+    }
+  }
+  function prevSlide() {
+    if (currentSlide > 0) {
+      currentSlide--; currentStep = fullStep(currentSlide); paint(); scrollToCurrent('smooth');
+    }
+  }
+
+  function jumpTo(idx, mode) {
+    currentSlide = Math.max(0, Math.min(idx, slides.length - 1));
+    currentStep = (mode === 'first') ? 0 : fullStep(currentSlide);
+    paint(); scrollToCurrent('smooth');
+  }
+
+  document.addEventListener('keydown', function (e) {
+    const tag = (e.target && e.target.tagName) || '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    switch (e.key) {
+      case 'ArrowRight':
+      case 'ArrowDown':
+      case ' ':
+      case 'Enter': e.preventDefault(); advance(); break;
+      case 'ArrowLeft':
+      case 'ArrowUp':
+      case 'Backspace': e.preventDefault(); retreat(); break;
+      case 'PageDown': e.preventDefault(); nextSlide(); break;
+      case 'PageUp': e.preventDefault(); prevSlide(); break;
+      case 'Home': e.preventDefault(); jumpTo(0, 'first'); break;
+      case 'End': e.preventDefault(); jumpTo(slides.length - 1, 'last'); break;
+    }
+  });
+
+  const io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting && e.intersectionRatio >= 0.55) {
+        const idx = slides.indexOf(e.target);
+        if (idx !== currentSlide) {
+          currentSlide = idx;
+          currentStep = builtSet.has(idx) ? lastStepPerSlide[idx] : fullStep(idx);
+          paint();
+        }
+      }
+    });
+  }, { threshold: [0.55] });
+  slides.forEach(function (s) { io.observe(s); });
+
+  let wheelLock = false;
+  let wheelAccum = 0;
+  window.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    if (wheelLock) return;
+    wheelAccum += e.deltaY;
+    if (Math.abs(wheelAccum) < 24) return;
+    const dir = wheelAccum > 0 ? 1 : -1;
+    wheelAccum = 0;
+    wheelLock = true;
+    setTimeout(function () { wheelLock = false; }, 480);
+    if (dir > 0) advance(); else retreat();
+  }, { passive: false });
+
+  let touchStartY = null;
+  let touchActive = false;
+  window.addEventListener('touchstart', function (e) {
+    if (e.touches.length !== 1) return;
+    touchStartY = e.touches[0].clientY; touchActive = true;
+  }, { passive: true });
+  window.addEventListener('touchmove', function (e) {
+    if (touchActive) e.preventDefault();
+  }, { passive: false });
+  window.addEventListener('touchend', function (e) {
+    if (!touchActive || touchStartY === null) return;
+    touchActive = false;
+    const dy = touchStartY - (e.changedTouches[0] ? e.changedTouches[0].clientY : touchStartY);
+    touchStartY = null;
+    if (Math.abs(dy) < 40) return;
+    if (dy > 0) advance(); else retreat();
+  }, { passive: true });
+
+  paint();
+})();
+</script>
+</body>
+</html>
