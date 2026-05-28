@@ -227,7 +227,7 @@ ul.cyber-list li::before { content: "▸"; position: absolute; left: 0; top: 0; 
       </p>
     </div>
   </div>
-  <div class="counter"><b>01</b> / 20</div>
+  <div class="counter"><b>01</b> / 23</div>
 </section>
 
 <!-- ============================================
@@ -243,14 +243,54 @@ ul.cyber-list li::before { content: "▸"; position: absolute; left: 0; top: 0; 
         <span class="glitch" data-text="ХУКИ">ХУКИ</span> <span class="neon-pink">+</span> <span class="neon-cyan">TASK</span> <span class="neon-yellow">→ PR</span>
       </h1>
       <p class="subtitle">
-        Две темы за один доклад: разбор хуков, потом цикл задачи R3 от тикета до PR.
+        Сначала смотрим, <span class="neon-pink">что ломается без обвязки</span>. Потом — как 8 хуков превращают «модель пишет код» в проверяемый цикл от тикета до PR. Спойлер: магии нет, есть bash-скрипты.
       </p>
       <div class="signature">
-        ~22 мин &nbsp;·&nbsp; runtime: <span class="mono">.claude/</span>
+        ~22 мин &nbsp;·&nbsp; runtime: <span class="mono">.claude/</span> &nbsp;·&nbsp; <span class="neon-yellow">no jira tickets were harmed</span>
       </div>
     </div>
   </div>
-  <div class="counter"><b>02</b> / 20</div>
+  <div class="counter"><b>02</b> / 23</div>
+</section>
+
+<!-- ============================================
+     SLIDE 02.5 — WHAT BREAKS WITHOUT HARNESS
+============================================ -->
+<section class="slide" id="s02b">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> PROBLEM · WITHOUT HARNESS</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// три знакомые истории</div>
+    <h2 class="reveal">ЧТО ЛОМАЕТСЯ <span class="neon-pink">БЕЗ ОБВЯЗКИ</span></h2>
+    <p class="lede reveal" style="margin-top:0.4em">
+      Модель умеет писать код. Но без обвязки три вещи стабильно проваливаются: <span class="neon-yellow">scope</span>, <span class="neon-yellow">«готово»</span>, <span class="neon-yellow">след</span>. Все три — реплицируемы, у каждого в команде. Если узнаёте — это нормально.
+    </p>
+    <div class="hooks-table" style="margin-top:0.8rem">
+      <div class="hook-cell pre reveal">
+        <span class="tag">// SCOPE CREEP</span>
+        <h3 style="color:var(--neon-pink)">Агент правит чужое</h3>
+        <p>Просишь поправить <span class="mono">utils.ts</span>. Открываешь diff — тронуто восемь файлов в трёх модулях, тесты соседнего сервиса покраснели.</p>
+        <p style="color:var(--neon-yellow); font-style:italic; margin-top:0.5em">«по пути привёл к единому стилю»</p>
+      </div>
+      <div class="hook-cell post reveal">
+        <span class="tag">// PREMATURE VICTORY</span>
+        <h3 style="color:var(--neon-pink)">«Готово» без доказательств</h3>
+        <p>Endpoint написан, один <span class="mono">curl</span> вернул 200, агент пишет «готово, тесты тоже добавил». Тесты, если они есть, мокают саму систему.</p>
+        <p style="color:var(--neon-yellow); font-style:italic; margin-top:0.5em">«у меня же зелёный билд» — «у тебя нет тестов»</p>
+      </div>
+      <div class="hook-cell stop reveal">
+        <span class="tag">// NO TRACE</span>
+        <h3 style="color:var(--neon-pink)">Никто не помнит, что было сделано</h3>
+        <p>Через неделю прод сломался. Кто принял решение убрать validation? Когда? Почему? — «ну, кажется, мы тогда что-то делали с idempotency».</p>
+        <p style="color:var(--neon-yellow); font-style:italic; margin-top:0.5em">«а это зачем?» — «подумал, что так лучше»</p>
+      </div>
+    </div>
+    <p class="reveal" style="margin-top:0.7rem; font-size:var(--small-size); color:var(--muted); max-width:75ch">
+      Это не вина модели. За границы, «готово» и след отвечает <span class="neon-cyan">не модель — обвязка</span>. Дальше — как именно.
+    </p>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>03</b> / 23</div>
 </section>
 
 <!-- ============================================
@@ -284,7 +324,7 @@ ul.cyber-list li::before { content: "▸"; position: absolute; left: 0; top: 0; 
     </p>
   </div>
   <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
-  <div class="counter"><b>03</b> / 20</div>
+  <div class="counter"><b>04</b> / 23</div>
 </section>
 
 <!-- ============================================
@@ -321,11 +361,11 @@ ul.cyber-list li::before { content: "▸"; position: absolute; left: 0; top: 0; 
 }
 </pre>
     <p class="reveal" style="margin-top:0.6rem; font-size:var(--small-size); color:var(--muted); max-width:75ch">
-      Это «нулевая» защита: <span class="neon-pink">deny</span> отрабатывает раньше любого хука, прямо на уровне permissions. Хуки дальше делают то, что нельзя выразить glob-паттерном.
+      Это «нулевая» защита: <span class="neon-pink">deny</span> отрабатывает раньше любого хука, прямо на уровне permissions. Хуки дальше делают то, что <span class="mono">glob</span> не выразит — потому что «обещаю, что не уроню прод» — это <span class="neon-yellow">не deny</span>.
     </p>
   </div>
   <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
-  <div class="counter"><b>04</b> / 20</div>
+  <div class="counter"><b>05</b> / 23</div>
 </section>
 
 <!-- ============================================
@@ -367,7 +407,7 @@ ul.cyber-list li::before { content: "▸"; position: absolute; left: 0; top: 0; 
     </p>
   </div>
   <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
-  <div class="counter"><b>05</b> / 20</div>
+  <div class="counter"><b>06</b> / 23</div>
 </section>
 
 <!-- ============================================
@@ -408,7 +448,7 @@ R3_DANGEROUS=(  <span class="str">'terraform apply'</span>   <span class="str">'
 </pre>
   </div>
   <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
-  <div class="counter"><b>06</b> / 20</div>
+  <div class="counter"><b>07</b> / 23</div>
 </section>
 
 <!-- ============================================
@@ -448,7 +488,7 @@ SECRET_PATTERNS=(
 </pre>
   </div>
   <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
-  <div class="counter"><b>07</b> / 20</div>
+  <div class="counter"><b>08</b> / 23</div>
 </section>
 
 <!-- ============================================
@@ -483,7 +523,7 @@ SECRET_PATTERNS=(
     </p>
   </div>
   <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
-  <div class="counter"><b>08</b> / 20</div>
+  <div class="counter"><b>09</b> / 23</div>
 </section>
 
 <!-- ============================================
@@ -496,7 +536,7 @@ SECRET_PATTERNS=(
     <div class="eyebrow reveal">// Stop hook</div>
     <h2 class="reveal">«ГОТОВО» — <span class="neon-pink">ТОЛЬКО ЧЕРЕЗ BUNDLE</span></h2>
     <p class="lede reveal" style="margin-top:0.3em">
-      Когда модель пытается завершить сессию, срабатывает Stop-хук. Он валидирует <span class="mono">.claude/evidence-bundle.json</span> по JSON-схеме. Не сошлось — задача остаётся открытой.
+      Когда модель пытается сказать «готово», срабатывает Stop-хук. Он валидирует <span class="mono">.claude/evidence-bundle.json</span> по JSON-схеме. Не сошлось — задача остаётся <span class="mono neon-yellow">in_progress</span>. Stop-hook на слово <span class="neon-pink">не верит</span> — даже если очень мило попросить.
     </p>
 <pre class="hook-code pink reveal" data-label="// .CLAUDE/HOOKS/EVIDENCE-BUNDLE-ENFORCER.SH">
 BUNDLE_PATH=<span class="str">"${EVIDENCE_BUNDLE_PATH:-.claude/evidence-bundle.json}"</span>
@@ -524,7 +564,7 @@ SCHEMA_PATH=<span class="str">"${EVIDENCE_SCHEMA_PATH:-.claude/schemas/evidence-
 </pre>
   </div>
   <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
-  <div class="counter"><b>09</b> / 20</div>
+  <div class="counter"><b>10</b> / 23</div>
 </section>
 
 <!-- ============================================
@@ -534,8 +574,11 @@ SCHEMA_PATH=<span class="str">"${EVIDENCE_SCHEMA_PATH:-.claude/schemas/evidence-
   <div class="frame"></div>
   <div class="hud"><span class="dot"></span> HOOKS · ALL 12</div>
   <div class="slide-content">
-    <div class="eyebrow reveal">// 12 хуков · 3 события</div>
+    <div class="eyebrow reveal">// 12 хуков · 3 события · 0 настроений</div>
     <h2 class="reveal">КАТАЛОГ <span class="neon-cyan">ХУКОВ</span></h2>
+    <p class="reveal" style="margin-top:0.3em; font-size:var(--small-size); color:var(--muted); max-width:75ch">
+      Двенадцать bash-скриптов, у которых <span class="neon-yellow">нет рабочего настроения</span>. Пятница вечером работают так же, как в понедельник утром.
+    </p>
     <div class="hooks-table">
       <div class="hook-cell pre reveal"><span class="tag">PRETOOLUSE · BASH</span><h3>destructive-command-blocker</h3><p>rm -rf, push --force, mkfs, dd, curl|sh. Risk-aware: R3+ блокирует terraform apply, kubectl delete</p></div>
       <div class="hook-cell pre reveal"><span class="tag">PRETOOLUSE · BASH</span><h3>cost-circuit-breaker</h3><p>Дневной токен-лимит по risk class. ≥80% — warning, превышен — block</p></div>
@@ -552,7 +595,54 @@ SCHEMA_PATH=<span class="str">"${EVIDENCE_SCHEMA_PATH:-.claude/schemas/evidence-
     </div>
   </div>
   <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
-  <div class="counter"><b>10</b> / 20</div>
+  <div class="counter"><b>11</b> / 23</div>
+</section>
+
+<!-- ============================================
+     SLIDE 10.5 — HOOKS IN A LIVE CYCLE (bridge)
+============================================ -->
+<section class="slide" id="s10b">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> BRIDGE · HOOKS IN ACTION</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// мост между двумя темами</div>
+    <h2 class="reveal">ХУКИ <span class="neon-cyan">В БОЮ</span> — КАЖДЫЙ ЗНАЕТ СВОЁ МЕСТО</h2>
+    <p class="lede reveal" style="margin-top:0.4em">
+      Вы видели 12 хуков в каталоге. Сейчас увидите, как 8 из них срабатывают в живой задаче <span class="neon-pink">R3</span>. Они не «дежурят на всякий случай» — каждый знает свою фазу и ловит свой класс ошибок.
+    </p>
+    <div class="lifecycle" style="grid-template-columns:repeat(5,1fr); margin-top:1rem">
+      <div class="step s1 reveal">
+        <span class="num">SPEC</span>
+        <span class="lbl">/sdd-new</span>
+        <span class="det"><span class="neon-cyan">slash-command-lint</span> — frontmatter валиден</span>
+      </div>
+      <div class="step s2 reveal">
+        <span class="num">PLAN</span>
+        <span class="lbl">/plan</span>
+        <span class="det"><span class="neon-cyan">context-integrity-review</span> — supply chain ок</span>
+      </div>
+      <div class="step s3 reveal">
+        <span class="num">CODE</span>
+        <span class="lbl">/test · /implement</span>
+        <span class="det"><span class="neon-cyan">test-files-protector</span> + <span class="neon-cyan">pii-boundary</span> + <span class="neon-cyan">cost-circuit</span></span>
+      </div>
+      <div class="step s4 reveal">
+        <span class="num">CHECK</span>
+        <span class="lbl">/review · security</span>
+        <span class="det"><span class="neon-yellow">ai-code-quality-gate</span> · <span class="neon-yellow">subagent-stop-validator</span></span>
+      </div>
+      <div class="step s4 reveal" style="--accent:var(--neon-pink); background:rgba(255,43,214,0.05)">
+        <span class="num">SHIP</span>
+        <span class="lbl">/evidence · PR</span>
+        <span class="det"><span class="neon-pink">evidence-bundle-enforcer</span> + <span class="neon-yellow">jsonl-audit-sink</span> (везде)</span>
+      </div>
+    </div>
+    <p class="reveal" style="margin-top:0.8rem; font-size:var(--small-size); color:var(--muted); max-width:78ch">
+      Хук, который не сработал — это не лишний хук. Это <span class="neon-cyan">страховка</span>, у которой сегодня не было повода. Дальше — смотрим, что они делают в живом цикле.
+    </p>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>12</b> / 23</div>
 </section>
 
 <!-- ============================================
@@ -582,7 +672,7 @@ SCHEMA_PATH=<span class="str">"${EVIDENCE_SCHEMA_PATH:-.claude/schemas/evidence-
     </div>
   </div>
   <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
-  <div class="counter"><b>11</b> / 20</div>
+  <div class="counter"><b>13</b> / 23</div>
 </section>
 
 <!-- ============================================
@@ -617,7 +707,7 @@ $ <span class="hi">claude</span>
     </p>
   </div>
   <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
-  <div class="counter"><b>12</b> / 20</div>
+  <div class="counter"><b>14</b> / 23</div>
 </section>
 
 <!-- ============================================
@@ -653,7 +743,7 @@ $ <span class="hi">claude</span>
     </p>
   </div>
   <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
-  <div class="counter"><b>13</b> / 20</div>
+  <div class="counter"><b>15</b> / 23</div>
 </section>
 
 <!-- ============================================
@@ -690,7 +780,7 @@ axis 4 — reversibility:  <span class="hi">partial</span> (refund возмож�
 </pre>
   </div>
   <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
-  <div class="counter"><b>14</b> / 20</div>
+  <div class="counter"><b>16</b> / 23</div>
 </section>
 
 <!-- ============================================
@@ -730,7 +820,7 @@ axis 4 — reversibility:  <span class="hi">partial</span> (refund возмож�
 </pre>
   </div>
   <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
-  <div class="counter"><b>15</b> / 20</div>
+  <div class="counter"><b>17</b> / 23</div>
 </section>
 
 <!-- ============================================
@@ -772,7 +862,7 @@ $ npm test
 </pre>
   </div>
   <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
-  <div class="counter"><b>16</b> / 20</div>
+  <div class="counter"><b>18</b> / 23</div>
 </section>
 
 <!-- ============================================
@@ -809,7 +899,7 @@ $ <span class="hi">cd .worktrees/idempotency-key &amp;&amp; claude /implement</s
 </pre>
   </div>
   <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
-  <div class="counter"><b>17</b> / 20</div>
+  <div class="counter"><b>19</b> / 23</div>
 </section>
 
 <!-- ============================================
@@ -850,7 +940,7 @@ $ <span class="hi">cd .worktrees/idempotency-key &amp;&amp; claude /implement</s
     </p>
   </div>
   <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
-  <div class="counter"><b>18</b> / 20</div>
+  <div class="counter"><b>20</b> / 23</div>
 </section>
 
 <!-- ============================================
@@ -889,7 +979,7 @@ $ <span class="hi">cd .worktrees/idempotency-key &amp;&amp; claude /implement</s
 </pre>
   </div>
   <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
-  <div class="counter"><b>19</b> / 20</div>
+  <div class="counter"><b>21</b> / 23</div>
 </section>
 
 <!-- ============================================
@@ -934,7 +1024,43 @@ EOF
 </pre>
   </div>
   <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
-  <div class="counter"><b>20</b> / 20</div>
+  <div class="counter"><b>22</b> / 23</div>
+</section>
+
+<!-- ============================================
+     SLIDE 21 — CTA · WHAT YOU GET / NEXT MORNING
+============================================ -->
+<section class="slide" id="s21">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> READY · CTA</div>
+  <div class="slide-content" style="align-items:center; justify-content:center">
+    <div class="cta-block">
+      <div class="eyebrow reveal">// что вы получаете</div>
+      <h1 class="reveal">
+        <span class="glitch" data-text="SCOPE">SCOPE</span>
+        <span class="neon-pink">·</span>
+        <span class="neon-cyan">ГОТОВО</span>
+        <span class="neon-pink">·</span>
+        <span class="neon-yellow">СЛЕД</span>
+      </h1>
+      <p class="subtitle reveal" style="max-width:62ch; margin:1rem auto 0">
+        Те самые три провала из второго слайда — закрыты. Не <span class="neon-yellow">верой</span>, а <span class="neon-cyan">скриптами</span>, у которых нет настроения.
+      </p>
+      <ul class="cyber-list reveal" style="margin:1.4rem auto 0; max-width:54ch; text-align:left">
+        <li><span class="neon-pink">Scope</span> — Plan + worktree. Агент не правит то, что не в плане.</li>
+        <li><span class="neon-cyan">Готово</span> — Stop-hook не верит на слово. Evidence по схеме или <span class="mono">in_progress</span>.</li>
+        <li><span class="neon-yellow">След</span> — append-only JSONL. Через неделю можно отмотать назад любую правку.</li>
+      </ul>
+      <div class="cta-prompt reveal">/init-project &amp;&amp; /sdd-new &lt;ваша задача&gt;</div>
+      <p class="reveal" style="margin:1.2rem auto 0; max-width:60ch; font-size:var(--small-size); color:var(--muted); text-align:center; line-height:1.5">
+        Завтра утром: открой репо, набери первую команду. Дальше обвязка <span class="neon-yellow">занудно</span> проверяет всё за тебя. Это и есть план.
+      </p>
+      <div class="signature reveal" style="margin:1.6rem auto 0; max-width:60ch; text-align:left">
+        AI DISRUPT PDLC v3.5 &nbsp;·&nbsp; Harness Operation &nbsp;·&nbsp; ~22 мин
+      </div>
+    </div>
+  </div>
+  <div class="counter"><b>23</b> / 23</div>
 </section>
 
 <script>
