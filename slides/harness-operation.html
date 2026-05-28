@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI DISRUPT PDLC v3.5 // HARNESS IN PRACTICE — hooks & task→PR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+html, body { height: 100%; overflow-x: hidden; }
+html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+.slide { width: 100vw; height: 100vh; height: 100dvh; overflow: hidden; scroll-snap-align: start; display: flex; flex-direction: column; position: relative; }
+.slide-content { flex: 1; display: flex; flex-direction: column; justify-content: center; max-height: 100%; overflow: hidden; padding: var(--slide-padding); }
+:root {
+  --title-size: clamp(1.5rem, 5vw, 4rem);
+  --h2-size: clamp(1.25rem, 3.5vw, 2.5rem);
+  --h3-size: clamp(1rem, 2.5vw, 1.75rem);
+  --body-size: clamp(0.75rem, 1.5vw, 1.125rem);
+  --small-size: clamp(0.65rem, 1vw, 0.875rem);
+  --slide-padding: clamp(1rem, 4vw, 4rem);
+  --content-gap: clamp(0.5rem, 2vw, 2rem);
+  --element-gap: clamp(0.25rem, 1vw, 1rem);
+  --bg: #07020d; --bg-2: #0d0418;
+  --grid: rgba(255, 0, 170, 0.08);
+  --neon-pink: #ff2bd6; --neon-cyan: #00f0ff; --neon-yellow: #f5ff4f; --neon-violet: #8a2bff;
+  --text: #e6f1ff; --muted: #6b7a99;
+}
+@media (max-height: 700px) { :root { --slide-padding: clamp(0.75rem,3vw,2rem); --content-gap: clamp(0.4rem,1.5vw,1rem); --title-size: clamp(1.25rem,4.5vw,2.5rem); --h2-size: clamp(1rem,3vw,1.75rem); } }
+@media (max-height: 600px) { :root { --slide-padding: clamp(0.5rem,2.5vw,1.5rem); --content-gap: clamp(0.3rem,1vw,0.75rem); --title-size: clamp(1.1rem,4vw,2rem); --body-size: clamp(0.7rem,1.2vw,0.95rem); } .nav-dots, .keyboard-hint { display: none; } }
+@media (max-width: 600px) { :root { --title-size: clamp(1.25rem,7vw,2.5rem); } }
+@media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; } html { scroll-behavior: auto; } }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.01em; }
+.slide { background: radial-gradient(ellipse at 20% 10%, rgba(255,43,214,0.12), transparent 50%), radial-gradient(ellipse at 80% 90%, rgba(0,240,255,0.10), transparent 55%), linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%); }
+.slide::before { content: ""; position: absolute; inset: 0; pointer-events: none; background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: clamp(28px, 4vw, 64px) clamp(28px, 4vw, 64px); mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%); opacity: 0.7; }
+.slide::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 3px); mix-blend-mode: overlay; }
+
+.frame { position: absolute; inset: clamp(0.6rem, 2vw, 1.4rem); pointer-events: none; }
+.frame::before, .frame::after { content: ""; position: absolute; width: clamp(14px, 2vw, 28px); height: clamp(14px, 2vw, 28px); border: 1px solid var(--neon-cyan); }
+.frame::before { top: 0; left: 0; border-right: none; border-bottom: none; }
+.frame::after { bottom: 0; right: 0; border-left: none; border-top: none; }
+
+.hud { position: absolute; top: clamp(1rem, 3vw, 2rem); left: clamp(1rem, 3vw, 2rem); font-size: var(--small-size); color: var(--neon-cyan); letter-spacing: 0.2em; text-transform: uppercase; display: flex; gap: 0.5em; align-items: center; z-index: 5; }
+.hud .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--neon-pink); box-shadow: 0 0 12px var(--neon-pink); animation: pulse 1.4s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+.counter { position: absolute; bottom: clamp(1rem, 3vw, 2rem); right: clamp(1rem, 3vw, 2rem); font-size: var(--small-size); color: var(--muted); letter-spacing: 0.25em; z-index: 5; }
+.counter b { color: var(--neon-yellow); }
+
+.build-marker { position: absolute; bottom: clamp(1rem, 3vw, 2rem); left: clamp(1rem, 3vw, 2rem); display: flex; gap: 0.7em; align-items: center; color: var(--muted); font-size: var(--small-size); letter-spacing: 0.2em; z-index: 5; }
+.build-marker .bar { width: clamp(80px, 12vw, 160px); height: 2px; background: rgba(255,255,255,0.15); position: relative; overflow: hidden; }
+.build-marker .bar::before { content: ""; position: absolute; left: 0; top: 0; height: 100%; width: var(--p, 0%); background: var(--neon-pink); box-shadow: 0 0 8px var(--neon-pink); transition: width 0.3s ease-out; }
+
+h1, h2, h3 { font-family: 'Unbounded', 'JetBrains Mono', sans-serif; font-weight: 900; line-height: 1.05; text-transform: uppercase; }
+h1 { font-size: var(--title-size); } h2 { font-size: var(--h2-size); } h3 { font-size: var(--h3-size); }
+.mono { font-family: 'JetBrains Mono', monospace; }
+.neon-pink { color: var(--neon-pink); text-shadow: 0 0 14px rgba(255,43,214,0.55); }
+.neon-cyan { color: var(--neon-cyan); text-shadow: 0 0 14px rgba(0,240,255,0.55); }
+.neon-yellow { color: var(--neon-yellow); text-shadow: 0 0 12px rgba(245,255,79,0.45); }
+.neon-violet { color: var(--neon-violet); text-shadow: 0 0 12px rgba(138,43,255,0.45); }
+
+.glitch { position: relative; display: inline-block; }
+.glitch::before, .glitch::after { content: attr(data-text); position: absolute; left: 0; top: 0; width: 100%; overflow: hidden; clip-path: inset(0 0 0 0); }
+.glitch::before { color: var(--neon-pink); transform: translate(-2px, 0); mix-blend-mode: screen; animation: glitchA 3.2s infinite steps(1); }
+.glitch::after  { color: var(--neon-cyan); transform: translate(2px, 0); mix-blend-mode: screen; animation: glitchB 2.6s infinite steps(1); }
+@keyframes glitchA { 0%,93%,100% { clip-path: inset(0 0 100% 0); } 94% { clip-path: inset(20% 0 60% 0); } 96% { clip-path: inset(60% 0 10% 0); } 98% { clip-path: inset(0 0 80% 0); } }
+@keyframes glitchB { 0%,90%,100% { clip-path: inset(0 0 100% 0); } 91% { clip-path: inset(70% 0 10% 0); } 93% { clip-path: inset(10% 0 70% 0); } 95% { clip-path: inset(40% 0 30% 0); } }
+
+.title-stack { display: flex; flex-direction: column; gap: clamp(0.4rem, 1.5vw, 1rem); align-items: flex-start; }
+.kicker { font-size: var(--small-size); letter-spacing: 0.4em; color: var(--neon-yellow); text-transform: uppercase; padding: 0.4em 0.8em; border: 1px solid var(--neon-yellow); border-radius: 2px; }
+.subtitle { font-size: var(--h3-size); color: var(--muted); max-width: 60ch; }
+.signature { margin-top: clamp(1rem, 3vw, 2rem); font-size: var(--small-size); color: var(--muted); border-left: 2px solid var(--neon-pink); padding-left: 0.8em; }
+
+.eyebrow { font-size: var(--small-size); letter-spacing: 0.35em; color: var(--neon-cyan); text-transform: uppercase; margin-bottom: 0.6em; }
+.lede { font-size: var(--h3-size); color: var(--text); max-width: 75ch; line-height: 1.35; }
+.note { font-size: var(--small-size); color: var(--muted); max-width: 80ch; line-height: 1.45; }
+
+.reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.45s ease-out, transform 0.45s ease-out; pointer-events: none; }
+.reveal.shown { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+@media print {
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { height: auto; overflow: visible; scroll-snap-type: none; }
+  .nav-dots, .keyboard-hint, .build-marker { display: none !important; }
+  .slide { width: 1600px; height: 900px; page-break-after: always; break-after: page; scroll-snap-align: none; }
+  .slide:last-child { page-break-after: auto; break-after: auto; }
+  .reveal { opacity: 1 !important; transform: none !important; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+}
+
+.nav-dots { position: fixed; right: clamp(0.6rem, 1.5vw, 1.2rem); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 0.5em; z-index: 10; }
+.nav-dots a { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.15); display: block; transition: 0.3s; cursor: pointer; }
+.nav-dots a.active { background: var(--neon-pink); box-shadow: 0 0 10px var(--neon-pink); }
+.keyboard-hint { position: fixed; bottom: clamp(0.6rem, 1.5vw, 1.2rem); left: 50%; transform: translateX(-50%); font-size: var(--small-size); color: rgba(107,122,153,0.5); letter-spacing: 0.2em; z-index: 5; pointer-events: none; text-transform: uppercase; }
+.keyboard-hint .k { color: var(--neon-cyan); }
+.brand-logo { position: fixed; top: clamp(1rem, 3vw, 2rem); right: clamp(1rem, 3vw, 2rem); z-index: 6; pointer-events: none; height: clamp(26px, 3.4vw, 42px); display: flex; align-items: center; }
+.brand-logo img { height: 100%; width: auto; mix-blend-mode: screen; opacity: 0.9; filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.25)); }
+
+.intro-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1.5rem, 4vw, 3.5rem); align-items: center; width: 100%; }
+@media (max-width: 800px) { .intro-grid { grid-template-columns: 1fr; gap: 1rem; } }
+.intro-photo-wrap { position: relative; width: 100%; max-width: min(clamp(220px, 36vw, 480px), 62vh); aspect-ratio: 1 / 1; justify-self: center; }
+.intro-photo-wrap::before, .intro-photo-wrap::after { content: ""; position: absolute; width: clamp(18px, 2.8vw, 36px); height: clamp(18px, 2.8vw, 36px); border: 1px solid var(--neon-cyan); pointer-events: none; }
+.intro-photo-wrap::before { top: clamp(-14px, -1.4vw, -8px); left: clamp(-14px, -1.4vw, -8px); border-right: none; border-bottom: none; }
+.intro-photo-wrap::after { bottom: clamp(-14px, -1.4vw, -8px); right: clamp(-14px, -1.4vw, -8px); border-left: none; border-top: none; }
+.intro-photo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; filter: saturate(0.85) contrast(1.05); box-shadow: 0 0 32px rgba(0, 240, 255, 0.18); }
+.intro-info { display: flex; flex-direction: column; gap: clamp(0.3rem, 0.8vw, 0.7rem); min-width: 0; }
+.intro-role { font-size: var(--small-size); color: var(--muted); letter-spacing: 0.2em; text-transform: uppercase; line-height: 1.4; }
+.intro-name { font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: clamp(1.2rem, 3.2vw, 2.4rem); color: var(--neon-yellow); text-shadow: 0 0 20px rgba(245,255,79,0.45); line-height: 1.05; text-transform: uppercase; letter-spacing: 0.08em; }
+.intro-divider { height: 1px; background: linear-gradient(90deg, var(--neon-pink), transparent); margin: clamp(0.35rem, 1vw, 0.7rem) 0; max-width: 70%; }
+.intro-topic { font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: clamp(0.95rem, 2.2vw, 1.7rem); line-height: 1.1; text-transform: uppercase; letter-spacing: 0.04em; }
+.intro-subtitle { font-size: clamp(0.7rem, 1.25vw, 0.95rem); color: var(--muted); line-height: 1.4; max-width: 36ch; margin-top: 0.3em; }
+
+/* === SLIDE 2 TITLE: compact mode to keep above-the-fold === */
+.title-stack.compact h1 { font-size: clamp(1.4rem, 4.2vw, 3rem); }
+.title-stack.compact .subtitle { font-size: clamp(0.8rem, 1.4vw, 1.05rem); max-width: 70ch; line-height: 1.4; }
+.title-stack.compact .signature { margin-top: clamp(0.6rem, 1.6vw, 1rem); font-size: clamp(0.6rem, 1vw, 0.78rem); }
+.title-stack.compact { gap: clamp(0.3rem, 0.9vw, 0.7rem); }
+
+/* === HOOK CODE BLOCK === */
+.hook-code { font-family: 'JetBrains Mono', monospace; background: rgba(0,0,0,0.6); border: 1px solid rgba(0,240,255,0.3); border-left: 3px solid var(--accent, var(--neon-yellow)); padding: clamp(0.7rem, 1.4vw, 1.1rem) clamp(0.9rem, 1.7vw, 1.3rem); font-size: clamp(0.7rem, 1.2vw, 0.9rem); line-height: 1.55; white-space: pre; overflow: hidden; position: relative; margin-top: clamp(0.5rem, 1.3vw, 0.9rem); }
+.hook-code::before { content: attr(data-label); position: absolute; top: 0.3em; right: 0.6em; font-size: clamp(0.55rem, 0.95vw, 0.75rem); letter-spacing: 0.2em; color: var(--accent, var(--neon-yellow)); opacity: 0.75; text-transform: uppercase; }
+.hook-code .kw   { color: var(--neon-pink); }
+.hook-code .str  { color: var(--neon-yellow); }
+.hook-code .key  { color: var(--neon-cyan); }
+.hook-code .cmt  { color: var(--muted); font-style: italic; }
+.hook-code .ok   { color: var(--neon-cyan); }
+.hook-code .err  { color: var(--neon-pink); }
+.hook-code .hi   { color: var(--neon-yellow); font-weight: 700; }
+.hook-code.pink  { --accent: var(--neon-pink); border-left-color: var(--neon-pink); }
+.hook-code.cyan  { --accent: var(--neon-cyan); border-left-color: var(--neon-cyan); }
+.hook-code.violet{ --accent: var(--neon-violet); border-left-color: var(--neon-violet); }
+
+/* === HOOK LIFECYCLE FLOW === */
+.lifecycle { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(0.4rem, 1vw, 0.8rem); margin-top: clamp(0.7rem, 1.5vw, 1.1rem); }
+@media (max-width: 800px) { .lifecycle { grid-template-columns: 1fr; } }
+.lifecycle .step { border: 1px solid var(--accent, var(--neon-cyan)); background: rgba(0,240,255,0.05); padding: clamp(0.5rem, 1.2vw, 0.9rem); position: relative; text-align: center; font-size: clamp(0.72rem, 1.15vw, 0.92rem); }
+.lifecycle .step .num { font-family: 'Unbounded'; font-weight: 900; font-size: clamp(0.95rem, 1.8vw, 1.4rem); color: var(--accent, var(--neon-cyan)); display: block; }
+.lifecycle .step .lbl { color: var(--text); letter-spacing: 0.1em; text-transform: uppercase; font-size: clamp(0.65rem, 1vw, 0.8rem); margin-top: 0.2em; }
+.lifecycle .step .det { color: var(--muted); margin-top: 0.3em; font-size: clamp(0.65rem, 1vw, 0.82rem); line-height: 1.35; }
+.lifecycle .step:not(:last-child)::after { content: "▶"; position: absolute; top: 50%; right: -1em; transform: translateY(-50%); color: var(--accent, var(--neon-pink)); font-size: clamp(0.6rem, 1.2vw, 1rem); z-index: 2; }
+@media (max-width: 800px) { .lifecycle .step:not(:last-child)::after { content: "▼"; top: auto; bottom: -1em; right: 50%; transform: translateX(50%); } }
+.lifecycle .step.s1 { --accent: var(--neon-cyan); }
+.lifecycle .step.s2 { --accent: var(--neon-yellow); background: rgba(245,255,79,0.05); }
+.lifecycle .step.s3 { --accent: var(--neon-pink); background: rgba(255,43,214,0.05); }
+.lifecycle .step.s4 { --accent: var(--neon-violet); background: rgba(138,43,255,0.05); }
+
+/* === ALL-HOOKS TABLE === */
+.hooks-table { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(0.4rem, 1vw, 0.7rem); margin-top: clamp(0.6rem, 1.4vw, 1rem); font-size: clamp(0.68rem, 1.1vw, 0.85rem); }
+@media (max-width: 800px) { .hooks-table { grid-template-columns: 1fr; } }
+.hook-cell { border: 1px solid rgba(0,240,255,0.25); background: linear-gradient(180deg, rgba(13,4,24,0.7), rgba(7,2,13,0.85)); padding: clamp(0.5rem, 1.1vw, 0.8rem); position: relative; }
+.hook-cell::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--accent, var(--neon-cyan)); }
+.hook-cell.pre  { --accent: var(--neon-cyan); }
+.hook-cell.post { --accent: var(--neon-yellow); }
+.hook-cell.stop { --accent: var(--neon-pink); }
+.hook-cell .tag { font-size: clamp(0.55rem, 0.9vw, 0.7rem); letter-spacing: 0.2em; color: var(--accent, var(--neon-cyan)); text-transform: uppercase; }
+.hook-cell h3 { font-size: clamp(0.75rem, 1.2vw, 0.95rem); margin-top: 0.2em; color: var(--text); text-transform: none; letter-spacing: 0.01em; }
+.hook-cell p { color: var(--muted); font-size: clamp(0.62rem, 1.05vw, 0.78rem); line-height: 1.4; margin-top: 0.3em; }
+
+/* === STEP CARD (PR walkthrough) === */
+.step-card { display: grid; grid-template-columns: auto 1fr; gap: clamp(0.7rem, 1.6vw, 1.2rem); margin-top: clamp(0.5rem, 1.2vw, 0.9rem); align-items: start; }
+.step-card .num-block { font-family: 'Unbounded'; font-weight: 900; font-size: clamp(2rem, 5vw, 4rem); color: var(--accent, var(--neon-cyan)); line-height: 1; padding: 0.1em 0.3em; border-right: 2px solid var(--accent, var(--neon-cyan)); padding-right: clamp(0.5rem, 1.3vw, 1rem); text-shadow: 0 0 18px var(--accent, var(--neon-cyan)); }
+.step-card .body { display: flex; flex-direction: column; gap: clamp(0.3rem, 0.8vw, 0.55rem); }
+.step-card .body .label { font-family: 'JetBrains Mono'; font-size: clamp(0.6rem, 1vw, 0.78rem); color: var(--accent, var(--neon-cyan)); letter-spacing: 0.25em; text-transform: uppercase; }
+.step-card .body h2 { font-size: clamp(1.1rem, 2.6vw, 2rem); }
+.step-card .body p  { font-size: clamp(0.8rem, 1.3vw, 1rem); color: var(--text); line-height: 1.45; max-width: 70ch; }
+.step-card.pink  { --accent: var(--neon-pink); }
+.step-card.cyan  { --accent: var(--neon-cyan); }
+.step-card.yellow{ --accent: var(--neon-yellow); }
+.step-card.violet{ --accent: var(--neon-violet); }
+
+/* === SETTINGS LADDER === */
+.settings-ladder { display: grid; grid-template-columns: 6em 1fr; gap: 0.3em clamp(0.5rem, 1.3vw, 1rem); margin-top: clamp(0.5rem, 1.3vw, 0.9rem); font-family: 'JetBrains Mono'; font-size: clamp(0.7rem, 1.2vw, 0.9rem); }
+.settings-ladder .lvl { font-family: 'Unbounded', sans-serif; font-weight: 900; letter-spacing: 0.15em; padding: 0.25em 0.6em; text-align: center; }
+.settings-ladder .lvl.allow { color: var(--neon-cyan); border-left: 3px solid var(--neon-cyan); }
+.settings-ladder .lvl.ask   { color: var(--neon-yellow); border-left: 3px solid var(--neon-yellow); }
+.settings-ladder .lvl.deny  { color: var(--neon-pink); border-left: 3px solid var(--neon-pink); }
+.settings-ladder .val { color: var(--muted); padding: 0.25em 0; line-height: 1.5; }
+.settings-ladder .val b { color: var(--text); font-weight: 700; }
+
+.flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: clamp(0.3rem, 1vw, 0.8rem); margin-top: clamp(0.6rem, 1.5vw, 1.1rem); }
+.flow .node { border: 1px solid var(--neon-cyan); padding: clamp(0.5rem, 1.2vw, 0.9rem); position: relative; text-align: center; font-size: clamp(0.7rem, 1.1vw, 0.9rem); background: rgba(0,240,255,0.05); }
+.flow .node .num { font-family: 'Unbounded'; font-weight: 900; font-size: clamp(1rem, 2vw, 1.5rem); color: var(--neon-pink); display: block; }
+.flow .node .lbl { color: var(--text); letter-spacing: 0.1em; text-transform: uppercase; font-size: clamp(0.65rem, 1vw, 0.8rem); }
+.flow .node .cmd { color: var(--neon-yellow); margin-top: 0.3em; font-size: clamp(0.65rem, 1vw, 0.85rem); }
+.flow .node:not(:last-child)::after { content: "▶"; position: absolute; top: 50%; right: -1em; transform: translateY(-50%); color: var(--neon-pink); font-size: clamp(0.6rem, 1.2vw, 1rem); z-index: 2; }
+@media (max-width: 800px) { .flow { grid-template-columns: 1fr; } .flow .node:not(:last-child)::after { content: "▼"; top: auto; bottom: -1em; right: 50%; transform: translateX(50%); } }
+
+ul.cyber-list { list-style: none; display: flex; flex-direction: column; gap: clamp(0.3rem, 0.8vw, 0.6rem); }
+ul.cyber-list li { position: relative; padding-left: 1.6em; font-size: clamp(0.75rem, 1.2vw, 0.95rem); line-height: 1.45; }
+ul.cyber-list li::before { content: "▸"; position: absolute; left: 0; top: 0; color: var(--neon-pink); text-shadow: 0 0 10px var(--neon-pink); }
+.cta-block { text-align: center; }
+.cta-block h1 { margin-bottom: 0.4em; }
+.cta-prompt { display: inline-block; margin-top: clamp(1rem, 2vw, 1.5rem); font-family: 'JetBrains Mono'; font-size: var(--h3-size); padding: 0.5em 1em; border: 1px solid var(--neon-cyan); color: var(--neon-cyan); position: relative; }
+.cta-prompt::after { content: "_"; animation: blink 1s infinite step-end; color: var(--neon-pink); }
+@keyframes blink { 50% { opacity: 0; } }
+</style>
+</head>
+<body>
+
+<nav class="nav-dots" id="navDots"></nav>
+<div class="brand-logo" aria-label="Antifraud Team"><img src="../assets/AntifraudTeam.svg" alt="Antifraud Team"></div>
+<div class="keyboard-hint"><span class="k">→</span> / <span class="k">scroll</span> next step &nbsp;·&nbsp; <span class="k">←</span> back &nbsp;·&nbsp; <span class="k">PgDn</span> next slide</div>
+
+<!-- ============================================
+     SLIDE 01 — SPEAKER + TOPIC
+============================================ -->
+<section class="slide" id="s01">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> SPEAKER · INTRO</div>
+  <div class="slide-content intro-grid">
+    <div class="intro-photo-wrap">
+      <img src="../assets/author_oreshin.png" alt="Орешин Андрей">
+    </div>
+    <div class="intro-info">
+      <span class="kicker" style="align-self:flex-start">// SPEAKER</span>
+      <div class="intro-role">Главный инженер по разработке</div>
+      <h1 class="intro-name">Орешин Андрей</h1>
+      <div class="intro-divider"></div>
+      <span class="kicker" style="align-self:flex-start; color: var(--neon-cyan); border-color: var(--neon-cyan)">// ТЕМА</span>
+      <div class="intro-topic">
+        <span class="glitch" data-text="HARNESS">HARNESS</span> <span class="neon-pink">//</span> <span class="neon-yellow">В РАБОТЕ</span>
+      </div>
+      <p class="intro-subtitle">
+        Хуки `pdlc-harness` и путь задачи от <span class="mono">/sdd-new</span> до PR.
+      </p>
+    </div>
+  </div>
+  <div class="counter"><b>01</b> / 20</div>
+</section>
+
+<!-- ============================================
+     SLIDE 02 — TITLE
+============================================ -->
+<section class="slide" id="s02">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> SYS://HARNESS_OPS · LIVE</div>
+  <div class="slide-content">
+    <div class="title-stack compact">
+      <span class="kicker">// pdlc-harness · v0.3.0</span>
+      <h1>
+        <span class="glitch" data-text="ХУКИ">ХУКИ</span> <span class="neon-pink">+</span> <span class="neon-cyan">TASK</span> <span class="neon-yellow">→ PR</span>
+      </h1>
+      <p class="subtitle">
+        Две темы за один доклад: разбор хуков, потом цикл задачи R3 от тикета до PR.
+      </p>
+      <div class="signature">
+        ~22 мин &nbsp;·&nbsp; runtime: <span class="mono">.claude/</span>
+      </div>
+    </div>
+  </div>
+  <div class="counter"><b>02</b> / 20</div>
+</section>
+
+<!-- ============================================
+     SLIDE 03 — .claude/ layout
+============================================ -->
+<section class="slide" id="s03">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> LAYOUT · .claude/</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// где живёт обвязка</div>
+    <h2 class="reveal">ОБВЯЗКА — ЭТО <span class="neon-cyan">ОДНА ПАПКА</span></h2>
+    <p class="lede reveal" style="margin-top:0.4em">
+      После <span class="mono neon-yellow">/init-project</span> в репозитории появляется <span class="mono">.claude/</span>. Внутри — всё: настройки, агенты, команды, хуки, схемы, политика.
+    </p>
+<pre class="hook-code cyan" data-label="// .CLAUDE/ TREE">
+.claude/
+├── <span class="hi">CLAUDE.md</span>            <span class="cmt"># guidance: стек, конвенции, R-классы</span>
+├── <span class="hi">settings.json</span>        <span class="cmt"># permissions (allow/ask/deny) + hooks (matcher → script)</span>
+├── agents/              <span class="cmt"># 6 subagent-профилей с tool-scope</span>
+├── commands/            <span class="cmt"># 12 slash-команд (sdd-new, plan, test, ...)</span>
+├── <span class="hi">hooks/</span>               <span class="cmt"># 12 bash-скриптов (защита, аудит, evidence)</span>
+├── policies/            <span class="cmt"># risk-ladder.yaml — R0..R5 как policy-as-code</span>
+├── schemas/             <span class="cmt"># evidence-bundle.schema.json</span>
+├── templates/           <span class="cmt"># SDD-template.md, AGENTS.md.template</span>
+├── scripts/             <span class="cmt"># collect-evidence.sh, workflow-state.sh, ...</span>
+├── skills/              <span class="cmt"># verify-mcp-supply-chain (quarterly review)</span>
+└── audit/               <span class="cmt"># YYYY-MM-DD.jsonl — append-only audit trail</span>
+</pre>
+    <p class="reveal" style="margin-top:0.6rem; font-size:var(--small-size); color:var(--muted); max-width:75ch">
+      Никакой «спрятанной магии». Всё это обычные файлы. <span class="mono">.claude/</span> можно открыть, прочитать, править на ревью.
+    </p>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>03</b> / 20</div>
+</section>
+
+<!-- ============================================
+     SLIDE 04 — settings.json: allow / ask / deny
+============================================ -->
+<section class="slide" id="s04">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> POLICY · settings.json</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// фактический файл</div>
+    <h2 class="reveal">PERMISSIONS — <span class="neon-cyan">ALLOW</span> · <span class="neon-yellow">ASK</span> · <span class="neon-pink">DENY</span></h2>
+<pre class="hook-code cyan reveal" data-label="// .claude/settings.json">
+{
+  <span class="key">"permissions"</span>: {
+    <span class="key">"deny"</span>: [
+      <span class="str">"Bash(rm -rf*)"</span>,
+      <span class="str">"Bash(git push --force*)"</span>,
+      <span class="str">"Bash(sudo*)"</span>,
+      <span class="str">"Read(.env)"</span>, <span class="str">"Read(**/*.pem)"</span>,
+      <span class="str">"Read(**/credentials*)"</span>, <span class="str">"Read(**/.ssh/**)"</span>
+    ],
+    <span class="key">"ask"</span>: [
+      <span class="str">"Bash(git push*)"</span>,
+      <span class="str">"Bash(npm publish*)"</span>, <span class="str">"Bash(docker push*)"</span>,
+      <span class="str">"Bash(terraform apply*)"</span>, <span class="str">"Bash(kubectl apply*)"</span>,
+      <span class="str">"Write(.github/workflows/**)"</span>, <span class="str">"Write(migrations/**)"</span>
+    ],
+    <span class="key">"allow"</span>: [
+      <span class="str">"Read(**)"</span>, <span class="str">"Grep(**)"</span>, <span class="str">"Glob(**)"</span>,
+      <span class="str">"Bash(git status)"</span>, <span class="str">"Bash(git diff*)"</span>, <span class="str">"Bash(git log*)"</span>,
+      <span class="str">"Bash(npm test*)"</span>, <span class="str">"Bash(pytest*)"</span>, <span class="str">"Bash(go test*)"</span>
+    ]
+  }
+}
+</pre>
+    <p class="reveal" style="margin-top:0.6rem; font-size:var(--small-size); color:var(--muted); max-width:75ch">
+      Это «нулевая» защита: <span class="neon-pink">deny</span> отрабатывает раньше любого хука, прямо на уровне permissions. Хуки дальше делают то, что нельзя выразить glob-паттерном.
+    </p>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>04</b> / 20</div>
+</section>
+
+<!-- ============================================
+     SLIDE 05 — HOOK LIFECYCLE
+============================================ -->
+<section class="slide" id="s05">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> HOOK · LIFECYCLE</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// как именно срабатывает хук</div>
+    <h2 class="reveal">ЖИЗНЕННЫЙ ЦИКЛ <span class="neon-pink">ОДНОГО ХУКА</span></h2>
+    <p class="lede reveal" style="margin-top:0.3em">
+      Хук — обычный bash-скрипт. Claude Code запускает его в строго определённой точке tool call, передаёт JSON на stdin и ждёт ответ. Решение хука — финально.
+    </p>
+    <div class="lifecycle">
+      <div class="step s1 reveal">
+        <span class="num">1</span>
+        <div class="lbl">Matcher</div>
+        <div class="det">В <span class="mono">settings.json</span> регулярка: <span class="mono">"Bash"</span>, <span class="mono">"Write|Edit"</span></div>
+      </div>
+      <div class="step s2 reveal">
+        <span class="num">2</span>
+        <div class="lbl">stdin → script</div>
+        <div class="det">JSON с <span class="mono">tool_name</span>, <span class="mono">tool_input</span> подаётся скрипту</div>
+      </div>
+      <div class="step s3 reveal">
+        <span class="num">3</span>
+        <div class="lbl">Decision</div>
+        <div class="det"><span class="mono">{"decision":"allow"}</span> · <span class="mono">"ask"</span> · <span class="mono">"block"</span></div>
+      </div>
+      <div class="step s4 reveal">
+        <span class="num">4</span>
+        <div class="lbl">Effect</div>
+        <div class="det">exit 0 = allow · exit 2 + JSON = block · stderr = reason для модели</div>
+      </div>
+    </div>
+    <p class="reveal" style="margin-top:0.8rem; font-size:var(--small-size); color:var(--muted); max-width:80ch">
+      Модель видит только финальное решение и reason. Она не может «договориться» с хуком и не может его обойти изнутри своего контекста.
+    </p>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>05</b> / 20</div>
+</section>
+
+<!-- ============================================
+     SLIDE 06 — PreToolUse: destructive-command-blocker
+============================================ -->
+<section class="slide" id="s06">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> HOOK · destructive-command-blocker.sh</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// PreToolUse → Bash</div>
+    <h2 class="reveal">ЗАПРЕТ <span class="neon-pink">ДЕСТРУКТИВНЫХ</span> КОМАНД</h2>
+    <p class="lede reveal" style="margin-top:0.3em">
+      Поверх <span class="mono">permissions.deny</span> работает risk-aware хук. Чем выше класс задачи (R0..R5), тем шире список запретов.
+    </p>
+<pre class="hook-code pink reveal" data-label="// .CLAUDE/HOOKS/DESTRUCTIVE-COMMAND-BLOCKER.SH">
+<span class="cmt">#!/usr/bin/env bash</span>
+INPUT=$(<span class="kw">cat</span>)
+COMMAND=$(<span class="kw">echo</span> <span class="str">"$INPUT"</span> | jq -r <span class="str">'.tool_input.command // ""'</span>)
+RISK_CLASS=$(<span class="kw">cat</span> .claude/.cost/current-risk-class 2&gt;/dev/null || <span class="kw">echo</span> <span class="str">"R1"</span>)
+
+<span class="cmt"># BASE: всегда блокируется, независимо от R-класса</span>
+ALWAYS_DANGEROUS=(
+  <span class="str">'rm -rf /'</span>     <span class="str">'rm -rf ~'</span>     <span class="str">'rm -rf \*'</span>
+  <span class="str">'git push.*--force'</span>     <span class="str">'git reset --hard origin'</span>
+  <span class="str">'mkfs\.'</span>     <span class="str">'dd if=.*of=/dev/'</span>     <span class="str">'curl.*\| *sh'</span>
+)
+
+<span class="cmt"># R3+ добавляет</span>
+R3_DANGEROUS=(  <span class="str">'terraform apply'</span>   <span class="str">'kubectl delete'</span>  )
+
+<span class="kw">for</span> pattern <span class="kw">in</span> <span class="str">"${ALWAYS_DANGEROUS[@]}"</span>; <span class="kw">do</span>
+  <span class="kw">if</span> <span class="kw">echo</span> <span class="str">"$COMMAND"</span> | grep -qE <span class="str">"$pattern"</span>; <span class="kw">then</span>
+    <span class="kw">echo</span> <span class="str">'{"decision":"<span class="err">block</span>","reason":"destructive: '</span><span class="str">$pattern"}'</span> &gt;&amp;2
+    <span class="kw">exit</span> 2
+  <span class="kw">fi</span>
+<span class="kw">done</span>
+<span class="kw">exit</span> 0   <span class="cmt"># allow по умолчанию</span>
+</pre>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>06</b> / 20</div>
+</section>
+
+<!-- ============================================
+     SLIDE 07 — PreToolUse: pii-boundary-check
+============================================ -->
+<section class="slide" id="s07">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> HOOK · pii-boundary-check.sh</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// PreToolUse → Write/Edit</div>
+    <h2 class="reveal">ЗАЩИТА ОТ <span class="neon-pink">PII И SECRETS</span></h2>
+    <p class="lede reveal" style="margin-top:0.3em">
+      Перед каждым <span class="mono">Write</span> / <span class="mono">Edit</span> проверяется и путь, и содержимое. Хук блокирует и попытку записать в <span class="mono">.env</span>, и попытку засунуть AWS-ключ внутрь обычного файла.
+    </p>
+<pre class="hook-code pink reveal" data-label="// .CLAUDE/HOOKS/PII-BOUNDARY-CHECK.SH">
+INPUT=$(<span class="kw">cat</span>)
+FILE_PATH=$(<span class="kw">echo</span> <span class="str">"$INPUT"</span> | jq -r <span class="str">'.tool_input.file_path // ""'</span>)
+CONTENT=$(<span class="kw">echo</span> <span class="str">"$INPUT"</span> | jq -r <span class="str">'.tool_input.content // .tool_input.new_string // ""'</span>)
+
+<span class="cmt"># 1. Защищённые пути (нельзя писать вообще)</span>
+PROTECTED_PATHS=( <span class="str">'\.env$'</span>  <span class="str">'\.env\.'</span>  <span class="str">'/credentials'</span>  <span class="str">'\.pem$'</span>  <span class="str">'\.key$'</span> )
+
+<span class="cmt"># 2. Сигнатуры секретов в содержимом</span>
+SECRET_PATTERNS=(
+  <span class="str">'AKIA[0-9A-Z]{16}'</span>                            <span class="cmt"># AWS Access Key</span>
+  <span class="str">'sk-[a-zA-Z0-9]{40,}'</span>                         <span class="cmt"># OpenAI / Anthropic</span>
+  <span class="str">'-----BEGIN (RSA |OPENSSH )?PRIVATE KEY-----'</span> <span class="cmt"># PEM</span>
+  <span class="str">'ghp_[a-zA-Z0-9]{36}'</span>                         <span class="cmt"># GitHub PAT</span>
+  <span class="str">'xox[baprs]-[0-9a-zA-Z-]{10,}'</span>                <span class="cmt"># Slack tokens</span>
+)
+
+<span class="kw">for</span> p <span class="kw">in</span> <span class="str">"${PROTECTED_PATHS[@]}"</span>; <span class="kw">do</span>
+  <span class="kw">if</span> <span class="kw">echo</span> <span class="str">"$FILE_PATH"</span> | grep -qE <span class="str">"$p"</span>; <span class="kw">then</span>
+    <span class="kw">echo</span> <span class="str">'{"decision":"<span class="err">block</span>","reason":"protected path"}'</span> &gt;&amp;2; <span class="kw">exit</span> 2
+  <span class="kw">fi</span>
+<span class="kw">done</span>
+</pre>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>07</b> / 20</div>
+</section>
+
+<!-- ============================================
+     SLIDE 08 — PostToolUse: jsonl-audit-sink
+============================================ -->
+<section class="slide" id="s08">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> HOOK · jsonl-audit-sink.sh</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// PostToolUse → ALL</div>
+    <h2 class="reveal">КАЖДЫЙ ВЫЗОВ — <span class="neon-yellow">СТРОКА В ЖУРНАЛЕ</span></h2>
+    <p class="lede reveal" style="margin-top:0.3em">
+      Append-only JSONL: одна строка на событие, ротация по дате. Этот же журнал — источник правды для <span class="mono">/continue</span> и для расчёта <span class="mono">/metrics</span>.
+    </p>
+<pre class="hook-code cyan reveal" data-label="// .CLAUDE/AUDIT/2026-05-27.JSONL  (одна строка)">
+{
+  <span class="key">"timestamp"</span>: <span class="str">"2026-05-27T11:42:08.412Z"</span>,
+  <span class="key">"event"</span>: <span class="str">"PostToolUse"</span>,
+  <span class="key">"agent"</span>: <span class="str">"coding"</span>,
+  <span class="key">"tool"</span>: <span class="str">"Edit"</span>,
+  <span class="key">"decision"</span>: <span class="ok">"allow"</span>,
+  <span class="key">"risk_class"</span>: <span class="str">"R3"</span>,
+  <span class="key">"task_id"</span>: <span class="str">"idempotency-key"</span>,
+  <span class="key">"phase"</span>: <span class="str">"implement"</span>,
+  <span class="key">"diff_summary_hash"</span>: <span class="str">"sha256:7b4a9c…"</span>,
+  <span class="key">"test_status"</span>: <span class="str">"pending"</span>,
+  <span class="key">"file"</span>: <span class="str">"src/middleware/idempotency.ts"</span>
+}
+</pre>
+    <p class="reveal" style="margin-top:0.6rem; font-size:var(--small-size); color:var(--muted); max-width:80ch">
+      Объём полей зависит от <span class="mono">audit_depth</span> текущего класса. R0 пишет минимум. R3+ добавляет <span class="mono">diff_summary_hash</span> и <span class="mono">security_verdict</span>.
+    </p>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>08</b> / 20</div>
+</section>
+
+<!-- ============================================
+     SLIDE 09 — Stop: evidence-bundle-enforcer
+============================================ -->
+<section class="slide" id="s09">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> HOOK · evidence-bundle-enforcer.sh</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// Stop hook</div>
+    <h2 class="reveal">«ГОТОВО» — <span class="neon-pink">ТОЛЬКО ЧЕРЕЗ BUNDLE</span></h2>
+    <p class="lede reveal" style="margin-top:0.3em">
+      Когда модель пытается завершить сессию, срабатывает Stop-хук. Он валидирует <span class="mono">.claude/evidence-bundle.json</span> по JSON-схеме. Не сошлось — задача остаётся открытой.
+    </p>
+<pre class="hook-code pink reveal" data-label="// .CLAUDE/HOOKS/EVIDENCE-BUNDLE-ENFORCER.SH">
+BUNDLE_PATH=<span class="str">"${EVIDENCE_BUNDLE_PATH:-.claude/evidence-bundle.json}"</span>
+SCHEMA_PATH=<span class="str">"${EVIDENCE_SCHEMA_PATH:-.claude/schemas/evidence-bundle.schema.json}"</span>
+
+<span class="cmt"># Step 0: chat-only session без diff — bundle не требуем</span>
+<span class="kw">if</span> [[ -z <span class="str">"$(git diff --cached --name-only)$(git diff --name-only)"</span> ]]; <span class="kw">then</span>
+  <span class="kw">echo</span> <span class="str">"no changes — skipping bundle requirement"</span> &gt;&amp;2; <span class="kw">exit</span> 0
+<span class="kw">fi</span>
+
+<span class="cmt"># Step 1: файл существует?</span>
+[[ -f <span class="str">"$BUNDLE_PATH"</span> ]] || emit_block <span class="str">"Bundle not found. Run /evidence."</span>
+
+<span class="cmt"># Step 2: валидируем по schema (ajv → python-jsonschema → jq smoke)</span>
+<span class="kw">if</span> command -v npx &gt;/dev/null; <span class="kw">then</span>
+  npx -y ajv-cli validate -s <span class="str">"$SCHEMA_PATH"</span> -d <span class="str">"$BUNDLE_PATH"</span> --spec=draft2020 \
+    || emit_block <span class="str">"Bundle schema validation failed"</span>
+<span class="kw">elif</span> command -v python3 &gt;/dev/null; <span class="kw">then</span>
+  python3 -c <span class="str">"import json, jsonschema; ..."</span> \
+    || emit_block <span class="str">"Bundle schema validation failed"</span>
+<span class="kw">fi</span>
+
+<span class="cmt"># R3+: если валидатор недоступен — block (нельзя доверять отсутствию проверки)</span>
+<span class="kw">exit</span> 0
+</pre>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>09</b> / 20</div>
+</section>
+
+<!-- ============================================
+     SLIDE 10 — ALL HOOKS TABLE
+============================================ -->
+<section class="slide" id="s10">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> HOOKS · ALL 12</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// 12 хуков · 3 события</div>
+    <h2 class="reveal">КАТАЛОГ <span class="neon-cyan">ХУКОВ</span></h2>
+    <div class="hooks-table">
+      <div class="hook-cell pre reveal"><span class="tag">PRETOOLUSE · BASH</span><h3>destructive-command-blocker</h3><p>rm -rf, push --force, mkfs, dd, curl|sh. Risk-aware: R3+ блокирует terraform apply, kubectl delete</p></div>
+      <div class="hook-cell pre reveal"><span class="tag">PRETOOLUSE · BASH</span><h3>cost-circuit-breaker</h3><p>Дневной токен-лимит по risk class. ≥80% — warning, превышен — block</p></div>
+      <div class="hook-cell pre reveal"><span class="tag">PRETOOLUSE · WRITE/EDIT</span><h3>pii-boundary-check</h3><p>Защищённые пути (.env, .pem) + сигнатуры секретов в content (AWS, GH PAT, Slack token, PEM)</p></div>
+      <div class="hook-cell pre reveal"><span class="tag">PRETOOLUSE · WRITE/EDIT</span><h3>test-files-protector</h3><p>Coding не правит тесты без явного opt-in. Тесты редактирует только Test-агент</p></div>
+      <div class="hook-cell pre reveal"><span class="tag">PRETOOLUSE · ALL</span><h3>prompt-validator</h3><p>Блокирует tool call с признаками prompt injection (jailbreak в аргументах)</p></div>
+      <div class="hook-cell pre reveal"><span class="tag">PRETOOLUSE · ALL</span><h3>context-integrity-review</h3><p>Supply chain контекста: MCP, hooks, skills. Проверка целостности перед каждой сессией</p></div>
+      <div class="hook-cell post reveal"><span class="tag">POSTTOOLUSE · ALL</span><h3>jsonl-audit-sink</h3><p>Append-only JSONL audit trail. Поля зависят от risk class</p></div>
+      <div class="hook-cell post reveal"><span class="tag">POSTTOOLUSE · EDIT</span><h3>ai-code-quality-gate</h3><p>Lint + typecheck до коммита. Hallucinated imports, deprecated APIs</p></div>
+      <div class="hook-cell post reveal"><span class="tag">SUBAGENTSTOP</span><h3>subagent-stop-validator</h3><p>Дочерний агент не получил прав больше, чем у родителя. Блок эскалации</p></div>
+      <div class="hook-cell stop reveal"><span class="tag">STOP</span><h3>evidence-bundle-enforcer</h3><p>Без bundle нет «готово». Валидирует по JSON-схеме при попытке завершения</p></div>
+      <div class="hook-cell stop reveal"><span class="tag">SESSIONSTART</span><h3>claude-md-placeholders</h3><p>Warning, если в CLAUDE.md остались незаполненные &lt;placeholders&gt;</p></div>
+      <div class="hook-cell stop reveal"><span class="tag">PRETOOLUSE · SLASH</span><h3>slash-command-lint</h3><p>Валидация frontmatter в .claude/commands/*.md</p></div>
+    </div>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>10</b> / 20</div>
+</section>
+
+<!-- ============================================
+     SLIDE 11 — Scenario intro
+============================================ -->
+<section class="slide" id="s11">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> WALKTHROUGH · TASK → PR</div>
+  <div class="slide-content">
+    <div class="eyebrow reveal">// дальше — один цикл целиком</div>
+    <h2 class="reveal">ОДНА ЗАДАЧА <span class="neon-cyan">ОТ ТИКЕТА ДО PR</span></h2>
+    <p class="lede reveal" style="margin-top:0.4em">
+      Сценарий: добавить <span class="mono neon-yellow">X-Idempotency-Key</span> в платёжный API. Чтобы повторный POST с тем же ключом не создавал второй платёж.
+    </p>
+    <ul class="cyber-list reveal" style="margin-top:0.7rem; max-width:75ch">
+      <li>Касается платежей → класс риска <span class="neon-pink">R3</span></li>
+      <li>Идёт в продакшен → требует security review автоматически</li>
+      <li>Частично обратимо — задвоили, можно вернуть, но это инцидент</li>
+      <li>Ожидаемое поведение фиксируется в SDD до строчки кода</li>
+    </ul>
+    <div class="flow">
+      <div class="node reveal"><span class="num">1</span><span class="lbl">Spec</span><div class="cmd">/sdd-new</div></div>
+      <div class="node reveal"><span class="num">2</span><span class="lbl">Plan</span><div class="cmd">/plan</div></div>
+      <div class="node reveal"><span class="num">3</span><span class="lbl">TDD</span><div class="cmd">/test → /implement</div></div>
+      <div class="node reveal"><span class="num">4</span><span class="lbl">Review</span><div class="cmd">/review · security</div></div>
+      <div class="node reveal"><span class="num">5</span><span class="lbl">Ship</span><div class="cmd">/evidence · /squash</div></div>
+    </div>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>11</b> / 20</div>
+</section>
+
+<!-- ============================================
+     SLIDE 12 — Step 1: /init-project
+============================================ -->
+<section class="slide" id="s12">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> STEP 1 · /init-project</div>
+  <div class="slide-content">
+    <div class="step-card cyan reveal">
+      <div class="num-block">01</div>
+      <div class="body">
+        <div class="label">PREREQUISITE · ONE-TIME SETUP</div>
+        <h2>/init-project — обвязка появляется в репо</h2>
+        <p>Запускается один раз в новом репозитории. Команда копирует <span class="mono">.claude/</span>, прогоняет smoke-тест хуков, регистрирует <span class="mono">CLAUDE.md</span>. После этого слаш-команды доступны.</p>
+      </div>
+    </div>
+<pre class="hook-code cyan reveal" data-label="// SHELL">
+$ <span class="hi">claude</span>
+&gt; <span class="hi">/init-project</span>
+
+<span class="ok">✓</span> .claude/ создан (12 hooks, 6 agents, 12 commands)
+<span class="ok">✓</span> settings.json подключён (permissions + hooks)
+<span class="ok">✓</span> CLAUDE.md создан — заполните &lt;stack&gt;, &lt;critical_domains&gt;
+<span class="ok">✓</span> .claude/hooks/test-hooks.sh — regression suite зелёный
+<span class="ok">✓</span> registered slash commands: /sdd-new /plan /test ... /evidence
+
+<span class="hi">Next:</span> заполнить CLAUDE.md и запустить /sdd-new &lt;your task&gt;
+</pre>
+    <p class="reveal" style="margin-top:0.5rem; font-size:var(--small-size); color:var(--muted); max-width:80ch">
+      В CLAUDE.md останутся placeholder'ы <span class="mono">&lt;stack&gt;</span>, <span class="mono">&lt;critical_domains&gt;</span>. SessionStart-хук предупредит, если их не заполнить — модель будет работать на дефолтах вместо ваших правил.
+    </p>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>12</b> / 20</div>
+</section>
+
+<!-- ============================================
+     SLIDE 13 — Step 2: /sdd-new
+============================================ -->
+<section class="slide" id="s13">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> STEP 2 · /sdd-new</div>
+  <div class="slide-content">
+    <div class="step-card pink reveal">
+      <div class="num-block">02</div>
+      <div class="body">
+        <div class="label">SPEC · WHAT WE'RE BUILDING</div>
+        <h2>/sdd-new — спека до кода</h2>
+        <p>Команда создаёт SDD из шаблона и задаёт вопросы, которые агент не решает сам.</p>
+      </div>
+    </div>
+<pre class="hook-code pink reveal" data-label="// SHELL">
+&gt; <span class="hi">/sdd-new idempotency-key для POST /v1/payments</span>
+
+<span class="ok">→</span> docs/sdd/20260527-idempotency-key.md (status: <span class="err">draft</span>)
+<span class="ok">→</span> вопросы человеку:
+   · class риска? (черновик предлагает R3 — платежи, prod)
+   · acceptance criteria (Given-When-Then)?
+   · сколько живёт ключ? (предлагается 24h)
+   · что возвращать при конфликте payload?
+   · кто SME-ревьюер? (security обязателен на R3)
+
+<span class="err">blocked:</span> /plan, /test, /implement до approved
+</pre>
+    <p class="reveal" style="margin-top:0.5rem; font-size:var(--small-size); color:var(--muted); max-width:80ch">
+      Пока в frontmatter SDD не стоит <span class="mono">status: approved</span> и не проставлен <span class="mono">risk_class</span>, остальные команды отказываются работать. Это <span class="mono">slash-command-lint.sh</span>.
+    </p>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>13</b> / 20</div>
+</section>
+
+<!-- ============================================
+     SLIDE 14 — Step 3: /risk-classify
+============================================ -->
+<section class="slide" id="s14">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> STEP 3 · /risk-classify</div>
+  <div class="slide-content">
+    <div class="step-card yellow reveal">
+      <div class="num-block">03</div>
+      <div class="body">
+        <div class="label">CLASSIFY · WHO DECIDES</div>
+        <h2>/risk-classify — четыре оси, один ответ</h2>
+        <p>Класс не «ощущается». Считается по data × stage × radius × reversibility.</p>
+      </div>
+    </div>
+<pre class="hook-code violet reveal" data-label="// SHELL">
+&gt; <span class="hi">/risk-classify idempotency-key</span>
+
+axis 1 — data:           <span class="hi">PII</span> (payment payload, idempotency tokens)
+axis 2 — stage:          <span class="hi">prod</span>
+axis 3 — blast radius:   <span class="hi">single-service</span> (payments API)
+axis 4 — reversibility:  <span class="hi">partial</span> (refund возможен, но инцидент)
+
+→ <span class="err">R3</span>
+
+<span class="hi">Следствия для R3:</span>
+  · security агент вызывается обязательно (не опционально)
+  · audit_depth = <span class="hi">jsonl_full_with_security</span>
+  · Coding работает в worktree (по умолчанию)
+  · evidence_bundle.security_verdict стал required-полем
+  · /squash перед PR — обязательный шаг
+</pre>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>14</b> / 20</div>
+</section>
+
+<!-- ============================================
+     SLIDE 15 — Step 4: /plan
+============================================ -->
+<section class="slide" id="s15">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> STEP 4 · /plan</div>
+  <div class="slide-content">
+    <div class="step-card yellow reveal">
+      <div class="num-block">04</div>
+      <div class="body">
+        <div class="label">PLAN · READ-ONLY RECON</div>
+        <h2>/plan — план без правок</h2>
+        <p>Read-only агент проходит по коду и SDD. Edit / Write / Bash недоступны.</p>
+      </div>
+    </div>
+<pre class="hook-code violet reveal" data-label="// IMPLEMENTATION PLAN (excerpt)">
+<span class="cmt">## Plan: idempotency-key  ·  SDD: docs/sdd/20260527-idempotency-key.md  ·  R3</span>
+
+### Files touched
+  + src/middleware/idempotency.ts          <span class="cmt">// новый</span>
+  + src/server.ts                          <span class="cmt">// wire middleware</span>
+  + src/storage/redis-keys.ts              <span class="cmt">// helpers для TTL</span>
+  + tests/payment/idempotency.test.ts      <span class="cmt">// failing tests</span>
+
+### Steps
+  1. <span class="key">[Test]</span>      падающие тесты AC-1..AC-5
+  2. <span class="key">[Impl]</span>      middleware с Redis storage + TTL 24h
+  3. <span class="key">[Verify]</span>    полный test suite, integration с payments-emulator
+  4. <span class="key">[Review]</span>    /review + /security (R3)
+
+### Risks
+  · Redis недоступен → fail-open или fail-closed?  <span class="hi">→ закрываем явно в SDD</span>
+  · TTL collision при clock skew              <span class="hi">→ tests/&lt;edge-case&gt;</span>
+  · payload conflict response code            <span class="hi">→ 422 (из SDD)</span>
+</pre>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>15</b> / 20</div>
+</section>
+
+<!-- ============================================
+     SLIDE 16 — Step 5: /test (failing)
+============================================ -->
+<section class="slide" id="s16">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> STEP 5 · /test</div>
+  <div class="slide-content">
+    <div class="step-card cyan reveal">
+      <div class="num-block">05</div>
+      <div class="body">
+        <div class="label">TEST · CONTRACT FIRST</div>
+        <h2>/test — падающий тест как контракт</h2>
+        <p>Test-агент пишет тесты до реализации. Все красные — это план «куда нужно прийти».</p>
+      </div>
+    </div>
+<pre class="hook-code cyan reveal" data-label="// tests/payment/idempotency.test.ts">
+<span class="kw">describe</span>(<span class="str">'X-Idempotency-Key'</span>, () =&gt; {
+  <span class="kw">it</span>(<span class="str">'двойной POST с тем же ключом не создаёт второй платёж'</span>, <span class="kw">async</span> () =&gt; {
+    <span class="kw">const</span> r1 = <span class="kw">await</span> post(<span class="str">'/v1/payments'</span>, payload, { <span class="str">'X-Idempotency-Key'</span>: K });
+    <span class="kw">const</span> r2 = <span class="kw">await</span> post(<span class="str">'/v1/payments'</span>, payload, { <span class="str">'X-Idempotency-Key'</span>: K });
+    <span class="kw">expect</span>(r2.body.id).toBe(r1.body.id);
+    <span class="kw">expect</span>(<span class="kw">await</span> countPayments()).toBe(<span class="hi">1</span>);
+  });
+  <span class="kw">it</span>(<span class="str">'конфликт payload при том же ключе → 422'</span>, ...);
+  <span class="kw">it</span>(<span class="str">'TTL ключа 24 часа'</span>, ...);
+  <span class="kw">it</span>(<span class="str">'Redis недоступен → fail-closed (503)'</span>, ...);
+});
+</pre>
+    <pre class="hook-code cyan reveal" data-label="// SHELL OUTPUT">
+$ npm test
+<span class="err">✕</span> двойной POST с тем же ключом не создаёт второй платёж
+<span class="err">✕</span> конфликт payload при том же ключе → 422
+<span class="err">✕</span> TTL ключа 24 часа
+<span class="err">✕</span> Redis недоступен → fail-closed (503)
+
+<span class="hi">Tests: 4 failed, 0 passed</span>   ← это и есть контракт
+</pre>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>16</b> / 20</div>
+</section>
+
+<!-- ============================================
+     SLIDE 17 — Step 6: /implement (in worktree)
+============================================ -->
+<section class="slide" id="s17">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> STEP 6 · /implement · WORKTREE</div>
+  <div class="slide-content">
+    <div class="step-card pink reveal">
+      <div class="num-block">06</div>
+      <div class="body">
+        <div class="label">IMPLEMENT · MINIMUM TO GREEN</div>
+        <h2>/implement — Coding в worktree</h2>
+        <p>Coding-агент работает в <span class="mono">.worktrees/idempotency-key/</span>, на ветке <span class="mono">agent/idempotency-key</span>. Тестовый файл не трогает (защищает <span class="mono">test-files-protector.sh</span>).</p>
+      </div>
+    </div>
+<pre class="hook-code pink reveal" data-label="// SHELL">
+$ <span class="hi">scripts/agentic-worktree.sh start idempotency-key</span>
+<span class="ok">✓</span> .worktrees/idempotency-key on agent/idempotency-key (from HEAD)
+$ <span class="hi">cd .worktrees/idempotency-key &amp;&amp; claude /implement</span>
+
+<span class="ok">[Coding agent]</span> создаю src/middleware/idempotency.ts ...
+<span class="ok">[Coding agent]</span> обновляю src/server.ts ...
+<span class="ok">[Coding agent]</span> прогоняю tests ...
+
+<span class="ok">✓</span> Tests: <span class="hi">4 passed</span>, 0 failed
+<span class="ok">✓</span> Lint: clean
+<span class="ok">✓</span> Typecheck: clean
+<span class="ok">→</span> переход к /review
+
+<span class="cmt"># попытка агента трогать tests/ →</span>
+{<span class="key">"decision"</span>: <span class="err">"block"</span>, <span class="key">"reason"</span>: <span class="str">"test files are owned by Test agent"</span>}
+</pre>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>17</b> / 20</div>
+</section>
+
+<!-- ============================================
+     SLIDE 18 — Step 7: /review + security
+============================================ -->
+<section class="slide" id="s18">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> STEP 7 · /review + /security</div>
+  <div class="slide-content">
+    <div class="step-card cyan reveal">
+      <div class="num-block">07</div>
+      <div class="body">
+        <div class="label">REVIEW · INDEPENDENT EYES</div>
+        <h2>/review — и обязательно security на R3</h2>
+        <p>Review-агент без прав на запись. На R3+ автоматически дёргается security-агент (без явного запроса).</p>
+      </div>
+    </div>
+<pre class="hook-code cyan reveal" data-label="// /review OUTPUT (excerpt)">
+[REVIEW] соответствие SDD:
+  <span class="ok">✓</span> AC-1..AC-4 покрыты тестами
+  <span class="ok">✓</span> negative case «Redis down» закрыт fail-closed (как в SDD)
+  <span class="ok">✓</span> нет реализации вне scope
+
+[REVIEW] качество:
+  <span class="hi">major:</span> idempotency key не редактируется (read-only после первого POST),
+         но в middleware нет explicit log на конфликт payload —
+         в инцидентах трудно будет восстановить причину 422
+
+[SECURITY] R3 mandatory scan:
+  <span class="ok">✓</span> idempotency key не попадает в логи (sanitised)
+  <span class="ok">✓</span> Redis-key namespace: tenant_id + sha256(key) — нет cross-tenant collision
+  <span class="ok">✓</span> tampering: подмена payload при том же ключе → 422 (тест есть)
+  <span class="err">blocker:</span> X-Idempotency-Key читается до auth middleware →
+            potentially DoS вектор. <span class="hi">Перенести после auth.</span>
+</pre>
+    <p class="reveal" style="margin-top:0.5rem; font-size:var(--small-size); color:var(--muted); max-width:80ch">
+      Blocker возвращает задачу в Implement. Major добавляет лог конфликта, фиксится в том же коммите.
+    </p>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>18</b> / 20</div>
+</section>
+
+<!-- ============================================
+     SLIDE 19 — Step 8: /evidence
+============================================ -->
+<section class="slide" id="s19">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> STEP 8 · /evidence + STOP-HOOK</div>
+  <div class="slide-content">
+    <div class="step-card pink reveal">
+      <div class="num-block">08</div>
+      <div class="body">
+        <div class="label">EVIDENCE · THE ONLY "DONE"</div>
+        <h2>/evidence — bundle проверяется по схеме</h2>
+        <p>Финальный JSON. Если не валиден — stop-hook не отпускает.</p>
+      </div>
+    </div>
+<pre class="hook-code pink reveal" data-label="// .claude/evidence-bundle.json">
+{
+  <span class="key">"schema_version"</span>: <span class="str">"3.5.0"</span>,
+  <span class="key">"task_id"</span>: <span class="str">"idempotency-key"</span>,
+  <span class="key">"risk_class"</span>: <span class="str">"R3"</span>,
+  <span class="key">"sdd_reference"</span>: <span class="str">"docs/sdd/20260527-idempotency-key.md"</span>,
+  <span class="key">"acceptance_criteria_status"</span>: [
+    { <span class="key">"id"</span>: <span class="str">"AC-1"</span>, <span class="key">"status"</span>: <span class="ok">"pass"</span> },
+    { <span class="key">"id"</span>: <span class="str">"AC-2"</span>, <span class="key">"status"</span>: <span class="ok">"pass"</span> }, ...
+  ],
+  <span class="key">"diff_summary"</span>: { <span class="key">"files"</span>: 4, <span class="key">"added"</span>: 187, <span class="key">"removed"</span>: 12 },
+  <span class="key">"tests"</span>: { <span class="key">"passed"</span>: 42, <span class="key">"failed"</span>: 0, <span class="key">"skipped"</span>: 0 },
+  <span class="key">"security_verdict"</span>: { <span class="key">"high"</span>: 0, <span class="key">"critical"</span>: 0, <span class="key">"reviewed_by"</span>: <span class="str">"security-agent"</span> },
+  <span class="key">"assumptions"</span>: [
+    <span class="str">"Redis SLA: 99.9% — fail-closed acceptable per security team"</span>
+  ],
+  <span class="key">"completed_at"</span>: <span class="str">"2026-05-27T14:08:21Z"</span>
+}
+</pre>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>19</b> / 20</div>
+</section>
+
+<!-- ============================================
+     SLIDE 20 — Step 9: /squash + PR
+============================================ -->
+<section class="slide" id="s20">
+  <div class="frame"></div>
+  <div class="hud"><span class="dot"></span> STEP 9 · /squash + PR</div>
+  <div class="slide-content">
+    <div class="step-card yellow reveal">
+      <div class="num-block">09</div>
+      <div class="body">
+        <div class="label">SHIP · PR INTO MAIN</div>
+        <h2>/squash — один логический коммит, потом PR</h2>
+        <p>Атомарные правки агента squash-ятся в один коммит с message, выведенным из SDD + evidence.</p>
+      </div>
+    </div>
+<pre class="hook-code violet reveal" data-label="// SHELL">
+$ <span class="hi">/squash idempotency-key</span>
+<span class="ok">→</span> 14 commits squashed into 1
+<span class="ok">→</span> commit message:
+    feat(payments): X-Idempotency-Key support (R3)
+
+    SDD: docs/sdd/20260527-idempotency-key.md
+    AC: 5/5 pass · tests: 42/42 · security: clean
+
+$ <span class="hi">git push origin agent/idempotency-key</span>   <span class="cmt"># ask-hook → confirm</span>
+$ <span class="hi">gh pr create --title "feat(payments): idempotency-key (R3)" \
+              --body "$(cat &lt;&lt;'EOF'
+## Summary
+Implements RFC-style X-Idempotency-Key for POST /v1/payments.
+SDD: docs/sdd/20260527-idempotency-key.md
+Evidence: .claude/evidence-bundle.json
+
+## Tests
+- Tests: 42 passed
+- Security: 0 high / 0 critical
+EOF
+)"</span>
+
+<span class="ok">→</span> PR <span class="hi">#247</span> opened · awaiting human review &amp; merge
+</pre>
+  </div>
+  <div class="build-marker"><div class="bar"></div><div class="text"></div></div>
+  <div class="counter"><b>20</b> / 20</div>
+</section>
+
+<script>
+(function () {
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const navContainer = document.getElementById('navDots');
+  slides.forEach((s, i) => {
+    const a = document.createElement('a');
+    a.href = 'javascript:void(0)';
+    a.title = 'Slide ' + (i + 1);
+    a.addEventListener('click', function () { jumpTo(i, 'last'); });
+    navContainer.appendChild(a);
+  });
+  const dots = Array.from(navContainer.querySelectorAll('a'));
+  let currentSlide = 0;
+  let currentStep = 0;
+  const lastStepPerSlide = slides.map(() => 0);
+  const builtSet = new Set();
+  function stepsOn(idx) { return slides[idx].querySelectorAll('.reveal').length; }
+  function fullStep(idx) { return Math.max(0, stepsOn(idx) - 1); }
+  function paint() {
+    const slide = slides[currentSlide];
+    const steps = slide.querySelectorAll('.reveal');
+    steps.forEach(function (el, i) { el.classList.toggle('shown', i <= currentStep); });
+    dots.forEach(function (d, i) { d.classList.toggle('active', i === currentSlide); });
+    lastStepPerSlide[currentSlide] = currentStep;
+    const total = stepsOn(currentSlide);
+    const marker = slide.querySelector('.build-marker');
+    if (marker) {
+      const bar = marker.querySelector('.bar');
+      const txt = marker.querySelector('.text');
+      const p = total > 0 ? ((currentStep + 1) / total) * 100 : 0;
+      if (bar) bar.style.setProperty('--p', p + '%');
+      if (txt) txt.textContent = (currentStep + 1) + ' / ' + total;
+    }
+  }
+  function scrollToCurrent(behavior) { slides[currentSlide].scrollIntoView({ behavior: behavior || 'smooth', block: 'start' }); }
+  function advance() {
+    const total = stepsOn(currentSlide);
+    if (currentStep < total - 1) { currentStep++; builtSet.add(currentSlide); paint(); }
+    else if (currentSlide < slides.length - 1) { currentSlide++; currentStep = 0; builtSet.add(currentSlide); paint(); scrollToCurrent('smooth'); }
+  }
+  function retreat() {
+    if (currentStep > 0) { currentStep--; builtSet.add(currentSlide); paint(); }
+    else if (currentSlide > 0) { currentSlide--; currentStep = fullStep(currentSlide); builtSet.add(currentSlide); paint(); scrollToCurrent('smooth'); }
+  }
+  function nextSlide() { if (currentSlide < slides.length - 1) { currentSlide++; currentStep = fullStep(currentSlide); paint(); scrollToCurrent('smooth'); } }
+  function prevSlide() { if (currentSlide > 0) { currentSlide--; currentStep = fullStep(currentSlide); paint(); scrollToCurrent('smooth'); } }
+  function jumpTo(idx, mode) { currentSlide = Math.max(0, Math.min(idx, slides.length - 1)); currentStep = (mode === 'first') ? 0 : fullStep(currentSlide); paint(); scrollToCurrent('smooth'); }
+  document.addEventListener('keydown', function (e) {
+    const tag = (e.target && e.target.tagName) || '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    switch (e.key) {
+      case 'ArrowRight': case 'ArrowDown': case ' ': case 'Enter': e.preventDefault(); advance(); break;
+      case 'ArrowLeft': case 'ArrowUp': case 'Backspace': e.preventDefault(); retreat(); break;
+      case 'PageDown': e.preventDefault(); nextSlide(); break;
+      case 'PageUp': e.preventDefault(); prevSlide(); break;
+      case 'Home': e.preventDefault(); jumpTo(0, 'first'); break;
+      case 'End': e.preventDefault(); jumpTo(slides.length - 1, 'last'); break;
+    }
+  });
+  const io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting && e.intersectionRatio >= 0.55) {
+        const idx = slides.indexOf(e.target);
+        if (idx !== currentSlide) { currentSlide = idx; currentStep = builtSet.has(idx) ? lastStepPerSlide[idx] : fullStep(idx); paint(); }
+      }
+    });
+  }, { threshold: [0.55] });
+  slides.forEach(function (s) { io.observe(s); });
+  let wheelLock = false; let wheelAccum = 0;
+  window.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    if (wheelLock) return;
+    wheelAccum += e.deltaY;
+    if (Math.abs(wheelAccum) < 24) return;
+    const dir = wheelAccum > 0 ? 1 : -1;
+    wheelAccum = 0; wheelLock = true;
+    setTimeout(function () { wheelLock = false; }, 480);
+    if (dir > 0) advance(); else retreat();
+  }, { passive: false });
+  let touchStartY = null; let touchActive = false;
+  window.addEventListener('touchstart', function (e) { if (e.touches.length !== 1) return; touchStartY = e.touches[0].clientY; touchActive = true; }, { passive: true });
+  window.addEventListener('touchmove', function (e) { if (touchActive) e.preventDefault(); }, { passive: false });
+  window.addEventListener('touchend', function (e) {
+    if (!touchActive || touchStartY === null) return;
+    touchActive = false;
+    const dy = touchStartY - (e.changedTouches[0] ? e.changedTouches[0].clientY : touchStartY);
+    touchStartY = null;
+    if (Math.abs(dy) < 40) return;
+    if (dy > 0) advance(); else retreat();
+  }, { passive: true });
+  paint();
+})();
+</script>
+</body>
+</html>
