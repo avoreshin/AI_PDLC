@@ -80,6 +80,7 @@ html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
   height: 100dvh;
   overflow: hidden;
   scroll-snap-align: start;
+  scroll-snap-stop: always;        /* prevents skipping a slide in one fast/long swipe */
   display: flex;
   flex-direction: column;
   position: relative;
@@ -89,12 +90,25 @@ html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* justify-content: center removed — it clips overflow on both ends.
+     Centering is done by the ::before/::after spacers below, which collapse
+     to 0 when content overflows so everything stays scrollable. */
   max-height: 100%;
-  overflow: hidden;
+  overflow-y: auto;                /* allow scrolling tall content inside the slide */
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;  /* hand off to scroll-snap at the edge, no bounce-skip */
+  -webkit-overflow-scrolling: touch;
   padding: var(--slide-padding);
   position: relative;
   z-index: 2;
+}
+/* Vertical centering that survives overflow: spacers split the free space
+   (centering the content) and shrink to 0 once content is taller than the slide. */
+.slide-content::before,
+.slide-content::after {
+  content: "";
+  flex: 1 1 0;
+  min-height: 0;
 }
 
 /* Responsive breakpoints */
@@ -1773,13 +1787,11 @@ class SlidePresentation {
   }
 
   setupTouch() {
-    let startY = 0;
-    document.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; }, { passive: true });
-    document.addEventListener('touchend', (e) => {
-      const dy = startY - e.changedTouches[0].clientY;
-      if (Math.abs(dy) < 50) return;
-      dy > 0 ? this.next() : this.prev();
-    }, { passive: true });
+    // Swiping between slides is fully handled by native CSS scroll-snap.
+    // The previous custom touchend -> next()/prev() handler duplicated the
+    // native snap and caused slides to jump two at a time. Removing it lets
+    // a swipe advance exactly one slide, and lets tall content scroll inside
+    // the slide (scroll chaining hands the gesture back to snap at the edge).
   }
 
   setupWheel() {
@@ -1813,6 +1825,8 @@ class InlineEditor {
     this.editToggle = document.getElementById('editToggle');
     this.editBanner = document.getElementById('editBanner');
     this.editables = Array.from(document.querySelectorAll('[contenteditable="true"]'));
+    this.payload = {};        // in-memory snapshot of edits, keyed by field index
+    this.saveTimer = null;    // debounce handle for localStorage writes
     this.restoreFromStorage();
     this.setupHotzone();
     this.setupToggleClick();
@@ -1866,15 +1880,27 @@ class InlineEditor {
   setupAutosave() {
     this.editables.forEach((el, idx) => {
       el.dataset.editIdx = String(idx);
-      el.addEventListener('input', () => this.saveToStorage());
+      // On each keystroke only touch the one changed field (O(1)), then
+      // debounce the actual write. Previously every keystroke re-read and
+      // serialized all ~328 fields synchronously, which froze typing.
+      el.addEventListener('input', () => {
+        this.payload[idx] = el.innerHTML;
+        this.scheduleSave();
+      });
     });
+    // Flush any pending edits before the tab is closed so nothing is lost.
+    window.addEventListener('beforeunload', () => this.saveToStorage());
+  }
+
+  scheduleSave() {
+    clearTimeout(this.saveTimer);
+    this.saveTimer = setTimeout(() => this.saveToStorage(), 400);
   }
 
   saveToStorage() {
+    clearTimeout(this.saveTimer);
     try {
-      const payload = {};
-      this.editables.forEach((el, idx) => { payload[idx] = el.innerHTML; });
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(payload));
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.payload));
     } catch (e) { /* quota exceeded — ignore */ }
   }
 
@@ -1883,8 +1909,9 @@ class InlineEditor {
       const raw = localStorage.getItem(this.STORAGE_KEY);
       if (!raw) return;
       const payload = JSON.parse(raw);
-      Array.from(document.querySelectorAll('[contenteditable="true"]')).forEach((el, idx) => {
-        if (payload[idx] !== undefined) el.innerHTML = payload[idx];
+      this.payload = payload || {};
+      this.editables.forEach((el, idx) => {
+        if (this.payload[idx] !== undefined) el.innerHTML = this.payload[idx];
       });
     } catch (e) { /* invalid JSON — ignore */ }
   }
